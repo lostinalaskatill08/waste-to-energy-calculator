@@ -91,9 +91,8 @@
         <p>We are **not legally responsible** for decisions made using this tool. Please consult **waste management and energy professionals** for accurate feasibility studies.</p>
     </div>
 
+    <!-- ✅ FIX: Move JavaScript to the END of the file -->
     <script>
-        document.getElementById("calculateButton").addEventListener("click", calculateWTE);
-
         function calculateWTE() {
             let population = parseInt(document.getElementById("population").value);
             let processingPercentage = parseFloat(document.getElementById("processing").value);
@@ -146,6 +145,11 @@
                 <p class="emoji">🏠 Households Powered: <b>${householdsPowered.toFixed(0)}</b></p>
             `;
         }
+
+        // ✅ FIX: Ensure script loads AFTER the page renders
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("calculateButton").addEventListener("click", calculateWTE);
+        });
     </script>
 </body>
 </html>
