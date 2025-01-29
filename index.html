@@ -30,12 +30,19 @@
         #result {
             margin-top: 20px;
             font-size: 18px;
+            text-align: left;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
         }
         .section {
             text-align: left;
             margin-top: 30px;
             padding: 10px;
             border-top: 1px solid #ccc;
+        }
+        .emoji {
+            font-size: 1.2em;
         }
     </style>
 </head>
@@ -131,12 +138,10 @@
             let totalEnergyGenerated = (electricityFood + electricityPlasticMSW + electricityHuman) / 1000;
             let householdsPowered = totalEnergyGenerated * 1000 / householdEnergyUsage;
 
+            let landfillSpaceSaved = (processedFoodWaste + processedPlasticMSW + processedHumanWaste) * landfillSpacePerTon;
+            let co2EmissionsSaved = (processedFoodWaste + processedHumanWaste) * co2EquivalentSaved;
+            let algaeProduced = co2EmissionsSaved * algaePerCo2;
+            let biofuelProduced = algaeProduced * biofuelPerAlgae;
+
             document.getElementById("result").innerHTML = `
-                <h3>Results:</h3>
-                <p>⚡ Total Energy: <b>${totalEnergyGenerated.toFixed(2)} MWh</b></p>
-                <p>🏠 Households Powered: <b>${householdsPowered.toFixed(0)}</b></p>
-            `;
-        }
-    </script>
-</body>
-</html>
+                <h3>Results:
