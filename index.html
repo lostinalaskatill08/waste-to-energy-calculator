@@ -91,8 +91,11 @@
         <p>We are **not legally responsible** for decisions made using this tool. Please consult **waste management and energy professionals** for accurate feasibility studies.</p>
     </div>
 
-    <!-- ✅ FIX: Move JavaScript to the END of the file -->
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("calculateButton").addEventListener("click", calculateWTE);
+        });
+
         function calculateWTE() {
             let population = parseInt(document.getElementById("population").value);
             let processingPercentage = parseFloat(document.getElementById("processing").value);
@@ -139,17 +142,21 @@
             let totalEnergyGenerated = (electricityFood + electricityPlasticMSW + electricityHuman) / 1000;
             let householdsPowered = totalEnergyGenerated * 1000 / householdEnergyUsage;
 
+            let landfillSpaceSaved = (processedFoodWaste + processedPlasticMSW + processedHumanWaste) * landfillSpacePerTon;
+            let co2EmissionsSaved = (processedFoodWaste + processedHumanWaste) * co2EquivalentSaved;
+            let algaeProduced = co2EmissionsSaved * algaePerCo2;
+            let biofuelProduced = algaeProduced * biofuelPerAlgae;
+
             document.getElementById("result").innerHTML = `
                 <h3>Results:</h3>
                 <p class="emoji">⚡ Total Energy: <b>${totalEnergyGenerated.toFixed(2)} MWh</b></p>
                 <p class="emoji">🏠 Households Powered: <b>${householdsPowered.toFixed(0)}</b></p>
+                <p class="emoji">🚛 Landfill Space Saved: <b>${landfillSpaceSaved.toFixed(2)} m³</b></p>
+                <p class="emoji">🌍 CO₂ Saved: <b>${co2EmissionsSaved.toFixed(2)} tons</b></p>
+                <p class="emoji">🦠 Algae Production: <b>${algaeProduced.toFixed(2)} tons</b></p>
+                <p class="emoji">🛢️ Biofuel Production: <b>${biofuelProduced.toFixed(2)} tons</b></p>
             `;
         }
-
-        // ✅ FIX: Ensure script loads AFTER the page renders
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("calculateButton").addEventListener("click", calculateWTE);
-        });
     </script>
 </body>
 </html>
