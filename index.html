@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
-    <title>Waste-to-Energy Calculator (Multi-Pillar, with Methane & Digestate)</title>
+    <title>Waste-to-Energy Calculator (Multi-Pillar with Syngas Output)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -108,15 +108,14 @@
             let electricityPerMethaneM3 = 10;     // kWh / m³ CH4
             let incinerationEfficiency = 0.42;    // MWh/ton for plastic/MSW
             let gasificationEfficiency = 1.25;    // MWh/ton for biomass
-            let pyrolysisBiocharYield = 0.25;     // fraction of mass to biochar
+            let pyrolysisBiocharYield = 0.25;     // fraction of mass -> biochar
             let co2EquivalentSaved = 3.5;         // tons CO2 saved / ton organics
             let algaePerCo2 = 0.25;               // synergy ratio for algae
             let biofuelPerAlgae = 0.6;            // tons biofuel / ton algae
             let householdEnergyUsage = 10500;     // kWh/household/year
             let digestateRatio = 0.85;            // digestate from AD feedstock
 
-            // Split agro/forestry waste between gasification & pyrolysis
-            // 50% to gasification, 50% to pyrolysis
+            // We split agro/forestry waste half for gasification, half for pyrolysis
             let gasFrac = 0.5;
             let pyroFrac = 0.5;
 
@@ -126,39 +125,41 @@
             let totalHumanWaste   = (population * humanWastePerPerson) / 1000;
             let totalAgWaste      = (population * agWastePerPerson) / 1000;
 
-            // We'll examine a "min" (5%) to "max" (100%) processing scenario
+            // We'll do min=5% to max=100% scenario
             let minProcessing = 0.05;
             let maxProcessing = 1.0;
 
             function processWaste(rate) {
+                // fraction processed
                 let processedFoodWaste  = totalFoodWaste * rate;
                 let processedPlasticMSW = totalPlasticMSW * rate;
                 let processedHumanWaste = totalHumanWaste * rate;
                 let processedAgWaste    = totalAgWaste * rate;
 
-                // 1) AD for food + human waste -> methane + digestate
-                let organicsForAD   = processedFoodWaste + processedHumanWaste;
-                // methane
-                let methaneM3       = organicsForAD * methaneYieldPerTon;
+                // 1) AD: food + human waste -> methane + digestate
+                let organicsForAD = processedFoodWaste + processedHumanWaste;
+                // methane in cubic meters
+                let methaneM3 = organicsForAD * methaneYieldPerTon;
                 let electricityFoodKWh = methaneM3 * electricityPerMethaneM3; // total kWh
-                let electricityFoodMWh = electricityFoodKWh / 1000;           // convert to MWh
+                let electricityFoodMWh = electricityFoodKWh / 1000;           // MWh
                 // digestate
-                let digestateMass   = organicsForAD * digestateRatio;         // in tonnes
+                let digestateMass = organicsForAD * digestateRatio; 
 
-                // 2) WTE incineration (plastics, etc.)
-                // each tonne yields 0.42 MWh
+                // 2) WTE incineration for plastic/MSW
+                // each tonne => 0.42 MWh
                 let electricityPlasticMSW = processedPlasticMSW * incinerationEfficiency; // MWh
 
-                // 3) Biomass Gasification (gasFrac)
+                // 3) Biomass Gasification
                 let agForGasification = processedAgWaste * gasFrac; 
-                let electricityAgGasif = agForGasification * gasificationEfficiency;  // MWh
+                // syngas -> electricity
+                let syngasMWh = agForGasification * gasificationEfficiency;
 
-                // 4) Biomass Pyrolysis (pyroFrac) -> biochar
+                // 4) Biomass Pyrolysis -> biochar
                 let agForPyrolysis = processedAgWaste * pyroFrac;
-                let biocharMass = agForPyrolysis * pyrolysisBiocharYield;  // tonnes of biochar
+                let biocharMass = agForPyrolysis * pyrolysisBiocharYield; 
 
-                // Summation of electricity from AD (food/human), incineration, gasification
-                let totalElectricityMWh = electricityFoodMWh + electricityPlasticMSW + electricityAgGasif;
+                // Summation of electricity from AD, incineration, gasification
+                let totalElectricityMWh = electricityFoodMWh + electricityPlasticMSW + syngasMWh;
 
                 // Households powered
                 let householdsPowered = (totalElectricityMWh * 1000) / householdEnergyUsage;
@@ -175,7 +176,9 @@
                 return {
                     totalElectricityMWh,
                     householdsPowered,
+                    methaneM3,
                     digestateMass,
+                    syngasMWh,
                     biocharMass,
                     co2Saved,
                     algaeProduced,
@@ -187,28 +190,39 @@
             let maxValues = processWaste(maxProcessing);
 
             // Display results
+            // Reordered so Syngas line appears before Biochar, with text at the bottom
             document.getElementById("result").innerHTML = `
                 <h3>Results (Min vs. Max Processing):</h3>
                 <p><b>⚡ Total Electricity (MWh/yr):</b> 
                    ${minValues.totalElectricityMWh.toFixed(2)} - ${maxValues.totalElectricityMWh.toFixed(2)}</p>
+
                 <p><b>🏠 Households Powered:</b> 
                    ${minValues.householdsPowered.toFixed(0)} - ${maxValues.householdsPowered.toFixed(0)}</p>
+
                 <p><b>💧 Methane from AD (m³/yr):</b><br/>
-                   ${ (minValues.digestateMass / digestateRatio * methaneYieldPerTon).toFixed(2) }
-                   - 
-                   ${ (maxValues.digestateMass / digestateRatio * methaneYieldPerTon).toFixed(2) }</p>
+                   ${minValues.methaneM3.toFixed(2)} - ${maxValues.methaneM3.toFixed(2)}</p>
+
                 <p><b>♻️ Digestate from AD (tonnes/yr):</b> 
                    ${minValues.digestateMass.toFixed(2)} - ${maxValues.digestateMass.toFixed(2)}</p>
-                <p><b>🔥 Biochar Mass (tonnes/yr):</b> 
+
+                <p><b>🔥 Syngas from Gasification (MWh/yr):</b> 
+                   ${minValues.syngasMWh.toFixed(2)} - ${maxValues.syngasMWh.toFixed(2)}</p>
+
+                <p><b>🪨 Biochar Mass (tonnes/yr):</b> 
                    ${minValues.biocharMass.toFixed(2)} - ${maxValues.biocharMass.toFixed(2)}</p>
+
                 <p><b>🌍 CO₂ Saved (tons):</b> 
                    ${minValues.co2Saved.toFixed(2)} - ${maxValues.co2Saved.toFixed(2)}</p>
+
                 <p><b>🦠 Algae Production (tons/yr):</b> 
                    ${minValues.algaeProduced.toFixed(2)} - ${maxValues.algaeProduced.toFixed(2)}</p>
+
                 <p><b>🛢️ Biofuel Potential (tons/yr):</b> 
                    ${minValues.biofuelProduced.toFixed(2)} - ${maxValues.biofuelProduced.toFixed(2)}</p>
-                <p><b>Syngas from Gasification</b> is already included in the 
-                   <i>Gasification Efficiency → Electricity</i> above.</p>
+
+                <p style="margin-top:1em;">
+                <i>Note: Syngas from Gasification is already included in total electricity 
+                via the Gasification Efficiency → Electricity above.</i></p>
             `;
         }
     </script>
