@@ -53,14 +53,14 @@
     <div id="result"></div>
 
     <div class="section">
-        <h3>Assumptions Used in the Calculator:</h3>
+        <h3>Assumptions Used in the Calculator (Updated for U.S. City Model):</h3>
         <ul>
             <li>Each person generates:
                 <ul>
                     <li><b>435 kg of food waste</b> per year.</li>
                     <li><b>500 kg of plastic/MSW</b> per year.</li>
                     <li><b>50 kg of human waste</b> (sewage biosolids) per year.</li>
-                    <li><b>200 kg of agricultural/forestry waste</b> per year.</li>
+                    <li><b>120 kg of agricultural/forestry waste</b> per year (adjusted for U.S. cities).</li>
                 </ul>
             </li>
             <li>Food & human waste processed via **anaerobic digestion** → Biogas.</li>
@@ -77,7 +77,7 @@
                     <li>**0.6 tons of biofuel per ton of algae produced**.</li>
                 </ul>
             </li>
-            <li>**Household Energy Consumption**: **8,000 kWh per year per household**.</li>
+            <li>**Household Energy Consumption**: **10,500 kWh per year per household** (adjusted for U.S. city consumption).</li>
         </ul>
     </div>
     
@@ -97,7 +97,7 @@
             let foodWastePerPerson = 435;
             let plasticMSWPerPerson = 500;
             let humanWastePerPerson = 50;
-            let agWastePerPerson = 200;
+            let agWastePerPerson = 120; // Adjusted for U.S. cities
 
             let methaneYieldPerTon = 100;
             let electricityPerMethaneM3 = 10;
@@ -106,7 +106,7 @@
             let co2EquivalentSaved = 3.5;
             let algaePerCo2 = 0.25;
             let biofuelPerAlgae = 0.6;
-            let householdEnergyUsage = 8000;
+            let householdEnergyUsage = 10500; // Adjusted from 8,000 to 10,500 kWh/year
             let landfillSpacePerTon = 1.5;
 
             let totalFoodWaste = (population * foodWastePerPerson) / 1000;
