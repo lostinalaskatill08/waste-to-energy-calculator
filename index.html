@@ -78,7 +78,6 @@
                 </ul>
             </li>
             <li>**Household Energy Consumption**: **8,000 kWh per year per household**.</li>
-            <li>**Processing Percentage (%): Automatically calculated between 5% - 100%.**</li>
         </ul>
     </div>
     
@@ -104,40 +103,52 @@
             let electricityPerMethaneM3 = 10;
             let incinerationEfficiency = 0.42;
             let gasificationEfficiency = 1.25;
+            let co2EquivalentSaved = 3.5;
+            let algaePerCo2 = 0.25;
+            let biofuelPerAlgae = 0.6;
             let householdEnergyUsage = 8000;
+            let landfillSpacePerTon = 1.5;
+
+            let totalFoodWaste = (population * foodWastePerPerson) / 1000;
+            let totalPlasticMSW = (population * plasticMSWPerPerson) / 1000;
+            let totalHumanWaste = (population * humanWastePerPerson) / 1000;
+            let totalAgWaste = (population * agWastePerPerson) / 1000;
 
             let minProcessing = 0.05;
             let maxProcessing = 1.0;
 
-            function computeOutputs(processingFactor) {
-                let processedFoodWaste = (population * foodWastePerPerson * processingFactor) / 1000;
-                let processedPlasticMSW = (population * plasticMSWPerPerson * processingFactor) / 1000;
-                let processedHumanWaste = (population * humanWastePerPerson * processingFactor) / 1000;
-                let processedAgWaste = (population * agWastePerPerson * processingFactor) / 1000;
+            function processWaste(rate) {
+                let processedFoodWaste = totalFoodWaste * rate;
+                let processedPlasticMSW = totalPlasticMSW * rate;
+                let processedHumanWaste = totalHumanWaste * rate;
+                let processedAgWaste = totalAgWaste * rate;
 
                 let methaneFood = processedFoodWaste * methaneYieldPerTon;
                 let electricityFood = methaneFood * electricityPerMethaneM3;
-
                 let electricityPlasticMSW = processedPlasticMSW * incinerationEfficiency * 1000;
                 let electricityAgWaste = processedAgWaste * gasificationEfficiency * 1000;
 
-                let totalEnergyGenerated = (electricityFood + electricityPlasticMSW + electricityAgWaste) / 1000;
-                let householdsPowered = totalEnergyGenerated * 1000 / householdEnergyUsage;
+                let totalEnergy = (electricityFood + electricityPlasticMSW + electricityAgWaste) / 1000;
+                let householdsPowered = totalEnergy * 1000 / householdEnergyUsage;
+                let landfillSpaceSaved = (processedFoodWaste + processedPlasticMSW + processedHumanWaste) * landfillSpacePerTon;
+                let co2Saved = (processedFoodWaste + processedHumanWaste) * co2EquivalentSaved;
+                let algaeProduced = co2Saved * algaePerCo2;
+                let biofuelProduced = algaeProduced * biofuelPerAlgae;
 
-                return {
-                    totalEnergyGenerated: totalEnergyGenerated.toFixed(2),
-                    householdsPowered: householdsPowered.toFixed(0)
-                };
+                return { totalEnergy, householdsPowered, landfillSpaceSaved, co2Saved, algaeProduced, biofuelProduced };
             }
 
-            let minOutputs = computeOutputs(minProcessing);
-            let maxOutputs = computeOutputs(maxProcessing);
+            let minValues = processWaste(minProcessing);
+            let maxValues = processWaste(maxProcessing);
 
             document.getElementById("result").innerHTML = `
                 <h3>Results:</h3>
-                <p>Total Energy Range: <b>${minOutputs.totalEnergyGenerated} - ${maxOutputs.totalEnergyGenerated} MWh</b></p>
-                <p>Households Powered Range: <b>${minOutputs.householdsPowered} - ${maxOutputs.householdsPowered}</b></p>
-            `;
+                <p>⚡ Total Energy: <b>${minValues.totalEnergy.toFixed(2)} - ${maxValues.totalEnergy.toFixed(2)} MWh</b></p>
+                <p>🏠 Households Powered: <b>${minValues.householdsPowered.toFixed(0)} - ${maxValues.householdsPowered.toFixed(0)}</b></p>
+                <p>🚛 Landfill Space Saved: <b>${minValues.landfillSpaceSaved.toFixed(2)} - ${maxValues.landfillSpaceSaved.toFixed(2)} m³</b></p>
+                <p>🌍 CO₂ Saved: <b>${minValues.co2Saved.toFixed(2)} - ${maxValues.co2Saved.toFixed(2)} tons</b></p>
+                <p>🦠 Algae Production: <b>${minValues.algaeProduced.toFixed(2)} - ${maxValues.algaeProduced.toFixed(2)} tons</b></p>
+                <p>🛢️ Biofuel Production: <b>${minValues.biofuelProduced.toFixed(2)} - ${maxValues.biofuelProduced.toFixed(2)} tons</b></p>`;
         }
     </script>
 </body>
