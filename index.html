@@ -1,162 +1,83 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waste-to-Energy Calculator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            text-align: center;
+<button id="calculateButton">Calculate Energy Potential</button>
+
+<div id="result"></div>
+
+<div class="section">
+    <h3>Assumptions Used in the Calculator:</h3>
+    <ul>
+        <li>Each person generates:
+            <ul>
+                <li><b>435 kg of food waste</b> per year.</li>
+                <li><b>500 kg of plastic/MSW</b> per year.</li>
+                <li><b>50 kg of human waste</b> (sewage biosolids) per year.</li>
+            </ul>
+        </li>
+        <li>Food & human waste processed via **anaerobic digestion** → Biogas.</li>
+        <li>Plastic/MSW processed via **H-Power model incineration** → Electricity.</li>
+        <li>Energy Conversion Rates:
+            <ul>
+                <li>**100 m³ of methane per ton** of food/human waste.</li>
+                <li>**10 kWh per m³ of methane**.</li>
+                <li>**0.42 MWh (420 kWh) per ton of MSW incinerated**.</li>
+                <li>**0.2 tons of algae per ton of CO₂ captured**.</li>
+                <li>**0.5 tons of biofuel per ton of algae produced**.</li>
+            </ul>
+        </li>
+        <li>**Household Energy Consumption**: **8,000 kWh per year per household**.</li>
+    </ul>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("calculateButton").addEventListener("click", calculateWTE);
+    });
+
+    function calculateWTE() {
+        let population = parseInt(document.getElementById("population").value);
+
+        if (isNaN(population) || population <= 0) {
+            document.getElementById("result").innerHTML = "<p style='color:red;'>Please enter a valid population.</p>";
+            return;
         }
-        input, button {
-            margin: 10px;
-            padding: 10px;
-            font-size: 18px;
-            width: 90%;
-        }
-        button {
-            background-color: green;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: darkgreen;
-        }
-        #result {
-            margin-top: 20px;
-            font-size: 18px;
-            text-align: left;
-            padding: 15px;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
-        }
-        .section {
-            text-align: left;
-            margin-top: 30px;
-            padding: 10px;
-            border-top: 1px solid #ccc;
-        }
-        .emoji {
-            font-size: 1.2em;
-        }
-    </style>
-</head>
-<body>
-    <h2>Waste-to-Energy Calculator</h2>
-    <label>City Population:</label>
-    <input type="number" id="population" placeholder="Enter city population" min="1">
-    
-    <label>Processing Percentage (%):</label>
-    <input type="number" id="processing" placeholder="Enter % of waste processed" value="75" min="0" max="100">
-    
-    <button id="calculateButton">Calculate Energy Potential</button>
-    
-    <div id="result"></div>
 
-    <div class="section">
-        <h3>Assumptions Used in the Calculator:</h3>
-        <ul>
-            <li>Each person generates:
-                <ul>
-                    <li><b>435 kg of food waste</b> per year.</li>
-                    <li><b>500 kg of plastic/MSW</b> (municipal solid waste) per year.</li>
-                    <li><b>50 kg of human waste</b> (sewage biosolids) per year.</li>
-                </ul>
-            </li>
-            <li>Food & human waste processed via **anaerobic digestion** → Biogas.</li>
-            <li>Plastic/MSW processed via **H-Power model incineration** → Electricity.</li>
-            <li>Energy Conversion Rates:
-                <ul>
-                    <li>**100 m³ of methane per ton** of food/human waste.</li>
-                    <li>**10 kWh per m³ of methane**.</li>
-                    <li>**0.42 MWh (420 kWh) per ton of MSW incinerated**.</li>
-                    <li>**1.5 cubic meters of landfill space saved per ton processed**.</li>
-                    <li>**2.5 tons of CO₂ saved per ton of food/human waste diverted**.</li>
-                    <li>**0.2 tons of algae per ton of CO₂ captured**.</li>
-                    <li>**0.5 tons of biofuel per ton of algae produced**.</li>
-                </ul>
-            </li>
-            <li>**Household Energy Consumption**: **8,000 kWh per year per household**.</li>
-        </ul>
-    </div>
+        let foodWastePerPerson = 435;
+        let plasticMSWPerPerson = 500;
+        let humanWastePerPerson = 50;
 
-    <div class="section">
-        <h3>Disclaimer:</h3>
-        <p>This calculator is for informational purposes only. The values provided are **estimates based on generalized data** and may not accurately reflect real-world conditions.</p>
-        <p>We are **not legally responsible** for decisions made using this tool. Please consult **waste management and energy professionals** for accurate feasibility studies.</p>
-    </div>
+        let methaneYieldPerTon = 100;
+        let electricityPerMethaneM3 = 10;
+        let incinerationEfficiency = 0.42;
+        let co2EquivalentSaved = 2.5;
+        let algaePerCo2 = 0.2;
+        let biofuelPerAlgae = 0.5;
+        let householdEnergyUsage = 8000;
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("calculateButton").addEventListener("click", calculateWTE);
-        });
+        let totalFoodWaste = (population * foodWastePerPerson) / 1000;
+        let totalPlasticMSW = (population * plasticMSWPerPerson) / 1000;
+        let totalHumanWaste = (population * humanWastePerPerson) / 1000;
 
-        function calculateWTE() {
-            let population = parseInt(document.getElementById("population").value);
-            let processingPercentage = parseFloat(document.getElementById("processing").value);
+        let methaneFood = totalFoodWaste * methaneYieldPerTon;
+        let electricityFood = methaneFood * electricityPerMethaneM3;
 
-            if (isNaN(population) || population <= 0) {
-                document.getElementById("result").innerHTML = "<p style='color:red;'>Please enter a valid population.</p>";
-                return;
-            }
+        let electricityPlasticMSW = totalPlasticMSW * incinerationEfficiency * 1000;
 
-            if (isNaN(processingPercentage) || processingPercentage < 0 || processingPercentage > 100) {
-                document.getElementById("result").innerHTML = "<p style='color:red;'>Processing percentage must be between 0% and 100%.</p>";
-                return;
-            }
+        let methaneHuman = totalHumanWaste * methaneYieldPerTon;
+        let electricityHuman = methaneHuman * electricityPerMethaneM3;
 
-            let foodWastePerPerson = 435;
-            let plasticMSWPerPerson = 500;
-            let humanWastePerPerson = 50;
+        let totalEnergyGenerated = (electricityFood + electricityPlasticMSW + electricityHuman) / 1000;
+        let householdsPowered = totalEnergyGenerated * 1000 / householdEnergyUsage;
 
-            let methaneYieldPerTon = 100;
-            let electricityPerMethaneM3 = 10;
-            let incinerationEfficiency = 0.42;
-            let landfillSpacePerTon = 1.5;
-            let co2EquivalentSaved = 2.5;
-            let algaePerCo2 = 0.2;
-            let biofuelPerAlgae = 0.5;
-            let householdEnergyUsage = 8000;
+        let co2EmissionsSaved = (totalFoodWaste + totalHumanWaste) * co2EquivalentSaved;
+        let algaeProduced = co2EmissionsSaved * algaePerCo2;
+        let biofuelProduced = algaeProduced * biofuelPerAlgae;
 
-            let totalFoodWaste = (population * foodWastePerPerson) / 1000;
-            let totalPlasticMSW = (population * plasticMSWPerPerson) / 1000;
-            let totalHumanWaste = (population * humanWastePerPerson) / 1000;
-
-            let processedFoodWaste = totalFoodWaste * (processingPercentage / 100);
-            let processedPlasticMSW = totalPlasticMSW * (processingPercentage / 100);
-            let processedHumanWaste = totalHumanWaste * (processingPercentage / 100);
-
-            let methaneFood = processedFoodWaste * methaneYieldPerTon;
-            let electricityFood = methaneFood * electricityPerMethaneM3;
-
-            let electricityPlasticMSW = processedPlasticMSW * incinerationEfficiency * 1000;
-
-            let methaneHuman = processedHumanWaste * methaneYieldPerTon;
-            let electricityHuman = methaneHuman * electricityPerMethaneM3;
-
-            let totalEnergyGenerated = (electricityFood + electricityPlasticMSW + electricityHuman) / 1000;
-            let householdsPowered = totalEnergyGenerated * 1000 / householdEnergyUsage;
-
-            let landfillSpaceSaved = (processedFoodWaste + processedPlasticMSW + processedHumanWaste) * landfillSpacePerTon;
-            let co2EmissionsSaved = (processedFoodWaste + processedHumanWaste) * co2EquivalentSaved;
-            let algaeProduced = co2EmissionsSaved * algaePerCo2;
-            let biofuelProduced = algaeProduced * biofuelPerAlgae;
-
-            document.getElementById("result").innerHTML = `
-                <h3>Results:</h3>
-                <p class="emoji">⚡ Total Energy: <b>${totalEnergyGenerated.toFixed(2)} MWh</b></p>
-                <p class="emoji">🏠 Households Powered: <b>${householdsPowered.toFixed(0)}</b></p>
-                <p class="emoji">🚛 Landfill Space Saved: <b>${landfillSpaceSaved.toFixed(2)} m³</b></p>
-                <p class="emoji">🌍 CO₂ Saved: <b>${co2EmissionsSaved.toFixed(2)} tons</b></p>
-                <p class="emoji">🦠 Algae Production: <b>${algaeProduced.toFixed(2)} tons</b></p>
-                <p class="emoji">🛢️ Biofuel Production: <b>${biofuelProduced.toFixed(2)} tons</b></p>
-            `;
-        }
-    </script>
-</body>
-</html>
+        document.getElementById("result").innerHTML = `
+            <h3>Results:</h3>
+            <p class="emoji">⚡ Total Energy: <b>${totalEnergyGenerated.toFixed(2)} MWh</b></p>
+            <p class="emoji">🏠 Households Powered: <b>${householdsPowered.toFixed(0)}</b></p>
+            <p class="emoji">🌍 CO₂ Saved: <b>${co2EmissionsSaved.toFixed(2)} tons</b></p>
+            <p class="emoji">🦠 Algae Production: <b>${algaeProduced.toFixed(2)} tons</b></p>
+            <p class="emoji">🛢️ Biofuel Production: <b>${biofuelProduced.toFixed(2)} tons</b></p>
+        `;
+    }
+</script>
