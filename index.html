@@ -48,9 +48,6 @@
     <label>City Population:</label>
     <input type="number" id="population" placeholder="Enter city population" min="1">
     
-    <label>Energy Generation Rate (kWh per person per year):</label>
-    <input type="number" id="energyRate" placeholder="Enter value between 5-200" min="5" max="200">
-    
     <button id="calculateButton">Calculate Energy Potential</button>
     
     <div id="result"></div>
@@ -81,6 +78,7 @@
                 </ul>
             </li>
             <li>**Household Energy Consumption**: **8,000 kWh per year per household**.</li>
+            <li>**Processing Percentage (%): Automatically calculated between 5% - 100%.**</li>
         </ul>
     </div>
     
@@ -91,33 +89,54 @@
 
         function calculateWTE() {
             let population = parseInt(document.getElementById("population").value);
-            let energyRate = parseFloat(document.getElementById("energyRate").value);
 
             if (isNaN(population) || population <= 0) {
                 document.getElementById("result").innerHTML = "<p style='color:red;'>Please enter a valid population.</p>";
                 return;
             }
 
-            if (isNaN(energyRate) || energyRate < 5 || energyRate > 200) {
-                document.getElementById("result").innerHTML = "<p style='color:red;'>Energy rate must be between 5 and 200 kWh per person per year.</p>";
-                return;
+            let foodWastePerPerson = 435;
+            let plasticMSWPerPerson = 500;
+            let humanWastePerPerson = 50;
+            let agWastePerPerson = 200;
+
+            let methaneYieldPerTon = 100;
+            let electricityPerMethaneM3 = 10;
+            let incinerationEfficiency = 0.42;
+            let gasificationEfficiency = 1.25;
+            let householdEnergyUsage = 8000;
+
+            let minProcessing = 0.05;
+            let maxProcessing = 1.0;
+
+            function computeOutputs(processingFactor) {
+                let processedFoodWaste = (population * foodWastePerPerson * processingFactor) / 1000;
+                let processedPlasticMSW = (population * plasticMSWPerPerson * processingFactor) / 1000;
+                let processedHumanWaste = (population * humanWastePerPerson * processingFactor) / 1000;
+                let processedAgWaste = (population * agWastePerPerson * processingFactor) / 1000;
+
+                let methaneFood = processedFoodWaste * methaneYieldPerTon;
+                let electricityFood = methaneFood * electricityPerMethaneM3;
+
+                let electricityPlasticMSW = processedPlasticMSW * incinerationEfficiency * 1000;
+                let electricityAgWaste = processedAgWaste * gasificationEfficiency * 1000;
+
+                let totalEnergyGenerated = (electricityFood + electricityPlasticMSW + electricityAgWaste) / 1000;
+                let householdsPowered = totalEnergyGenerated * 1000 / householdEnergyUsage;
+
+                return {
+                    totalEnergyGenerated: totalEnergyGenerated.toFixed(2),
+                    householdsPowered: householdsPowered.toFixed(0)
+                };
             }
 
-            let totalEnergyGenerated = population * energyRate;
-            let householdsPowered = totalEnergyGenerated / 8000;
-            let landfillSpaceSaved = population * 1.5;
-            let co2EmissionsSaved = population * 3.5;
-            let algaeProduced = co2EmissionsSaved * 0.25;
-            let biofuelProduced = algaeProduced * 0.6;
+            let minOutputs = computeOutputs(minProcessing);
+            let maxOutputs = computeOutputs(maxProcessing);
 
             document.getElementById("result").innerHTML = `
                 <h3>Results:</h3>
-                <p>⚡ Total Energy: <b>${totalEnergyGenerated.toFixed(2)} MWh</b></p>
-                <p>🏠 Households Powered: <b>${householdsPowered.toFixed(0)}</b></p>
-                <p>🚛 Landfill Space Saved: <b>${landfillSpaceSaved.toFixed(2)} m³</b></p>
-                <p>🌍 CO₂ Saved: <b>${co2EmissionsSaved.toFixed(2)} tons</b></p>
-                <p>🦠 Algae Production: <b>${algaeProduced.toFixed(2)} tons</b></p>
-                <p>🛢️ Biofuel Production: <b>${biofuelProduced.toFixed(2)} tons</b></p>
+                <p>Total Energy Range: <b>${minOutputs.totalEnergyGenerated} - ${maxOutputs.totalEnergyGenerated} MWh</b></p>
+                <p>Households Powered Range: <b>${minOutputs.householdsPowered} - ${maxOutputs.householdsPowered}</b></p>
             `;
         }
     </script>
