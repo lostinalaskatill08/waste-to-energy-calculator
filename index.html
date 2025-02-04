@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waste-to-Energy Calculator</title>
+    <meta name="viewport" content="width=device-width">
+    <title>Waste-to-Energy Calculator (Multi-Pillar)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,7 +44,7 @@
     </style>
 </head>
 <body>
-    <h2>Waste-to-Energy Calculator</h2>
+    <h2>Waste-to-Energy Calculator (Multi-Pillar)</h2>
     <label>City Population:</label>
     <input type="number" id="population" placeholder="Enter city population" min="1">
     
@@ -53,31 +53,33 @@
     <div id="result"></div>
 
     <div class="section">
-        <h3>Assumptions Used in the Calculator (Updated for U.S. City Model):</h3>
+        <h3>Assumptions Used in the Calculator (Expanded for Biomass Gasification & Pyrolysis):</h3>
         <ul>
-            <li>Each person generates:
+            <li>Each person generates per year:
                 <ul>
-                    <li><b>435 kg of food waste</b> per year.</li>
-                    <li><b>500 kg of plastic/MSW</b> per year.</li>
-                    <li><b>50 kg of human waste</b> (sewage biosolids) per year.</li>
-                    <li><b>120 kg of agricultural/forestry waste</b> per year (adjusted for U.S. cities).</li>
+                    <li><b>435 kg of food waste</b></li>
+                    <li><b>500 kg of plastic/MSW</b></li>
+                    <li><b>50 kg of human waste (sewage biosolids)</b></li>
+                    <li><b>120 kg of agricultural/forestry waste</b> (applicable to U.S. city yard/woody waste)</li>
                 </ul>
             </li>
-            <li>Food & human waste processed via **anaerobic digestion** → Biogas.</li>
-            <li>Plastic/MSW processed via **H-Power incineration** → Electricity.</li>
-            <li>Agricultural/forestry waste processed via **biomass gasification** → Electricity.</li>
+            <li><b>Anaerobic Digestion</b> for food + human waste → Biogas (methane).</li>
+            <li><b>H-Power Incineration</b> for non-recyclable plastics/MSW → Electricity.</li>
+            <li><b>Biomass Gasification</b> for half of the agro/forestry waste → Syngas → Electricity.</li>
+            <li><b>Biomass Pyrolysis</b> for the other half → Biochar (+ some pyrolytic gas/oil).</li>
             <li>Energy Conversion Rates:
                 <ul>
-                    <li>**100 m³ of methane per ton** of food/human waste.</li>
+                    <li>**100 m³ methane per ton** of food/human waste.</li>
                     <li>**10 kWh per m³ of methane**.</li>
                     <li>**0.42 MWh per ton of MSW incinerated**.</li>
-                    <li>**1.25 MWh per ton of biomass gasified**.</li>
-                    <li>**3.5 tons of CO₂ saved per ton of food/human waste diverted**.</li>
-                    <li>**0.25 tons of algae per ton of CO₂ captured**.</li>
-                    <li>**0.6 tons of biofuel per ton of algae produced**.</li>
+                    <li>**1.25 MWh per ton of biomass gasified** (syngas → electricity, net).</li>
+                    <li>**25% biochar yield** from pyrolysis (by mass) on the portion assigned to pyrolysis.</li>
+                    <li>**3.5 tons CO₂ saved** per ton of food/human waste diverted.</li>
+                    <li>**0.25 tons of algae** per ton of CO₂ captured (possible synergy from AD or flue gas). </li>
+                    <li>**0.6 tons biofuel** per ton of algae produced.</li>
                 </ul>
             </li>
-            <li>**Household Energy Consumption**: **10,500 kWh per year per household** (adjusted for U.S. city consumption).</li>
+            <li><b>Household Energy Consumption</b>: 10,500 kWh/year (average U.S. city estimate).</li>
         </ul>
     </div>
     
@@ -94,61 +96,115 @@
                 return;
             }
 
+            // Per-person waste assumptions (kg/year)
             let foodWastePerPerson = 435;
             let plasticMSWPerPerson = 500;
             let humanWastePerPerson = 50;
-            let agWastePerPerson = 120; // Adjusted for U.S. cities
+            let agWastePerPerson = 120; // yard/woody biomass
 
-            let methaneYieldPerTon = 100;
-            let electricityPerMethaneM3 = 10;
-            let incinerationEfficiency = 0.42;
-            let gasificationEfficiency = 1.25;
-            let co2EquivalentSaved = 3.5;
-            let algaePerCo2 = 0.25;
+            // Energy & emission constants
+            let methaneYieldPerTon = 100; // m³ per tonne of food/human waste
+            let electricityPerMethaneM3 = 10; // kWh per m³ methane
+            let incinerationEfficiency = 0.42; // MWh/ton of MSW
+            let gasificationEfficiency = 1.25; // MWh/ton of biomass
+            let pyrolysisBiocharYield = 0.25; // 25% mass as biochar
+            let co2EquivalentSaved = 3.5; // tons CO2 saved per ton of organic waste diverted
+            let algaePerCo2 = 0.25; // synergy ratio algae growth
             let biofuelPerAlgae = 0.6;
-            let householdEnergyUsage = 10500; // Adjusted from 8,000 to 10,500 kWh/year
-            let landfillSpacePerTon = 1.5;
+            let householdEnergyUsage = 10500; // kWh/household/year
 
+            // Splitting "agWaste" fraction for gasification vs pyrolysis
+            // (50% gasification, 50% pyrolysis) - adjustable
+            let gasFrac = 0.5;
+            let pyroFrac = 0.5;
+
+            // Convert from kg to tonnes
             let totalFoodWaste = (population * foodWastePerPerson) / 1000;
             let totalPlasticMSW = (population * plasticMSWPerPerson) / 1000;
             let totalHumanWaste = (population * humanWastePerPerson) / 1000;
             let totalAgWaste = (population * agWastePerPerson) / 1000;
 
+            // Process fraction range: min (5%) to max (100%)
             let minProcessing = 0.05;
             let maxProcessing = 1.0;
 
             function processWaste(rate) {
+                // Wastes actually processed
                 let processedFoodWaste = totalFoodWaste * rate;
                 let processedPlasticMSW = totalPlasticMSW * rate;
                 let processedHumanWaste = totalHumanWaste * rate;
                 let processedAgWaste = totalAgWaste * rate;
 
-                let methaneFood = processedFoodWaste * methaneYieldPerTon;
-                let electricityFood = methaneFood * electricityPerMethaneM3;
-                let electricityPlasticMSW = processedPlasticMSW * incinerationEfficiency * 1000;
-                let electricityAgWaste = processedAgWaste * gasificationEfficiency * 1000;
+                // Pillar 2: AD -> Biogas from (food + human waste)
+                let combinedOrganic = processedFoodWaste + processedHumanWaste;
+                let methaneM3 = combinedOrganic * methaneYieldPerTon; 
+                let electricityFood = methaneM3 * electricityPerMethaneM3; // in kWh
+                // convert to MWh
+                let electricityFoodMWh = electricityFood / 1000; 
 
-                let totalEnergy = (electricityFood + electricityPlasticMSW + electricityAgWaste) / 1000;
-                let householdsPowered = totalEnergy * 1000 / householdEnergyUsage;
-                let landfillSpaceSaved = (processedFoodWaste + processedPlasticMSW + processedHumanWaste) * landfillSpacePerTon;
-                let co2Saved = (processedFoodWaste + processedHumanWaste) * co2EquivalentSaved;
+                // Pillar 4: WTE incineration -> MSW electricity
+                // each tonne => 0.42 MWh
+                let electricityPlasticMSW = processedPlasticMSW * incinerationEfficiency; // MWh
+
+                // Pillar 1: Biomass Gasification + Pyrolysis
+                // split processedAgWaste between gasFrac & pyroFrac
+                let agForGasification = processedAgWaste * gasFrac; 
+                let agForPyrolysis = processedAgWaste * pyroFrac;
+
+                // Gasification: 1.25 MWh/ton
+                let electricityAgGasif = agForGasification * gasificationEfficiency; // MWh
+
+                // Pyrolysis: yields biochar
+                let biocharMass = agForPyrolysis * pyrolysisBiocharYield; 
+                // (We can define if leftover pyrolytic gas is used for some power, but we'll skip or add if needed)
+
+                // Summation of electricity from all pillars
+                let totalElectricityMWh = electricityFoodMWh + electricityPlasticMSW + electricityAgGasif;
+                
+                // Household coverage
+                let householdsPowered = (totalElectricityMWh * 1000) / householdEnergyUsage; // because MWh -> kWh
+
+                // CO2 saved from organics diverted
+                let co2Saved = combinedOrganic * co2EquivalentSaved;
+                // Potential algae from that CO2
                 let algaeProduced = co2Saved * algaePerCo2;
+                // Potential biofuel from algae
                 let biofuelProduced = algaeProduced * biofuelPerAlgae;
 
-                return { totalEnergy, householdsPowered, landfillSpaceSaved, co2Saved, algaeProduced, biofuelProduced };
+                // Return an object with all relevant fields
+                return {
+                    totalElectricityMWh,
+                    householdsPowered,
+                    biocharMass,
+                    co2Saved,
+                    algaeProduced,
+                    biofuelProduced
+                };
             }
 
+            // Calculate two scenarios: min (5% processed) and max (100% processed)
             let minValues = processWaste(minProcessing);
             let maxValues = processWaste(maxProcessing);
 
+            // Display results
+            // Using toFixed(2) or toFixed(0) for formatting
             document.getElementById("result").innerHTML = `
-                <h3>Results:</h3>
-                <p>⚡ Total Energy: <b>${minValues.totalEnergy.toFixed(2)} - ${maxValues.totalEnergy.toFixed(2)} MWh</b></p>
-                <p>🏠 Households Powered: <b>${minValues.householdsPowered.toFixed(0)} - ${maxValues.householdsPowered.toFixed(0)}</b></p>
-                <p>🚛 Landfill Space Saved: <b>${minValues.landfillSpaceSaved.toFixed(2)} - ${maxValues.landfillSpaceSaved.toFixed(2)} m³</b></p>
-                <p>🌍 CO₂ Saved: <b>${minValues.co2Saved.toFixed(2)} - ${maxValues.co2Saved.toFixed(2)} tons</b></p>
-                <p>🦠 Algae Production: <b>${minValues.algaeProduced.toFixed(2)} - ${maxValues.algaeProduced.toFixed(2)} tons</b></p>
-                <p>🛢️ Biofuel Production: <b>${minValues.biofuelProduced.toFixed(2)} - ${maxValues.biofuelProduced.toFixed(2)} tons</b></p>`;
+                <h3>Results (Min vs. Max Processing):</h3>
+                <p><b>Total Electricity (MWh/yr):</b> 
+                   ${minValues.totalElectricityMWh.toFixed(2)} - ${maxValues.totalElectricityMWh.toFixed(2)}</p>
+                <p><b>Households Powered:</b> 
+                   ${minValues.householdsPowered.toFixed(0)} - ${maxValues.householdsPowered.toFixed(0)}</p>
+                <p><b>Syngas (Implied in Gasification Output):</b><br/>
+                   ~1.25 MWh/ton. (Electricity is already counted above under gasification)</p>
+                <p><b>Biochar Mass (tonnes/yr):</b> 
+                   ${minValues.biocharMass.toFixed(2)} - ${maxValues.biocharMass.toFixed(2)}</p>
+                <p><b>CO₂ Saved (tons):</b> 
+                   ${minValues.co2Saved.toFixed(2)} - ${maxValues.co2Saved.toFixed(2)}</p>
+                <p><b>Algae Production (tons/yr):</b> 
+                   ${minValues.algaeProduced.toFixed(2)} - ${maxValues.algaeProduced.toFixed(2)}</p>
+                <p><b>Biofuel Potential (tons/yr):</b> 
+                   ${minValues.biofuelProduced.toFixed(2)} - ${maxValues.biofuelProduced.toFixed(2)}</p>
+            `;
         }
     </script>
 </body>
