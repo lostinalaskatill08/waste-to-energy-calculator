@@ -12,6 +12,9 @@
     <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone@7.21.0/babel.min.js"></script>
     
+    <!-- Recharts -->
+    <script src="https://unpkg.com/recharts@2.1.12/umd/Recharts.min.js"></script>
+    
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -19,17 +22,79 @@
     <div id="root"></div>
 
     <script type="text/babel">
+        const { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } = Recharts;
+
         function Calculator() {
             const [population, setPopulation] = React.useState('');
-            const [result, setResult] = React.useState(null);
+            const [results, setResults] = React.useState(null);
+
+            const constants = {
+                foodWastePerPerson: 435,
+                plasticMSWPerPerson: 500,
+                humanWastePerPerson: 50,
+                agWastePerPerson: 120,
+                methaneYieldPerTon: 100,
+                electricityPerMethaneM3: 10,
+                incinerationEfficiency: 0.42,
+                gasificationEfficiency: 1.25,
+                co2EquivalentSaved: 3.5,
+                algaePerCo2: 0.25,
+                biofuelPerAlgae: 0.6,
+                householdEnergyUsage: 10500,
+                landfillSpacePerTon: 1.5,
+                electricityRate: 0.12
+            };
+
+            const calculateResults = (processingRate) => {
+                if (!population) return null;
+                
+                const pop = parseFloat(population);
+                
+                // Basic waste calculations (tons)
+                const totalFoodWaste = (pop * constants.foodWastePerPerson) / 1000;
+                const totalPlasticMSW = (pop * constants.plasticMSWPerPerson) / 1000;
+                const totalHumanWaste = (pop * constants.humanWastePerPerson) / 1000;
+                const totalAgWaste = (pop * constants.agWastePerPerson) / 1000;
+
+                // Processed amounts with rate
+                const processedFoodWaste = totalFoodWaste * processingRate;
+                const processedPlasticMSW = totalPlasticMSW * processingRate;
+                const processedHumanWaste = totalHumanWaste * processingRate;
+                const processedAgWaste = totalAgWaste * processingRate;
+
+                // Energy calculations
+                const methaneFood = processedFoodWaste * constants.methaneYieldPerTon;
+                const methaneHuman = processedHumanWaste * constants.methaneYieldPerTon;
+                const electricityFood = methaneFood * constants.electricityPerMethaneM3;
+                const electricityHuman = methaneHuman * constants.electricityPerMethaneM3;
+                const electricityPlasticMSW = processedPlasticMSW * constants.incinerationEfficiency * 1000;
+                const electricityAgWaste = processedAgWaste * constants.gasificationEfficiency * 1000;
+
+                const totalEnergy = (electricityFood + electricityHuman + electricityPlasticMSW + electricityAgWaste) / 1000;
+                const annualRevenue = totalEnergy * 1000 * constants.electricityRate;
+
+                // Environmental calculations
+                const co2Saved = (processedFoodWaste + processedHumanWaste) * constants.co2EquivalentSaved;
+                const landfillSpaceSaved = (processedFoodWaste + processedPlasticMSW + processedHumanWaste) * constants.landfillSpacePerTon;
+                const algaeProduced = co2Saved * constants.algaePerCo2;
+                const biofuelProduced = algaeProduced * constants.biofuelPerAlgae;
+
+                return {
+                    totalEnergy,
+                    householdsPowered: totalEnergy * 1000 / constants.householdEnergyUsage,
+                    landfillSpaceSaved,
+                    co2Saved,
+                    algaeProduced,
+                    biofuelProduced,
+                    annualRevenue
+                };
+            };
 
             const handleCalculate = () => {
-                const pop = parseFloat(population);
-                if (!pop) return;
-
-                const totalWaste = pop * 1.105; // tons per year
-                const energy = totalWaste * 0.42; // MWh per ton
-                setResult(energy);
+                setResults({
+                    min: calculateResults(0.05),
+                    max: calculateResults(1.0)
+                });
             };
 
             return (
@@ -41,7 +106,7 @@
                             type="number"
                             value={population}
                             onChange={(e) => setPopulation(e.target.value)}
-                            placeholder="Enter population"
+                            placeholder="Enter city population"
                             className="border p-2 mr-2"
                         />
                         <button 
@@ -52,16 +117,11 @@
                         </button>
                     </div>
 
-                    {result && (
-                        <div className="bg-white p-4 rounded shadow">
-                            <p>Estimated Energy Production: {result.toFixed(2)} MWh/year</p>
-                        </div>
-                    )}
-                </div>
-            );
-        }
-
-        ReactDOM.render(<Calculator />, document.getElementById('root'));
-    </script>
-</body>
-</html>
+                    {results && (
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="bg-white p-4 rounded shadow">
+                                    <h2 className="font-bold mb-2">Energy Generation</h2>
+                                    <p>⚡ Total Energy: {results.min.totalEnergy.toFixed(1)} - {results.max.totalEnergy.toFixed(1)} MWh</p>
+                                    <p>🏠 Households: {Math.floor(results.min.householdsPowered)} - {Math.floor(results.max.householdsPowered)}</p>
+                                    <p>💰 Revenue: ${(results.min.annualRevenue/1000000).toFix
