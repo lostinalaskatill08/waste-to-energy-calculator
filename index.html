@@ -7,22 +7,30 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
+            max-width: 800px;
             margin: auto;
             padding: 20px;
             text-align: center;
+            background-color: #f5f5f5;
         }
         input, button {
             margin: 10px;
             padding: 10px;
             font-size: 18px;
-            width: 90%;
+        }
+        input {
+            width: 70%;
+            border: 2px solid #ddd;
+            border-radius: 4px;
         }
         button {
             background-color: green;
             color: white;
             border: none;
             cursor: pointer;
+            border-radius: 4px;
+            width: 70%;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: darkgreen;
@@ -31,24 +39,74 @@
             margin-top: 20px;
             font-size: 18px;
             text-align: left;
-            padding: 15px;
+            padding: 20px;
             border: 1px solid #ccc;
-            background-color: #f9f9f9;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .section {
             text-align: left;
             margin-top: 30px;
-            padding: 10px;
+            padding: 20px;
             border-top: 1px solid #ccc;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .result-item:hover {
+            background-color: #f0f0f0;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        /* New styles for additional features */
+        .per-capita {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+        .comparison {
+            background-color: #e8f5e9;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            input, button {
+                width: 90%;
+            }
         }
     </style>
 </head>
 <body>
-    <h2>Waste-to-Energy Calculator</h2>
-    <label>City Population:</label>
-    <input type="number" id="population" placeholder="Enter city population" min="1">
-    
-    <button id="calculateButton">Calculate Energy Potential</button>
+    <div class="header">
+        <h2>Waste-to-Energy Calculator</h2>
+        <p>Calculate energy potential and environmental impact from waste processing</p>
+    </div>
+
+    <div>
+        <label>City Population:</label>
+        <input type="number" id="population" placeholder="Enter city population" min="1">
+        <button id="calculateButton">Calculate Energy Potential</button>
+    </div>
     
     <div id="result"></div>
 
@@ -63,41 +121,47 @@
                     <li><b>120 kg of agricultural/forestry waste</b> per year (adjusted for U.S. cities).</li>
                 </ul>
             </li>
-            <li>Food & human waste processed via **anaerobic digestion** → Biogas.</li>
-            <li>Plastic/MSW processed via **H-Power incineration** → Electricity.</li>
-            <li>Agricultural/forestry waste processed via **biomass gasification** → Electricity.</li>
+            <li>Food & human waste processed via <b>anaerobic digestion</b> → Biogas.</li>
+            <li>Plastic/MSW processed via <b>H-Power incineration</b> → Electricity.</li>
+            <li>Agricultural/forestry waste processed via <b>biomass gasification</b> → Electricity.</li>
             <li>Energy Conversion Rates:
                 <ul>
-                    <li>**100 m³ of methane per ton** of food/human waste.</li>
-                    <li>**10 kWh per m³ of methane**.</li>
-                    <li>**0.42 MWh per ton of MSW incinerated**.</li>
-                    <li>**1.25 MWh per ton of biomass gasified**.</li>
-                    <li>**3.5 tons of CO₂ saved per ton of food/human waste diverted**.</li>
-                    <li>**0.25 tons of algae per ton of CO₂ captured**.</li>
-                    <li>**0.6 tons of biofuel per ton of algae produced**.</li>
+                    <li><b>100 m³ of methane per ton</b> of food/human waste.</li>
+                    <li><b>10 kWh per m³ of methane</b>.</li>
+                    <li><b>0.42 MWh per ton of MSW incinerated</b>.</li>
+                    <li><b>1.25 MWh per ton of biomass gasified</b>.</li>
+                    <li><b>3.5 tons of CO₂ saved per ton of food/human waste diverted</b>.</li>
+                    <li><b>0.25 tons of algae per ton of CO₂ captured</b>.</li>
+                    <li><b>0.6 tons of biofuel per ton of algae produced</b>.</li>
                 </ul>
             </li>
-            <li>**Household Energy Consumption**: **10,500 kWh per year per household** (adjusted for U.S. city consumption).</li>
+            <li><b>Household Energy Consumption</b>: <b>10,500 kWh per year per household</b> (adjusted for U.S. city consumption).</li>
         </ul>
     </div>
     
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("calculateButton").addEventListener("click", calculateWTE);
+            // Add enter key support
+            document.getElementById("population").addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    calculateWTE();
+                }
+            });
         });
 
         function calculateWTE() {
             let population = parseInt(document.getElementById("population").value);
 
             if (isNaN(population) || population <= 0) {
-                document.getElementById("result").innerHTML = "<p style='color:red;'>Please enter a valid population.</p>";
+                document.getElementById("result").innerHTML = "<p class='error'>Please enter a valid population.</p>";
                 return;
             }
 
             let foodWastePerPerson = 435;
             let plasticMSWPerPerson = 500;
             let humanWastePerPerson = 50;
-            let agWastePerPerson = 120; // Adjusted for U.S. cities
+            let agWastePerPerson = 120;
 
             let methaneYieldPerTon = 100;
             let electricityPerMethaneM3 = 10;
@@ -106,7 +170,7 @@
             let co2EquivalentSaved = 3.5;
             let algaePerCo2 = 0.25;
             let biofuelPerAlgae = 0.6;
-            let householdEnergyUsage = 10500; // Adjusted from 8,000 to 10,500 kWh/year
+            let householdEnergyUsage = 10500;
             let landfillSpacePerTon = 1.5;
 
             let totalFoodWaste = (population * foodWastePerPerson) / 1000;
@@ -135,20 +199,50 @@
                 let algaeProduced = co2Saved * algaePerCo2;
                 let biofuelProduced = algaeProduced * biofuelPerAlgae;
 
-                return { totalEnergy, householdsPowered, landfillSpaceSaved, co2Saved, algaeProduced, biofuelProduced };
+                // New calculations for additional metrics
+                let treesEquivalent = Math.floor(co2Saved * 46); // Each tree absorbs about 22 kg CO2 per year
+                let carsRemoved = Math.floor(co2Saved / 4.6); // Average car emits 4.6 tons of CO2 per year
+
+                return { 
+                    totalEnergy, 
+                    householdsPowered, 
+                    landfillSpaceSaved, 
+                    co2Saved, 
+                    algaeProduced, 
+                    biofuelProduced,
+                    treesEquivalent,
+                    carsRemoved
+                };
             }
 
             let minValues = processWaste(minProcessing);
             let maxValues = processWaste(maxProcessing);
 
+            // Calculate per capita metrics
+            let perCapitaEnergy = maxValues.totalEnergy / population;
+            let perCapitaCO2 = maxValues.co2Saved / population;
+
             document.getElementById("result").innerHTML = `
                 <h3>Results:</h3>
-                <p>⚡ Total Energy: <b>${minValues.totalEnergy.toFixed(2)} - ${maxValues.totalEnergy.toFixed(2)} MWh</b></p>
-                <p>🏠 Households Powered: <b>${minValues.householdsPowered.toFixed(0)} - ${maxValues.householdsPowered.toFixed(0)}</b></p>
-                <p>🚛 Landfill Space Saved: <b>${minValues.landfillSpaceSaved.toFixed(2)} - ${maxValues.landfillSpaceSaved.toFixed(2)} m³</b></p>
-                <p>🌍 CO₂ Saved: <b>${minValues.co2Saved.toFixed(2)} - ${maxValues.co2Saved.toFixed(2)} tons</b></p>
-                <p>🦠 Algae Production: <b>${minValues.algaeProduced.toFixed(2)} - ${maxValues.algaeProduced.toFixed(2)} tons</b></p>
-                <p>🛢️ Biofuel Production: <b>${minValues.biofuelProduced.toFixed(2)} - ${maxValues.biofuelProduced.toFixed(2)} tons</b></p>`;
+                <div class="result-item">⚡ Total Energy: <b>${minValues.totalEnergy.toFixed(2)} - ${maxValues.totalEnergy.toFixed(2)} MWh</b></div>
+                <div class="result-item">🏠 Households Powered: <b>${minValues.householdsPowered.toFixed(0)} - ${maxValues.householdsPowered.toFixed(0)}</b></div>
+                <div class="result-item">🚛 Landfill Space Saved: <b>${minValues.landfillSpaceSaved.toFixed(2)} - ${maxValues.landfillSpaceSaved.toFixed(2)} m³</b></div>
+                <div class="result-item">🌍 CO₂ Saved: <b>${minValues.co2Saved.toFixed(2)} - ${maxValues.co2Saved.toFixed(2)} tons</b></div>
+                <div class="result-item">🦠 Algae Production: <b>${minValues.algaeProduced.toFixed(2)} - ${maxValues.algaeProduced.toFixed(2)} tons</b></div>
+                <div class="result-item">🛢️ Biofuel Production: <b>${minValues.biofuelProduced.toFixed(2)} - ${maxValues.biofuelProduced.toFixed(2)} tons</b></div>
+                
+                <!-- New environmental equivalents section -->
+                <div class="comparison">
+                    <h4>Environmental Equivalents (at maximum processing):</h4>
+                    <div>🌳 Equivalent to planting ${maxValues.treesEquivalent.toLocaleString()} trees</div>
+                    <div>🚗 Equal to removing ${maxValues.carsRemoved.toLocaleString()} cars from the road</div>
+                </div>
+                
+                <div class="per-capita">
+                    <h4>Per Capita Impact (at maximum processing):</h4>
+                    <div>Energy Generation: ${perCapitaEnergy.toFixed(2)} MWh per person</div>
+                    <div>CO₂ Reduction: ${perCapitaCO2.toFixed(2)} tons per person</div>
+                </div>`;
         }
     </script>
 </body>
