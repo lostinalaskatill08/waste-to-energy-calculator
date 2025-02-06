@@ -5,27 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Waste-to-Energy Calculator</title>
     
-    <!-- Required libraries -->
-    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load React -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- Load Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Load Recharts -->
+    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
+    
+    <!-- Load Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-100">
     <div id="root"></div>
 
     <script type="text/babel">
+        // Access React and Recharts components
         const { useState } = React;
         const { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell } = Recharts;
 
-        const WasteToEnergyCalculator = () => {
+        // Main Calculator Component
+        function WasteToEnergyCalculator() {
+            // [Previous component code will go here]
             const [population, setPopulation] = useState('');
             const [results, setResults] = useState(null);
             const [rangeData, setRangeData] = useState([]);
             const [energyBreakdown, setEnergyBreakdown] = useState([]);
 
-            // Constants for calculations
+            // Constants from original calculator
             const constants = {
                 foodWastePerPerson: 435,
                 plasticMSWPerPerson: 500,
@@ -43,6 +52,7 @@
                 electricityRate: 0.12
             };
 
+            // Calculate results function
             const calculateResults = (processingRate) => {
                 if (!population) return null;
                 
@@ -77,7 +87,7 @@
                 const algaeProduced = co2Saved * constants.algaePerCo2;
                 const biofuelProduced = algaeProduced * constants.biofuelPerAlgae;
 
-                // Additional calculations for trees and vehicles
+                // Additional calculations
                 const treesEquivalent = Math.floor(co2Saved * 46);
                 const carsRemoved = Math.floor(co2Saved / 4.6);
                 const gasolineSaved = Math.floor(co2Saved * 113);
@@ -101,8 +111,8 @@
                 };
             };
 
+            // Handle calculate button click
             const handleCalculate = () => {
-                // Generate range data from 5% to 100%
                 const newRangeData = [];
                 const breakdownData = [];
                 
@@ -111,13 +121,10 @@
                     newRangeData.push({
                         rate: `${(rate * 100).toFixed(0)}%`,
                         energy: result.totalEnergy,
-                        households: result.householdsPowered,
-                        co2: result.co2Saved,
-                        biofuel: result.biofuelProduced,
-                        revenue: result.annualRevenue / 1000000 // Convert to millions
+                        revenue: result.annualRevenue / 1000000
                     });
 
-                    if (rate === 1) { // Store max values energy breakdown
+                    if (rate === 1) {
                         breakdownData.push(
                             { name: 'Biogas', value: result.energyBreakdown.biogas },
                             { name: 'Incineration', value: result.energyBreakdown.incineration },
@@ -134,6 +141,7 @@
                 });
             };
 
+            // Render component
             return (
                 <div className="p-4">
                     <div className="max-w-6xl mx-auto">
@@ -214,9 +222,9 @@
                                                 <Bar dataKey="value" name="Energy Generation">
                                                     {energyBreakdown.map((entry, index) => (
                                                         <Cell key={`cell-${index}`} fill={
-                                                            index === 0 ? '#2563eb' :  // Biogas
-                                                            index === 1 ? '#16a34a' :  // Incineration
-                                                            '#ef4444'                  // Gasification
+                                                            index === 0 ? '#2563eb' : 
+                                                            index === 1 ? '#16a34a' : 
+                                                            '#ef4444'
                                                         } />
                                                     ))}
                                                 </Bar>
@@ -253,11 +261,4 @@
                                             <h3 className="font-bold mb-2">Environmental Factors</h3>
                                             <ul className="list-disc pl-6">
                                                 <li>CO₂ Reduction: 3.5 tons of CO₂ saved per ton of waste processed</li>
-                                                <li>Algae Production: 0.25 tons of algae per ton of CO₂ captured</li>
-                                                <li>Biofuel Yield: 0.6 tons of biofuel per ton of algae produced</li>
-                                                <li>Landfill Space Saved: 1.5 m³ per ton of waste diverted</li>
-                                            </ul>
-                                        </div>
-
-                                        <div>
-                                            <h3 className="font-bold mb-2">Economic & Energy Assumptions</h3>
+                                                <li>Algae Production: 0.
