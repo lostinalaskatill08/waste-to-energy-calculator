@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waste-to-Energy Calculator</title>
+    <title>Advanced Waste-to-Energy Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,56 +13,7 @@
             text-align: center;
             background-color: #f5f5f5;
         }
-        input, button {
-            margin: 10px;
-            padding: 10px;
-            font-size: 18px;
-        }
-        input {
-            width: 70%;
-            border: 2px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            background-color: green;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            width: 70%;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: darkgreen;
-        }
-        #result {
-            margin-top: 20px;
-            font-size: 18px;
-            text-align: left;
-            padding: 20px;
-            border: 1px solid #ccc;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .section {
-            text-align: left;
-            margin-top: 30px;
-            padding: 20px;
-            border-top: 1px solid #ccc;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .result-item {
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .result-item:hover {
-            background-color: #f0f0f0;
-        }
+        
         .header {
             background-color: #2c3e50;
             color: white;
@@ -70,44 +21,176 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
+
+        .control-panel {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        input, button, select {
+            margin: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+
+        input[type="number"], select {
+            width: 70%;
+            border: 2px solid #ddd;
+        }
+
+        input[type="range"] {
+            width: 70%;
+        }
+
+        button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: auto;
+            min-width: 120px;
+        }
+
+        button:hover {
+            background-color: #219a52;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: left;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .result-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .result-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .section {
+            text-align: left;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .comparison {
+            background-color: #e8f5e9;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        .economic-impact {
+            background-color: #e3f2fd;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+        }
+
+        .slider-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
         .error {
             color: red;
             font-weight: bold;
-        }
-        /* New styles for additional features */
-        .per-capita {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: 10px;
-        }
-        .comparison {
-            background-color: #e8f5e9;
             padding: 10px;
-            margin-top: 10px;
+            background-color: #fee;
             border-radius: 4px;
         }
+
         @media (max-width: 600px) {
             body {
                 padding: 10px;
             }
-            input, button {
+            input[type="number"], select, button {
                 width: 90%;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            #result {
+                break-inside: avoid;
+            }
+            .section {
+                break-inside: avoid;
             }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h2>Waste-to-Energy Calculator</h2>
-        <p>Calculate energy potential and environmental impact from waste processing</p>
+        <h2>Advanced Waste-to-Energy Calculator</h2>
+        <p>Calculate energy potential, environmental impact, and economic benefits from waste processing</p>
     </div>
 
-    <div>
-        <label>City Population:</label>
+    <div class="control-panel no-print">
+        <select id="populationPresets" onchange="setPopulation(this.value)">
+            <option value="">Select city size...</option>
+            <option value="50000">Small City (50,000)</option>
+            <option value="250000">Medium City (250,000)</option>
+            <option value="1000000">Large City (1,000,000)</option>
+            <option value="custom">Custom Population</option>
+        </select>
+
         <input type="number" id="population" placeholder="Enter city population" min="1">
-        <button id="calculateButton">Calculate Energy Potential</button>
+        
+        <div class="slider-container">
+            <label>Processing Rate: <span id="rateValue">5%</span></label>
+            <input type="range" id="processingRate" min="5" max="100" value="5" 
+                   oninput="document.getElementById('rateValue').textContent = this.value + '%'">
+        </div>
+
+        <div class="unit-toggle">
+            <select id="unitSystem" onchange="updateUnits()">
+                <option value="metric">Metric (tons, m³)</option>
+                <option value="imperial">Imperial (tons, cubic yards)</option>
+            </select>
+        </div>
+
+        <div class="action-buttons">
+            <button onclick="calculateWTE()">Calculate</button>
+            <button onclick="downloadResults()">Export Results</button>
+            <button onclick="saveCalculation()">Save</button>
+            <button onclick="loadCalculation()">Load Previous</button>
+            <button onclick="window.print()">Print Results</button>
+        </div>
     </div>
-    
+
     <div id="result"></div>
 
     <div class="section">
@@ -138,11 +221,15 @@
             <li><b>Household Energy Consumption</b>: <b>10,500 kWh per year per household</b> (adjusted for U.S. city consumption).</li>
         </ul>
     </div>
-    
+
     <script>
+        let currentResults = null;
+        let previousResults = [];
+        let isMetricUnits = true;
+
         document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("calculateButton").addEventListener("click", calculateWTE);
-            // Add enter key support
+            loadCalculation();
+            
             document.getElementById("population").addEventListener("keypress", function(e) {
                 if (e.key === "Enter") {
                     calculateWTE();
@@ -150,100 +237,125 @@
             });
         });
 
+        function setPopulation(value) {
+            if (value === "custom") {
+                document.getElementById("population").value = "";
+                document.getElementById("population").focus();
+            } else {
+                document.getElementById("population").value = value;
+                calculateWTE();
+            }
+        }
+
+        function validateInput(population) {
+            if (isNaN(population) || population <= 0) {
+                return "Please enter a valid population number.";
+            }
+            if (population > 50000000) {
+                return "Population seems unusually high. Please verify.";
+            }
+            if (population < 100) {
+                return "Population seems unusually low. Please verify.";
+            }
+            return null;
+        }
+
         function calculateWTE() {
             let population = parseInt(document.getElementById("population").value);
-
-            if (isNaN(population) || population <= 0) {
-                document.getElementById("result").innerHTML = "<p class='error'>Please enter a valid population.</p>";
+            let processingRate = parseInt(document.getElementById("processingRate").value) / 100;
+            
+            const validationError = validateInput(population);
+            if (validationError) {
+                document.getElementById("result").innerHTML = `<p class="error">${validationError}</p>`;
                 return;
             }
 
-            let foodWastePerPerson = 435;
-            let plasticMSWPerPerson = 500;
-            let humanWastePerPerson = 50;
-            let agWastePerPerson = 120;
+            const constants = {
+                foodWastePerPerson: 435,
+                plasticMSWPerPerson: 500,
+                humanWastePerPerson: 50,
+                agWastePerPerson: 120,
+                methaneYieldPerTon: 100,
+                electricityPerMethaneM3: 10,
+                incinerationEfficiency: 0.42,
+                gasificationEfficiency: 1.25,
+                co2EquivalentSaved: 3.5,
+                algaePerCo2: 0.25,
+                biofuelPerAlgae: 0.6,
+                householdEnergyUsage: 10500,
+                landfillSpacePerTon: 1.5,
+                electricityRate: 0.12,
+                carbonCreditRate: 15
+            };
 
-            let methaneYieldPerTon = 100;
-            let electricityPerMethaneM3 = 10;
-            let incinerationEfficiency = 0.42;
-            let gasificationEfficiency = 1.25;
-            let co2EquivalentSaved = 3.5;
-            let algaePerCo2 = 0.25;
-            let biofuelPerAlgae = 0.6;
-            let householdEnergyUsage = 10500;
-            let landfillSpacePerTon = 1.5;
+            let totalFoodWaste = (population * constants.foodWastePerPerson) / 1000;
+            let totalPlasticMSW = (population * constants.plasticMSWPerPerson) / 1000;
+            let totalHumanWaste = (population * constants.humanWastePerPerson) / 1000;
+            let totalAgWaste = (population * constants.agWastePerPerson) / 1000;
 
-            let totalFoodWaste = (population * foodWastePerPerson) / 1000;
-            let totalPlasticMSW = (population * plasticMSWPerPerson) / 1000;
-            let totalHumanWaste = (population * humanWastePerPerson) / 1000;
-            let totalAgWaste = (population * agWastePerPerson) / 1000;
+            let processedFoodWaste = totalFoodWaste * processingRate;
+            let processedPlasticMSW = totalPlasticMSW * processingRate;
+            let processedHumanWaste = totalHumanWaste * processingRate;
+            let processedAgWaste = totalAgWaste * processingRate;
 
-            let minProcessing = 0.05;
-            let maxProcessing = 1.0;
+            let methaneFood = processedFoodWaste * constants.methaneYieldPerTon;
+            let methaneHuman = processedHumanWaste * constants.methaneYieldPerTon;
+            let electricityFood = methaneFood * constants.electricityPerMethaneM3;
+            let electricityHuman = methaneHuman * constants.electricityPerMethaneM3;
+            let electricityPlasticMSW = processedPlasticMSW * constants.incinerationEfficiency * 1000;
+            let electricityAgWaste = processedAgWaste * constants.gasificationEfficiency * 1000;
 
-            function processWaste(rate) {
-                let processedFoodWaste = totalFoodWaste * rate;
-                let processedPlasticMSW = totalPlasticMSW * rate;
-                let processedHumanWaste = totalHumanWaste * rate;
-                let processedAgWaste = totalAgWaste * rate;
+            let totalEnergy = (electricityFood + electricityHuman + electricityPlasticMSW + electricityAgWaste) / 1000;
+            
+            let co2Saved = (processedFoodWaste + processedHumanWaste) * constants.co2EquivalentSaved;
+            let landfillSpaceSaved = (processedFoodWaste + processedPlasticMSW + processedHumanWaste) * constants.landfillSpacePerTon;
+            let algaeProduced = co2Saved * constants.algaePerCo2;
+            let biofuelProduced = algaeProduced * constants.biofuelPerAlgae;
+            
+            let electricityRevenue = totalEnergy * 1000 * constants.electricityRate;
+            let carbonCredits = co2Saved * constants.carbonCreditRate;
+            let totalRevenue = electricityRevenue + carbonCredits;
 
-                let methaneFood = processedFoodWaste * methaneYieldPerTon;
-                let electricityFood = methaneFood * electricityPerMethaneM3;
-                let electricityPlasticMSW = processedPlasticMSW * incinerationEfficiency * 1000;
-                let electricityAgWaste = processedAgWaste * gasificationEfficiency * 1000;
+            let treesEquivalent = Math.floor(co2Saved * 46);
+            let carsRemoved = Math.floor(co2Saved / 4.6);
 
-                let totalEnergy = (electricityFood + electricityPlasticMSW + electricityAgWaste) / 1000;
-                let householdsPowered = totalEnergy * 1000 / householdEnergyUsage;
-                let landfillSpaceSaved = (processedFoodWaste + processedPlasticMSW + processedHumanWaste) * landfillSpacePerTon;
-                let co2Saved = (processedFoodWaste + processedHumanWaste) * co2EquivalentSaved;
-                let algaeProduced = co2Saved * algaePerCo2;
-                let biofuelProduced = algaeProduced * biofuelPerAlgae;
+            currentResults = {
+                totalEnergy,
+                householdsPowered: totalEnergy * 1000 / constants.householdEnergyUsage,
+                landfillSpaceSaved,
+                co2Saved,
+                algaeProduced,
+                biofuelProduced,
+                treesEquivalent,
+                carsRemoved,
+                totalRevenue,
+                electricityRevenue,
+                carbonCredits
+            };
 
-                // New calculations for additional metrics
-                let treesEquivalent = Math.floor(co2Saved * 46); // Each tree absorbs about 22 kg CO2 per year
-                let carsRemoved = Math.floor(co2Saved / 4.6); // Average car emits 4.6 tons of CO2 per year
+            displayResults(currentResults);
+        }
 
-                return { 
-                    totalEnergy, 
-                    householdsPowered, 
-                    landfillSpaceSaved, 
-                    co2Saved, 
-                    algaeProduced, 
-                    biofuelProduced,
-                    treesEquivalent,
-                    carsRemoved
-                };
-            }
-
-            let minValues = processWaste(minProcessing);
-            let maxValues = processWaste(maxProcessing);
-
-            // Calculate per capita metrics
-            let perCapitaEnergy = maxValues.totalEnergy / population;
-            let perCapitaCO2 = maxValues.co2Saved / population;
+        function displayResults(results) {
+            const unitSuffix = isMetricUnits ? 'm³' : 'cubic yards';
+            const landfillSpace = isMetricUnits ? 
+                results.landfillSpaceSaved : 
+                results.landfillSpaceSaved * 1.30795;
 
             document.getElementById("result").innerHTML = `
-                <h3>Results:</h3>
-                <div class="result-item">⚡ Total Energy: <b>${minValues.totalEnergy.toFixed(2)} - ${maxValues.totalEnergy.toFixed(2)} MWh</b></div>
-                <div class="result-item">🏠 Households Powered: <b>${minValues.householdsPowered.toFixed(0)} - ${maxValues.householdsPowered.toFixed(0)}</b></div>
-                <div class="result-item">🚛 Landfill Space Saved: <b>${minValues.landfillSpaceSaved.toFixed(2)} - ${maxValues.landfillSpaceSaved.toFixed(2)} m³</b></div>
-                <div class="result-item">🌍 CO₂ Saved: <b>${minValues.co2Saved.toFixed(2)} - ${maxValues.co2Saved.toFixed(2)} tons</b></div>
-                <div class="result-item">🦠 Algae Production: <b>${minValues.algaeProduced.toFixed(2)} - ${maxValues.algaeProduced.toFixed(2)} tons</b></div>
-                <div class="result-item">🛢️ Biofuel Production: <b>${minValues.biofuelProduced.toFixed(2)} - ${maxValues.biofuelProduced.toFixed(2)} tons</b></div>
+                <div class="result-item">⚡ Total Energy: <b>${results.totalEnergy.toFixed(2)} MWh</b></div>
+                <div class="result-item">🏠 Households Powered: <b>${Math.floor(results.householdsPowered)}</b></div>
+                <div class="result-item">🚛 Landfill Space Saved: <b>${landfillSpace.toFixed(2)} ${unitSuffix}</b></div>
+                <div class="result-item">🌍 CO₂ Saved: <b>${results.co2Saved.toFixed(2)} tons</b></div>
+                <div class="result-item">🦠 Algae Production: <b>${results.algaeProduced.toFixed(2)} tons</b></div>
+                <div class="result-item">🛢️ Biofuel Production: <b>${results.biofuelProduced.toFixed(2)} tons</b></div>
                 
-                <!-- New environmental equivalents section -->
-                <div class="comparison">
-                    <h4>Environmental Equivalents (at maximum processing):</h4>
-                    <div>🌳 Equivalent to planting ${maxValues.treesEquivalent.toLocaleString()} trees</div>
-                    <div>🚗 Equal to removing ${maxValues.carsRemoved.toLocaleString()} cars from the road</div>
+                <div class="economic-impact">
+                    <h4>Economic Impact:</h4>
+                    <div>💰 Electricity Revenue: $${results.electricityRevenue.toLocaleString(undefined, {maximumFractionDigits: 2})}</div>
+                    <div>💵 Carbon Credits: $${results.carbonCredits.toLocaleString(undefined, {maximumFractionDigits: 2})}</div>
+                    <div>📈 Total Annual Revenue: $${results.totalRevenue.toLocaleString(undefined, {maximumFractionDigits: 2})}</div>
                 </div>
-                
-                <div class="per-capita">
-                    <h4>Per Capita Impact (at maximum processing):</h4>
-                    <div>Energy Generation: ${perCapitaEnergy.toFixed(2)} MWh per person</div>
-                    <div>CO₂ Reduction: ${perCapitaCO2.toFixed(2)} tons per person</div>
-                </div>`;
-        }
-    </script>
-</body>
-</html>
+
+                <div class="comparison">
+                    <h4>Environmental Equivalents:</h4>
