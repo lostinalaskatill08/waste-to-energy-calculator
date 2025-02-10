@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Integrated Waste-to-Energy Calculator (Algae Feedback + Biodiesel)</title>
+  <title>Integrated Waste-to-Energy Calculator</title>
   <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <style>
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 1000px;
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 40px;
-      line-height: 1.6;
       background-color: #f8fafc;
     }
     .calculator-header {
@@ -23,15 +22,6 @@
       color: white;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
-    .subtitle {
-      font-size: 1.2em;
-      margin-bottom: 30px;
-      opacity: 0.9;
-    }
     .input-section {
       text-align: center;
       margin-bottom: 40px;
@@ -41,98 +31,100 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
     input[type="number"] {
-      padding: 12px 20px;
+      padding: 10px;
       font-size: 1.1em;
-      margin-right: 10px;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
       width: 200px;
-      transition: border-color 0.3s ease;
-    }
-    input[type="number"]:focus {
-      border-color: #4ade80;
-      outline: none;
     }
     button {
       padding: 12px 24px;
       font-size: 1.1em;
       border: none;
-      border-radius: 8px;
       background: #4ade80;
       color: white;
       cursor: pointer;
-      transition: transform 0.2s ease, background-color 0.3s ease;
-    }
-    button:hover {
-      background: #22c55e;
-      transform: translateY(-2px);
     }
     .result-section {
       background: white;
       padding: 20px;
       border-radius: 10px;
-      margin-bottom: 20px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
   <div class="calculator-header">
     <h1>♻️ Integrated Waste-to-Energy Calculator</h1>
-    <p class="subtitle">Includes two-stage AD, WTE, gasification, algae biodiesel, and feedback loops</p>
+    <p>Includes anaerobic digestion, gasification, WTE, and algae biodiesel with feedback loops.</p>
   </div>
   <div class="input-section">
     <label>🏙️ City Population: </label>
     <input type="number" id="population" value="10000">
-    <button onclick="calculateIntegratedSystem()">🧮 Calculate Energy Potential</button>
+    <button onclick="calculateEnergyOutput()">🧮 Calculate Energy Potential</button>
   </div>
   <div id="result"></div>
   <script>
-    function calculateIntegratedSystem() {
+    function calculateEnergyOutput() {
       const population = parseFloat(document.getElementById("population").value) || 0;
+      const baseAD_kWh = population * 500;
       
-      // Base Anaerobic Digestion
-      const baseADEnergy_kWh = 500 * population;
-      
-      // Waste-to-Energy (WTE)
-      const dailyMSW_kgPerPerson = 2.0;
-      const fractionForWTE = 0.5;
-      const annualMSW_kgPerPerson = dailyMSW_kgPerPerson * 365 * fractionForWTE;
-      const annualMSW_tonnes = (annualMSW_kgPerPerson * population) / 1000;
-      const netKWhPerTonne_WTE = 2800 * 0.32;
-      const wteEnergy_kWh = annualMSW_tonnes * netKWhPerTonne_WTE;
-      
-      // Algae Biomass Calculation
+      // Algae Growth & Biodiesel
       const algaeTotal_kg = (45 * 2.5 * 365 * population) / 1000;
       const lipidFraction = 0.45;
       const leftoverFraction = 1 - lipidFraction;
-      const annualLipids_kg = algaeTotal_kg * lipidFraction;
-      const leftoverAlgae_kg = algaeTotal_kg * leftoverFraction;
+      const biodiesel_kg = algaeTotal_kg * lipidFraction * 0.40;
+      const biodiesel_L = biodiesel_kg / 0.88;
+      const biodieselEnergy_kWh = biodiesel_L * 10 * 0.35;
       
-      // Biodiesel Production & Energy
-      const biodieselProduced_kg = annualLipids_kg * 0.40;
-      const biodieselLiters = biodieselProduced_kg / 0.88;
-      const biodieselEnergy_kWh = biodieselLiters * 10 * 0.35;
+      // Algae Byproduct Split (50% AD, 50% Gasification)
+      const algaeLeftover_kg = algaeTotal_kg * leftoverFraction;
+      const algaeToAD_kg = algaeLeftover_kg * 0.50;
+      const algaeToGasification_kg = algaeLeftover_kg * 0.50;
       
-      // 50/50 Split of Algae Residue Between AD & Gasification
-      const algaeToAD_kg = leftoverAlgae_kg * 0.50;
-      const algaeToGasification_kg = leftoverAlgae_kg * 0.50;
-      const biogasYield_m3 = algaeToAD_kg * 0.70 * 0.65 * 0.78;
-      const algaeADEnergy_kWh = biogasYield_m3 * 10 * 0.32;
+      // Anaerobic Digestion with Algae Boost
+      const biogas_m3 = algaeToAD_kg * 0.70 * 0.65 * 0.78;
+      const algaeADEnergy_kWh = biogas_m3 * 10 * 0.32;
+      const synergyBoost_kWh = baseAD_kWh * 0.20;
+      
+      // Gasification Process
       const gasificationEfficiency = 0.55;
       const algaeGasificationEnergy_kWh = algaeToGasification_kg * 4.5 * gasificationEfficiency;
       
-      // Total Energy Output
-      const totalEnergy_kWh = baseADEnergy_kWh + algaeADEnergy_kWh + algaeGasificationEnergy_kWh + biodieselEnergy_kWh + wteEnergy_kWh;
+      // Waste-to-Energy (WTE) Component
+      const dailyMSW_kg = 2.0;
+      const annualMSW_tonnes = (dailyMSW_kg * 365 * population) / 1000 * 0.5;
+      const WTE_Energy_kWh = annualMSW_tonnes * 2800 * 0.32;
+      
+      // Environmental Metrics
+      const co2Saved_tonnes = population * 0.08;
+      const carsRemoved = Math.round(population * 0.015);
+      const treesEquivalent = Math.round(population * 0.27);
+      
+      // Total Energy Calculation
+      const totalEnergy_kWh = baseAD_kWh + synergyBoost_kWh + algaeADEnergy_kWh + algaeGasificationEnergy_kWh + biodieselEnergy_kWh + WTE_Energy_kWh;
       const homesPowered = Math.floor(totalEnergy_kWh / 10500);
       
       document.getElementById("result").innerHTML = `
         <div class="result-section">
           <h2>System-Wide Energy Summary</h2>
-          <p>Total Energy: ${Math.round(totalEnergy_kWh).toLocaleString()} kWh/year</p>
           <p>🏠 ${homesPowered.toLocaleString()} Homes Powered</p>
+          <p>Total Energy: ${Math.round(totalEnergy_kWh).toLocaleString()} kWh/year</p>
         </div>
-      `;
+        <div class="result-section">
+          <h2>Module Breakdown</h2>
+          <p>Base AD: ${Math.round(baseAD_kWh).toLocaleString()} kWh/year</p>
+          <p>AD Synergy Boost: ${Math.round(synergyBoost_kWh).toLocaleString()} kWh/year</p>
+          <p>Algae in AD: ${Math.round(algaeADEnergy_kWh).toLocaleString()} kWh/year</p>
+          <p>Gasification: ${Math.round(algaeGasificationEnergy_kWh).toLocaleString()} kWh/year</p>
+          <p>Biodiesel Energy: ${Math.round(biodieselEnergy_kWh).toLocaleString()} kWh/year</p>
+          <p>WTE: ${Math.round(WTE_Energy_kWh).toLocaleString()} kWh/year</p>
+        </div>
+        <div class="result-section">
+          <h2>Environmental Impact</h2>
+          <p>CO₂ Saved: ${co2Saved_tonnes.toFixed(2)} tonnes/year</p>
+          <p>Cars Removed: ${carsRemoved.toLocaleString()}</p>
+          <p>Trees Equivalent: ${treesEquivalent.toLocaleString()}</p>
+        </div>`;
     }
   </script>
 </body>
