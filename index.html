@@ -72,16 +72,23 @@
   <script>
     function calculateIntegratedSystem() {
       const population = parseFloat(document.getElementById("population").value) || 0;
-
+      if (population <= 0) {
+        document.getElementById("result").innerHTML = `<div class='result-section'><h2>Invalid Input</h2><p>Please enter a valid population number.</p></div>`;
+        return;
+      }
+      
       // Base Anaerobic Digestion
       const baseADEnergy_kWh = 500 * population;
       
       // Algae Biomass Calculation
-      const algaeTotal_kg = (45 * 2.5 * 365 * population) / 1000; 
+      const algaeDaily_gPerPerson = 45 * 2.5;
+      const algaeAnnual_kgPerPerson = (algaeDaily_gPerPerson * 365) / 1000; 
+      const totalAlgae_kg = algaeAnnual_kgPerPerson * population;
+      
       const lipidFraction = 0.45;
       const leftoverFraction = 1 - lipidFraction;
-      const annualLipids_kg = algaeTotal_kg * lipidFraction;
-      const leftoverAlgae_kg = algaeTotal_kg * leftoverFraction;
+      const annualLipids_kg = totalAlgae_kg * lipidFraction;
+      const leftoverAlgae_kg = totalAlgae_kg * leftoverFraction;
       
       // Biodiesel Production & Energy
       const biodieselProduced_kg = annualLipids_kg * 0.40;
@@ -93,8 +100,8 @@
       const algaeToGasification_kg = leftoverAlgae_kg * 0.50;
       
       // AD Contribution from Algae
-      const biogasYield = algaeToAD_kg * 0.70 * 0.65 * 0.78;
-      const algaeADEnergy_kWh = biogasYield * 10 * 0.32;
+      const biogasYield_m3 = algaeToAD_kg * 0.70 * 0.65 * 0.78;
+      const algaeADEnergy_kWh = biogasYield_m3 * 10 * 0.32;
       
       // Gasification Contribution
       const gasificationEfficiency = 0.55;
