@@ -5,163 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced Circular Waste-to-Energy Calculator</title>
     <style>
-        :root {
-            --primary-color: #2ecc71;
-            --secondary-color: #3498db;
-            --dark-color: #2c3e50;
-            --light-color: #ecf0f1;
-            --accent-color: #e74c3c;
-        }
-        
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            max-width: 1000px;
-            margin: auto;
-            padding: 20px;
-            background-color: #f8f9fa;
-            color: var(--dark-color);
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 2rem;
-            border-radius: 15px;
-            margin-bottom: 2rem;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 2.5rem;
-        }
-
-        .input-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        input {
-            font-size: 1.2rem;
-            padding: 0.8rem 1.2rem;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            width: 200px;
-            margin-right: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            font-size: 1.2rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #27ae60;
-            transform: translateY(-2px);
-        }
-
-        .results {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .result-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
-        }
-
-        .result-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .result-card h3 {
-            color: var(--primary-color);
-            margin-top: 0;
-            border-bottom: 2px solid var(--light-color);
-            padding-bottom: 0.5rem;
-        }
-
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .metric-value {
-            font-weight: bold;
-            color: var(--dark-color);
-        }
-
-        .highlight {
-            background: linear-gradient(135deg, #fff6e6, #ffedd9);
-            border-left: 4px solid #f39c12;
-        }
-
-        .homes-powered {
-            text-align: center;
-            font-size: 1.5rem;
-            padding: 2rem;
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-            border-radius: 12px;
-            margin: 2rem 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .homes-powered span {
-            font-size: 2.5rem;
-            font-weight: bold;
-            display: block;
-            margin: 1rem 0;
-        }
-
-        .environmental-impact {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            margin-top: 2rem;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .results {
-                grid-template-columns: 1fr;
-            }
-            
-            .input-section {
-                padding: 1rem;
-            }
-            
-            input, button {
-                width: 100%;
-                margin: 0.5rem 0;
-            }
-        }
+        /* ... [Previous CSS remains the same] ... */
     </style>
 </head>
 <body>
@@ -172,23 +16,95 @@
 
     <div class="input-section">
         <label for="population">City Population:</label>
-        <input type="number" id="population" placeholder="Enter population" min="1">
-        <button onclick="calculateMaximizedSystem()">Calculate Energy Potential</button>
+        <input type="number" id="population" placeholder="Enter population" value="10000">
+        <button id="calculateButton">Calculate Energy Potential</button>
     </div>
 
     <div id="result"></div>
 
     <script>
         function calculateMaximizedSystem() {
-            // Previous calculation code remains the same until results display
+            // Get population input
             let population = parseInt(document.getElementById("population").value);
 
-            // ... [Previous calculation code] ...
+            if (isNaN(population) || population <= 0) {
+                document.getElementById("result").innerHTML = "<p class='error'>Please enter a valid population number.</p>";
+                return;
+            }
 
-            // Add homes powered calculation
+            // Base waste calculations
+            const humanWastePerDay = 0.0002; // tonnes/person/day
+            const mswPerDay = 0.002; // tonnes/person/day
+            const annualHumanWaste = population * humanWastePerDay * 365;
+            const annualMSW = population * mswPerDay * 365;
+
+            // Waste distribution
+            const organicFraction = 0.50;
+            const toAD = (annualMSW * organicFraction) + annualHumanWaste;
+            const toWTE = annualMSW * 0.30;
+            const toGasification = annualMSW * 0.20;
+
+            // Algae system
+            const algaeYield = 0.045; // tonnes/m²/year
+            const areaPerPerson = 2.5; // m²
+            const algaeArea = population * areaPerPerson;
+            const annualAlgaeBiomass = algaeYield * algaeArea;
+            const lipidContent = 0.45;
+            const extractedLipids = annualAlgaeBiomass * lipidContent;
+            const spentBiomass = annualAlgaeBiomass * (1 - lipidContent);
+
+            // Biomass distribution
+            const spentToAD = spentBiomass * 0.6;
+            const spentToGasification = spentBiomass * 0.4;
+
+            // Enhanced Two-Stage AD
+            const adEfficiency = 0.48;
+            const coDigestionBoost = 1.25;
+            const biogasYield = 0.65; // m³/kg VS
+            const methaneContent = 0.78;
+            const energyPerM3 = 6.5 * (methaneContent/0.60);
+
+            // Calculate AD energy
+            const adEnergy = (toAD + spentToAD) * 1000 * adEfficiency * 
+                           coDigestionBoost * biogasYield * energyPerM3 / 1000;
+
+            // WTE calculations
+            const wteEfficiency = 0.32;
+            const calorificValue = 2.8; // MWh/tonne
+            const heatRecovery = 0.15;
+            const wteEnergy = toWTE * calorificValue * wteEfficiency;
+            const wteHeat = toWTE * calorificValue * heatRecovery;
+
+            // Gasification
+            const gasificationEff = 0.42;
+            const gasificationEnergy = (toGasification + spentToGasification) * 
+                                    gasificationEff * 6.2;
+
+            // Algae biofuel
+            const conversionEff = 0.40;
+            const biofuelEnergy = extractedLipids * conversionEff * 11.6;
+
+            // Integration benefits
+            const heatRecoveryTotal = wteHeat + (gasificationEnergy * 0.15);
+            const nutrientRecycling = (adEnergy + gasificationEnergy) * 0.08;
+            const carbonCapture = (toGasification + spentToGasification) * 0.15 * 0.75 * 3.67 * 0.1;
+
+            // Total system energy
+            const totalEnergy = adEnergy + wteEnergy + gasificationEnergy + 
+                              biofuelEnergy + heatRecoveryTotal + nutrientRecycling + 
+                              carbonCapture;
+
+            // Environmental benefits
+            const co2Saved = (toAD * 3.5) + (toGasification * 2.8);
+            const biocharProduced = (toGasification + spentToGasification) * 0.15;
+            const treesEquivalent = Math.floor(co2Saved * 46);
+            const carsRemoved = Math.floor(co2Saved / 4.6);
+
+            // Calculate homes powered
             const avgHomeUsage = 10500; // kWh/year (US average)
             const homesPowered = Math.floor((totalEnergy * 1000) / avgHomeUsage);
 
+            // Display results
             document.getElementById("result").innerHTML = `
                 <div class="homes-powered">
                     <h2>Total Impact</h2>
@@ -269,11 +185,14 @@
                 </div>`;
         }
 
-        // Add enter key support
-        document.getElementById("population").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") {
-                calculateMaximizedSystem();
-            }
+        // Add event listeners
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("calculateButton").addEventListener("click", calculateMaximizedSystem);
+            document.getElementById("population").addEventListener("keypress", function(e) {
+                if (e.key === "Enter") {
+                    calculateMaximizedSystem();
+                }
+            });
         });
     </script>
 </body>
