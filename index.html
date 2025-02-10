@@ -21,16 +21,6 @@
       background: linear-gradient(135deg, #4ade80, #2dd4bf);
       border-radius: 15px;
       color: white;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
-    .subtitle {
-      font-size: 1.2em;
-      margin-bottom: 30px;
-      opacity: 0.9;
     }
     .input-section {
       text-align: center;
@@ -47,11 +37,6 @@
       border: 2px solid #e2e8f0;
       border-radius: 8px;
       width: 200px;
-      transition: border-color 0.3s ease;
-    }
-    input[type="number"]:focus {
-      border-color: #4ade80;
-      outline: none;
     }
     button {
       padding: 12px 24px;
@@ -61,20 +46,6 @@
       background: #4ade80;
       color: white;
       cursor: pointer;
-      transition: transform 0.2s ease, background-color 0.3s ease;
-    }
-    button:hover {
-      background: #22c55e;
-      transform: translateY(-2px);
-    }
-    h2 {
-      font-size: 1.8em;
-      margin-top: 30px;
-      margin-bottom: 15px;
-      color: #0f766e;
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
     .result-section {
       background: white;
@@ -82,52 +53,6 @@
       border-radius: 10px;
       margin-bottom: 20px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-    .metric {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .metric:last-child {
-      border-bottom: none;
-    }
-    .metric-value {
-      font-weight: bold;
-      color: #059669;
-    }
-    .homes-powered {
-      font-size: 1.6em;
-      text-align: center;
-      margin: 20px 0;
-      color: #059669;
-      font-weight: bold;
-    }
-    .assumptions {
-      margin-top: 60px;
-      padding: 25px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      border-left: 4px solid #4ade80;
-    }
-    .assumptions h3 {
-      margin-top: 0;
-      color: #0f766e;
-      font-size: 1.4em;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .assumptions ul {
-      margin-bottom: 0;
-    }
-    .highlight {
-      background: #ecfdf5;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-weight: 500;
     }
   </style>
 </head>
@@ -138,265 +63,55 @@
       Includes two-stage AD, WTE, gasification, algae biodiesel, and feedback loops
     </p>
   </div>
-
   <div class="input-section">
     <label>🏙️ City Population: </label>
     <input type="number" id="population" value="10000">
     <button onclick="calculateIntegratedSystem()">🧮 Calculate Energy Potential</button>
   </div>
-
   <div id="result"></div>
-
-  <div class="assumptions">
-    <h3>Core Assumptions</h3>
-    <p>
-      <strong>1)</strong> Human + MSW → Base AD: Example placeholders (500 kWh/person/year). <br/>
-      <strong>2)</strong> WTE: 2.8 MWh/tonne for the combustible fraction of MSW (32% efficiency). <br/>
-      <strong>3)</strong> Gasification: Simplified placeholder. <br/>
-      <strong>4)</strong> Algae: 45 g/m²/day, 2.5 m²/person, 45% lipids, 40% biodiesel conversion, leftover algae returns to AD. <br/>
-      <strong>5)</strong> AD synergy: +20% if microalgal residue is co-digested. <br/>
-      <strong>6)</strong> Biodiesel usage: 10 kWh/L, 35% generator efficiency if converted to electricity (simplified). <br/>
-      <strong>7)</strong> Heat recovery, nutrient recycling, carbon capture: placeholders. <br/>
-      <strong>8)</strong> 10,500 kWh/household/year baseline. <br/>
-      Everything here can be replaced with site-specific data.
-    </p>
-  </div>
-
   <script>
     function calculateIntegratedSystem() {
       const population = parseFloat(document.getElementById("population").value) || 0;
 
-      // -----------------------------
-      // 1) BASE AD (Human Waste + MSW)
-      // -----------------------------
-      // Placeholder: ~500 kWh/year per person from standard AD feedstocks.
-      const baseADPerPerson_kWh = 500;
-      let baseADEnergy_kWh = baseADPerPerson_kWh * population;
-
-      // -----------------------------
-      // 2) WASTE-TO-ENERGY (WTE)
-      // -----------------------------
-      // Calorific value: 2.8 MWh/tonne. Let's do a simplified approach:
-      //   Suppose each person generates 2 kg MSW/day, 50% organic fraction already in AD, 
-      //   leaving ~1 kg for WTE feed. That’s ~365 kg/year. We’ll convert kg to tonnes ( /1000 ).
-      //   Then multiply by 2.8 MWh/tonne. 
-      //   Factor an overall 32% electrical efficiency to get final kWh. 
-      //   This is a purely illustrative model; adapt as needed.
-      const dailyMSW_kgPerPerson = 2.0;
-      const fractionForWTE = 0.5; // The portion that isn't used in AD or recycled, for incineration
-      const annualMSW_kgPerPerson = dailyMSW_kgPerPerson * 365 * fractionForWTE; 
-      const annualMSW_tonnes = (annualMSW_kgPerPerson * population) / 1000; 
-
-      // 2.8 MWh/tonne => 2800 kWh/tonne primary. With 32% efficiency => 0.32 * 2800 = 896 kWh/tonne net.
-      const netKWhPerTonne_WTE = 2800 * 0.32; // 896 kWh/tonne
-      let wteEnergy_kWh = annualMSW_tonnes * netKWhPerTonne_WTE;
-
-      // -----------------------------
-      // 3) GASIFICATION 
-      // -----------------------------
-      // Another placeholder. Let's just say population * 2 kWh for illustration 
-      // or you have a more robust formula. Replace accordingly.
-      let gasificationEnergy_kWh = population * 2;
-
-      // -----------------------------
-      // 4) ALGAE PRODUCTION & LIPID EXTRACTION
-      // -----------------------------
-      //   45 g/m²/day, area = 2.5 m²/person => daily algae production in grams 
-      //   => convert to kg/year => total for the population
-      const algaeDaily_gPerPerson = 45 * 2.5; // 112.5 g/day/person
-      const algaeAnnual_kgPerPerson = (algaeDaily_gPerPerson * 365) / 1000; 
-      const totalAlgae_kg = algaeAnnual_kgPerPerson * population;
-
-      // Lipid fraction = 45%. Remainder leftover. 
+      // Base Anaerobic Digestion
+      const baseADEnergy_kWh = 500 * population;
+      
+      // Algae Biomass Calculation
+      const algaeTotal_kg = (45 * 2.5 * 365 * population) / 1000; 
       const lipidFraction = 0.45;
-      const leftoverFraction = 1 - lipidFraction; 
-      const annualLipids_kg = totalAlgae_kg * lipidFraction;
-      const leftoverAlgae_kg = totalAlgae_kg * leftoverFraction;
-
-      // Convert lipids to biodiesel. 40% conversion efficiency.
+      const leftoverFraction = 1 - lipidFraction;
+      const annualLipids_kg = algaeTotal_kg * lipidFraction;
+      const leftoverAlgae_kg = algaeTotal_kg * leftoverFraction;
+      
+      // Biodiesel Production & Energy
       const biodieselProduced_kg = annualLipids_kg * 0.40;
-
-      // -----------------------------
-      // 5) ALGAE BIOFUEL ENERGY
-      // -----------------------------
-      // If we are burning biodiesel in a generator to make electricity:
-      //   - Assume ~0.88 kg/L density => liters of biodiesel 
-      //   - 1 liter biodiesel ~10 kWh primary, 
-      //   - 35% generator efficiency => 10 * 0.35 = 3.5 kWh net per liter
-      const biodieselDensity_kgPerL = 0.88; 
-      const biodieselLiters = biodieselProduced_kg / biodieselDensity_kgPerL;
-      const kWhPerLiterBiodiesel = 10; 
-      const generatorEfficiency = 0.35; // 35% 
-      const netKWhPerLiter = kWhPerLiterBiodiesel * generatorEfficiency; // 3.5
-      let algaeBiofuelEnergy_kWh = biodieselLiters * netKWhPerLiter;
-
-      // -----------------------------
-      // 6) LEFTOVER ALGAE BIOMASS → AD SYNERGY
-      // -----------------------------
-      // Literature from Hasan et al. (2024) suggests microalgae residue can boost AD yields. 
-      // We'll do a simple mass-based approach:
-      //   - Assume 70% VS, 0.65 m³ biogas/kg VS, 78% CH4, 1 m³ CH4 ~10 kWh primary => 
-      //   => net electricity at 32% efficiency => ~3.2 kWh net per m³ CH4 
-      // Then we’ll multiply by a synergy factor (e.g., +20%) to reflect the improved digestion.
-      const vsContent = 0.70;
-      const leftoverVS = leftoverAlgae_kg * vsContent;
-      const biogasYield_m3PerKgVS = 0.65;
-      const methaneFraction = 0.78;
-      const ch4_m3PerKgVS = biogasYield_m3PerKgVS * methaneFraction; // ~0.507 m³ CH4/kg VS
-      const netElectricityPer_m3CH4 = 10 * 0.32; // 3.2 kWh
-
-      // Biogas from leftover algae:
-      const leftoverAlgaeCH4_m3 = leftoverVS * ch4_m3PerKgVS;
-      const leftoverAlgaeEnergy_kWh = leftoverAlgaeCH4_m3 * netElectricityPer_m3CH4;
-
-      // Additional synergy on the entire AD process (for co-digestion):
-      // e.g., 20% synergy means the leftover algae helps the base AD perform better overall.
-      const coDigestionSynergyFactor = 0.20;
-      const synergyBoost_kWh = baseADEnergy_kWh * coDigestionSynergyFactor;
-
-      // Updated AD total (base AD + synergy from co-digestion + leftover algae direct energy)
-      let enhancedAD_kWh = baseADEnergy_kWh + synergyBoost_kWh + leftoverAlgaeEnergy_kWh;
-
-      // -----------------------------
-      // 7) HEAT RECOVERY / NUTRIENT RECYCLING / CARBON CAPTURE 
-      // -----------------------------
-      // We can do placeholders or add advanced logic from your previous code:
-      // Example placeholders:
-      const heatRecovery_kWh = population * 1; 
-      const nutrientRecycling_kWh = population * 0.5;
-      const carbonCapture_kWh = population * 0.3;
-
-      // -----------------------------
-      // 8) TOTAL ENERGY
-      // -----------------------------
-      // Summation across the different modules
-      let totalEnergy_kWh = 
-          enhancedAD_kWh    // AD with synergy + leftover algae
-        + wteEnergy_kWh     // WTE
-        + gasificationEnergy_kWh
-        + algaeBiofuelEnergy_kWh
-        + heatRecovery_kWh
-        + nutrientRecycling_kWh
-        + carbonCapture_kWh;
-
-      // -----------------------------
-      // 9) HOMES POWERED
-      // -----------------------------
-      const annualKWhPerHome = 10500; 
-      const homesPowered = Math.floor(totalEnergy_kWh / annualKWhPerHome);
-
-      // -----------------------------
-      // 10) ENVIRONMENTAL METRICS (Placeholders)
-      // -----------------------------
-      // Here you might incorporate CO2 saved, cars removed, etc. 
-      // Example placeholders:
-      const co2Saved_tonnes = population * 0.08; // random factor
-      const carsRemoved = Math.round(population * 0.015);
-      const treesEquivalent = Math.round(population * 0.27);
-
-      // -----------------------------
-      // 11) OUTPUT
-      // -----------------------------
+      const biodieselLiters = biodieselProduced_kg / 0.88;
+      const biodieselEnergy_kWh = biodieselLiters * 10 * 0.35;
+      
+      // Split 50/50 to AD & Gasification
+      const algaeToAD_kg = leftoverAlgae_kg * 0.50;
+      const algaeToGasification_kg = leftoverAlgae_kg * 0.50;
+      
+      // AD Contribution from Algae
+      const biogasYield = algaeToAD_kg * 0.70 * 0.65 * 0.78;
+      const algaeADEnergy_kWh = biogasYield * 10 * 0.32;
+      
+      // Gasification Contribution
+      const gasificationEfficiency = 0.55;
+      const algaeGasificationEnergy_kWh = algaeToGasification_kg * 4.5 * gasificationEfficiency;
+      
+      // Total Energy Output
+      const totalEnergy_kWh = baseADEnergy_kWh + algaeADEnergy_kWh + algaeGasificationEnergy_kWh + biodieselEnergy_kWh;
+      const homesPowered = Math.floor(totalEnergy_kWh / 10500);
+      
       document.getElementById("result").innerHTML = `
         <div class="result-section">
           <h2>System-Wide Energy Summary</h2>
-          <div class="homes-powered">
-            🏠 ${homesPowered.toLocaleString()} Homes Powered
-          </div>
-          <p style="text-align:center;">
-            Total Energy: ${Math.round(totalEnergy_kWh).toLocaleString()} kWh/year 
-            <br>(Baseline: 10,500 kWh/home/year)
-          </p>
-        </div>
-
-        <div class="result-section">
-          <h2>Module Breakdowns</h2>
-          <div class="metric">
-            <span>Base AD (Human Waste + MSW):</span>
-            <span class="metric-value">${(baseADEnergy_kWh/1000).toFixed(2)} MWh/year</span>
-          </div>
-          <div class="metric">
-            <span>AD Synergy Boost:</span>
-            <span class="metric-value">${(synergyBoost_kWh/1000).toFixed(2)} MWh/year</span>
-          </div>
-          <div class="metric">
-            <span>Leftover Algae in AD:</span>
-            <span class="metric-value">${(leftoverAlgaeEnergy_kWh/1000).toFixed(2)} MWh/year</span>
-          </div>
-          <div class="metric">
-            <span>WTE:</span>
-            <span class="metric-value">${(wteEnergy_kWh/1000).toFixed(2)} MWh/year</span>
-          </div>
-          <div class="metric">
-            <span>Gasification:</span>
-            <span class="metric-value">${(gasificationEnergy_kWh/1000).toFixed(2)} MWh/year</span>
-          </div>
-          <div class="metric">
-            <span>Algae Biodiesel (Electricity):</span>
-            <span class="metric-value">${(algaeBiofuelEnergy_kWh/1000).toFixed(2)} MWh/year</span>
-          </div>
-          <div class="metric">
-            <span>Heat Recovery:</span>
-            <span class="metric-value">${(heatRecovery_kWh/1000).toFixed(2)} MWh/year</span>
-          </div>
-          <div class="metric">
-            <span>Nutrient Recycling:</span>
-            <span class="metric-value">${(nutrientRecycling_kWh/1000).toFixed(2)} MWh/year</span>
-          </div>
-          <div class="metric">
-            <span>Carbon Capture:</span>
-            <span class="metric-value">${(carbonCapture_kWh/1000).toFixed(2)} MWh/year</span>
-          </div>
-        </div>
-
-        <div class="result-section">
-          <h2>Algae Metrics</h2>
-          <div class="metric">
-            <span>Total Algae Produced:</span>
-            <span class="metric-value">${totalAlgae_kg.toFixed(2)} kg/year</span>
-          </div>
-          <div class="metric">
-            <span>Lipids Extracted:</span>
-            <span class="metric-value">${annualLipids_kg.toFixed(2)} kg/year</span>
-          </div>
-          <div class="metric">
-            <span>Biodiesel Mass:</span>
-            <span class="metric-value">${biodieselProduced_kg.toFixed(2)} kg/year</span>
-          </div>
-          <div class="metric">
-            <span>Biodiesel in Liters:</span>
-            <span class="metric-value">${biodieselLiters.toFixed(2)} L/year</span>
-          </div>
-          <div class="metric">
-            <span>Leftover Algae Mass:</span>
-            <span class="metric-value">${leftoverAlgae_kg.toFixed(2)} kg/year</span>
-          </div>
-        </div>
-
-        <div class="result-section">
-          <h2>Environmental Impact</h2>
-          <div class="metric">
-            <span>CO₂ Saved:</span>
-            <span class="metric-value">${co2Saved_tonnes.toFixed(2)} tonnes/year</span>
-          </div>
-          <div class="metric">
-            <span>Cars Removed:</span>
-            <span class="metric-value">${carsRemoved.toLocaleString()}</span>
-          </div>
-          <div class="metric">
-            <span>Trees Equivalent:</span>
-            <span class="metric-value">${treesEquivalent.toLocaleString()}</span>
-          </div>
+          <p>Total Energy: ${Math.round(totalEnergy_kWh).toLocaleString()} kWh/year</p>
+          <p>🏠 ${homesPowered.toLocaleString()} Homes Powered</p>
         </div>
       `;
     }
-
-    // Trigger calculation when user presses Enter
-    document.getElementById("population").addEventListener("keypress", function(e) {
-      if (e.key === "Enter") {
-        calculateIntegratedSystem();
-      }
-    });
   </script>
 </body>
 </html>
