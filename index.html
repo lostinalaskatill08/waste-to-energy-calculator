@@ -1,301 +1,304 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Circular Waste-to-Energy Calculator</title>
-    <!-- Add favicon to prevent 404 error -->
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-    <style>
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px;
-            line-height: 1.6;
-            background-color: #f8fafc;
-        }
-
-        .calculator-header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 20px;
-            background: linear-gradient(135deg, #4ade80, #2dd4bf);
-            border-radius: 15px;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            font-size: 1.2em;
-            margin-bottom: 30px;
-            opacity: 0.9;
-        }
-
-        .input-section {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        input[type="number"] {
-            padding: 12px 20px;
-            font-size: 1.1em;
-            margin-right: 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            width: 200px;
-            transition: border-color 0.3s ease;
-        }
-
-        input[type="number"]:focus {
-            border-color: #4ade80;
-            outline: none;
-        }
-
-        button {
-            padding: 12px 24px;
-            font-size: 1.1em;
-            border: none;
-            border-radius: 8px;
-            background: #4ade80;
-            color: white;
-            cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.3s ease;
-        }
-
-        button:hover {
-            background: #22c55e;
-            transform: translateY(-2px);
-        }
-
-        h2 {
-            font-size: 1.8em;
-            margin-top: 30px;
-            margin-bottom: 15px;
-            color: #0f766e;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .result-section {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .metric:last-child {
-            border-bottom: none;
-        }
-
-        .metric-value {
-            font-weight: bold;
-            color: #059669;
-        }
-
-        .homes-powered {
-            font-size: 1.6em;
-            text-align: center;
-            margin: 20px 0;
-            color: #059669;
-            font-weight: bold;
-        }
-
-        .assumptions {
-            margin-top: 60px;
-            padding: 25px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            border-left: 4px solid #4ade80;
-        }
-
-        .assumptions h3 {
-            margin-top: 0;
-            color: #0f766e;
-            font-size: 1.4em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .assumptions ul {
-            margin-bottom: 0;
-        }
-
-        .highlight {
-            background: #ecfdf5;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Circular Waste-to-Energy Calculator</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px;
+      line-height: 1.6;
+      background-color: #f8fafc;
+    }
+    .calculator-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 20px;
+      background: linear-gradient(135deg, #4ade80, #2dd4bf);
+      border-radius: 15px;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+    .input-section {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    input[type="number"] {
+      padding: 12px 20px;
+      font-size: 1.1em;
+      margin-right: 10px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      width: 200px;
+      transition: border-color 0.3s ease;
+    }
+    input[type="number"]:focus {
+      border-color: #4ade80;
+      outline: none;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      background: #4ade80;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+    }
+    button:hover {
+      background: #22c55e;
+      transform: translateY(-2px);
+    }
+    h2 {
+      font-size: 1.8em;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      color: #0f766e;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .result-section {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .metric:last-child {
+      border-bottom: none;
+    }
+    .metric-value {
+      font-weight: bold;
+      color: #059669;
+    }
+    .homes-powered {
+      font-size: 1.6em;
+      text-align: center;
+      margin: 20px 0;
+      color: #059669;
+      font-weight: bold;
+    }
+    .assumptions {
+      margin-top: 60px;
+      padding: 25px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      border-left: 4px solid #4ade80;
+    }
+    .assumptions h3 {
+      margin-top: 0;
+      color: #0f766e;
+      font-size: 1.4em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .assumptions ul {
+      margin-bottom: 0;
+    }
+    .highlight {
+      background: #ecfdf5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
-    <div class="calculator-header">
-        <h1>♻️ Advanced Circular Waste-to-Energy Calculator</h1>
-        <p class="subtitle">🔄 Calculate energy potential with enhanced feedback loops and two-stage AD</p>
-    </div>
+  <div class="calculator-header">
+    <h1>♻️ Advanced Circular Waste-to-Energy Calculator</h1>
+    <p class="subtitle">🔄 Calculate energy potential with enhanced feedback loops and two-stage AD</p>
+  </div>
 
-    <div class="input-section">
-        <label>🏙️ City Population: </label>
-        <input type="number" id="population" value="10000">
-        <button onclick="calculateMaximizedSystem()">🧮 Calculate Energy Potential</button>
-    </div>
+  <div class="input-section">
+    <label>🏙️ City Population: </label>
+    <input type="number" id="population" value="10000">
+    <button onclick="calculateMaximizedSystem()">🧮 Calculate Energy Potential</button>
+  </div>
 
-    <div id="result"></div>
+  <div id="result"></div>
 
-    <div class="assumptions">
-        <h3>📋 Calculator Assumptions</h3>
+  <div class="assumptions">
+    <h3>📋 Calculator Assumptions</h3>
+    <ul>
+      <li>🗑️ Base Waste Generation:
         <ul>
-            <li>🗑️ Base Waste Generation:
-                <ul>
-                    <li>Human Waste: <span class="highlight">0.2 kg dry solids/person/day</span></li>
-                    <li>Municipal Solid Waste: <span class="highlight">2.0 kg/person/day</span></li>
-                    <li>Organic Fraction: <span class="highlight">50% of MSW</span></li>
-                </ul>
-            </li>
-            <li>🔄 Enhanced Two-Stage AD:
-                <ul>
-                    <li>Base Efficiency: <span class="highlight">48%</span></li>
-                    <li>Co-digestion Boost: <span class="highlight">25%</span></li>
-                    <li>Biogas Yield: <span class="highlight">0.65 m³/kg VS</span></li>
-                    <li>Methane Content: <span class="highlight">78%</span></li>
-                </ul>
-            </li>
-            <li>🔥 WTE System:
-                <ul>
-                    <li>Electrical Efficiency: <span class="highlight">32%</span></li>
-                    <li>Heat Recovery: <span class="highlight">15%</span></li>
-                    <li>Calorific Value: <span class="highlight">2.8 MWh/tonne</span></li>
-                </ul>
-            </li>
-            <li>🌿 Algae System:
-                <ul>
-                    <li>Yield: <span class="highlight">45 g/m²/day</span></li>
-                    <li>Area: <span class="highlight">2.5 m² per person</span></li>
-                    <li>Lipid Content: <span class="highlight">45%</span></li>
-                    <li>Conversion Efficiency: <span class="highlight">40%</span></li>
-                </ul>
-            </li>
-            <li>🌍 Environmental Factors:
-                <ul>
-                    <li>US Household Energy: <span class="highlight">10,500 kWh/year</span></li>
-                    <li>Tree CO₂ Absorption: <span class="highlight">22 kg/year</span></li>
-                    <li>Car Emissions: <span class="highlight">4.6 tonnes CO₂/year</span></li>
-                </ul>
-            </li>
+          <li>Human Waste: <span class="highlight">0.2 kg dry solids/person/day</span></li>
+          <li>Municipal Solid Waste: <span class="highlight">2.0 kg/person/day</span></li>
+          <li>Organic Fraction: <span class="highlight">50% of MSW</span></li>
         </ul>
-    </div>
+      </li>
+      <li>🔄 Enhanced Two-Stage AD:
+        <ul>
+          <li>Base Efficiency: <span class="highlight">48%</span></li>
+          <li>Co-digestion Boost: <span class="highlight">25%</span></li>
+          <li>Biogas Yield: <span class="highlight">0.65 m³/kg VS</span></li>
+          <li>Methane Content: <span class="highlight">78%</span></li>
+        </ul>
+      </li>
+      <li>🔥 WTE System:
+        <ul>
+          <li>Electrical Efficiency: <span class="highlight">32%</span></li>
+          <li>Heat Recovery: <span class="highlight">15%</span></li>
+          <li>Calorific Value: <span class="highlight">2.8 MWh/tonne</span></li>
+        </ul>
+      </li>
+      <li>🌿 Algae System:
+        <ul>
+          <li>Yield: <span class="highlight">45 g/m²/day</span></li>
+          <li>Area: <span class="highlight">2.5 m² per person</span></li>
+          <li>Lipid Content: <span class="highlight">45%</span></li>
+          <li>Conversion Efficiency: <span class="highlight">40%</span></li>
+        </ul>
+      </li>
+      <li>🌍 Environmental Factors:
+        <ul>
+          <li>US Household Energy: <span class="highlight">10,500 kWh/year</span></li>
+          <li>Tree CO₂ Absorption: <span class="highlight">22 kg/year</span></li>
+          <li>Car Emissions: <span class="highlight">4.6 tonnes CO₂/year</span></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
 
-    <script>
-        // [Previous calculation code remains exactly the same]
-        function calculateMaximizedSystem() {
-            // [... Previous calculation code ...]
+  <script>
+    function calculateMaximizedSystem() {
+      // Retrieve user input
+      const population = parseFloat(document.getElementById("population").value) || 0;
 
-            document.getElementById("result").innerHTML = `
-                <div class="result-section">
-                    <h2>🎯 Total Impact</h2>
-                    <div class="homes-powered">
-                        🏠 ${homesPowered.toLocaleString()} Homes Powered
-                    </div>
-                    <p style="text-align: center;">Based on average US household consumption of 10,500 kWh/year</p>
-                </div>
+      // Example calculations (placeholders). Replace with your own formulas or logic:
+      let adEnergy = population * 5;          // kWh/year from anaerobic digestion
+      let wteEnergy = population * 3;         // kWh/year from waste-to-energy
+      let gasificationEnergy = population * 2; // kWh/year from gasification
+      let biofuelEnergy = population * 1;     // kWh/year from algae biofuel
 
-                <div class="result-section">
-                    <h2>⚡ Energy Generation</h2>
-                    <div class="metric">
-                        <span>Enhanced AD:</span>
-                        <span class="metric-value">${(adEnergy/1000).toFixed(2)} GWh/year</span>
-                    </div>
-                    <div class="metric">
-                        <span>WTE:</span>
-                        <span class="metric-value">${(wteEnergy/1000).toFixed(2)} GWh/year</span>
-                    </div>
-                    <div class="metric">
-                        <span>Gasification:</span>
-                        <span class="metric-value">${(gasificationEnergy/1000).toFixed(2)} GWh/year</span>
-                    </div>
-                    <div class="metric">
-                        <span>Algae Biofuel:</span>
-                        <span class="metric-value">${(biofuelEnergy/1000).toFixed(2)} GWh/year</span>
-                    </div>
-                </div>
+      let heatRecoveryTotal = population * 0.5;
+      let nutrientRecycling = population * 0.3;
+      let carbonCapture = population * 0.2;
+      let totalEnergy = adEnergy + wteEnergy + gasificationEnergy + biofuelEnergy + heatRecoveryTotal + nutrientRecycling + carbonCapture;
 
-                <div class="result-section">
-                    <h2>🔄 Integration Benefits</h2>
-                    <div class="metric">
-                        <span>Heat Recovery:</span>
-                        <span class="metric-value">${(heatRecoveryTotal/1000).toFixed(2)} GWh/year</span>
-                    </div>
-                    <div class="metric">
-                        <span>Nutrient Recycling:</span>
-                        <span class="metric-value">${(nutrientRecycling/1000).toFixed(2)} GWh/year</span>
-                    </div>
-                    <div class="metric">
-                        <span>Carbon Capture:</span>
-                        <span class="metric-value">${(carbonCapture/1000).toFixed(2)} GWh/year</span>
-                    </div>
-                </div>
+      // Additional variables
+      let biocharProduced = population * 0.01;       // tonnes/year
+      let extractedLipids = population * 0.005;      // tonnes/year
+      let treesEquivalent = Math.round(population * 0.25);
+      let carsRemoved = Math.round(population * 0.02);
+      let co2Saved = population * 0.1;               // tonnes/year
 
-                <div class="result-section">
-                    <h2>📊 System Totals</h2>
-                    <div class="metric">
-                        <span>Total Energy:</span>
-                        <span class="metric-value">${(totalEnergy/1000).toFixed(2)} GWh/year</span>
-                    </div>
-                    <div class="metric">
-                        <span>Biochar Production:</span>
-                        <span class="metric-value">${biocharProduced.toFixed(2)} tonnes/year</span>
-                    </div>
-                    <div class="metric">
-                        <span>Algae Lipids:</span>
-                        <span class="metric-value">${extractedLipids.toFixed(2)} tonnes/year</span>
-                    </div>
-                </div>
+      // Calculate homes powered (assumes 10,500 kWh/year/home)
+      let homesPowered = Math.floor(totalEnergy / 10500);
 
-                <div class="result-section">
-                    <h2>🌍 Environmental Impact</h2>
-                    <div class="metric">
-                        <span>Trees Equivalent:</span>
-                        <span class="metric-value">${treesEquivalent.toLocaleString()}</span>
-                    </div>
-                    <div class="metric">
-                        <span>Cars Removed:</span>
-                        <span class="metric-value">${carsRemoved.toLocaleString()}</span>
-                    </div>
-                    <div class="metric">
-                        <span>CO₂ Saved:</span>
-                        <span class="metric-value">${co2Saved.toFixed(2)} tonnes/year</span>
-                    </div>
-                </div>`;
-        }
+      document.getElementById("result").innerHTML = `
+        <div class="result-section">
+          <h2>🎯 Total Impact</h2>
+          <div class="homes-powered">
+            🏠 ${homesPowered.toLocaleString()} Homes Powered
+          </div>
+          <p style="text-align: center;">Based on average US household consumption of 10,500 kWh/year</p>
+        </div>
 
-        // Add event listener for Enter key
-        document.getElementById("population").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") {
-                calculateMaximizedSystem();
-            }
-        });
-    </script>
+        <div class="result-section">
+          <h2>⚡ Energy Generation</h2>
+          <div class="metric">
+            <span>Enhanced AD:</span>
+            <span class="metric-value">${(adEnergy/1000).toFixed(2)} MWh/year</span>
+          </div>
+          <div class="metric">
+            <span>WTE:</span>
+            <span class="metric-value">${(wteEnergy/1000).toFixed(2)} MWh/year</span>
+          </div>
+          <div class="metric">
+            <span>Gasification:</span>
+            <span class="metric-value">${(gasificationEnergy/1000).toFixed(2)} MWh/year</span>
+          </div>
+          <div class="metric">
+            <span>Algae Biofuel:</span>
+            <span class="metric-value">${(biofuelEnergy/1000).toFixed(2)} MWh/year</span>
+          </div>
+        </div>
+
+        <div class="result-section">
+          <h2>🔄 Integration Benefits</h2>
+          <div class="metric">
+            <span>Heat Recovery:</span>
+            <span class="metric-value">${(heatRecoveryTotal/1000).toFixed(2)} MWh/year</span>
+          </div>
+          <div class="metric">
+            <span>Nutrient Recycling:</span>
+            <span class="metric-value">${(nutrientRecycling/1000).toFixed(2)} MWh/year</span>
+          </div>
+          <div class="metric">
+            <span>Carbon Capture:</span>
+            <span class="metric-value">${(carbonCapture/1000).toFixed(2)} MWh/year</span>
+          </div>
+        </div>
+
+        <div class="result-section">
+          <h2>📊 System Totals</h2>
+          <div class="metric">
+            <span>Total Energy:</span>
+            <span class="metric-value">${(totalEnergy/1000).toFixed(2)} MWh/year</span>
+          </div>
+          <div class="metric">
+            <span>Biochar Production:</span>
+            <span class="metric-value">${biocharProduced.toFixed(2)} tonnes/year</span>
+          </div>
+          <div class="metric">
+            <span>Algae Lipids:</span>
+            <span class="metric-value">${extractedLipids.toFixed(2)} tonnes/year</span>
+          </div>
+        </div>
+
+        <div class="result-section">
+          <h2>🌍 Environmental Impact</h2>
+          <div class="metric">
+            <span>Trees Equivalent:</span>
+            <span class="metric-value">${treesEquivalent.toLocaleString()}</span>
+          </div>
+          <div class="metric">
+            <span>Cars Removed:</span>
+            <span class="metric-value">${carsRemoved.toLocaleString()}</span>
+          </div>
+          <div class="metric">
+            <span>CO₂ Saved:</span>
+            <span class="metric-value">${co2Saved.toFixed(2)} tonnes/year</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // Trigger calculation on Enter key
+    document.getElementById("population").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        calculateMaximizedSystem();
+      }
+    });
+  </script>
 </body>
 </html>
