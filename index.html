@@ -1,19 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Previous styles remain the same -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Circular Waste-to-Energy Calculator</title>
     <style>
-        /* ... [Previous CSS styles remain exactly the same] ... */
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+        }
+
+        input {
+            padding: 5px;
+            margin-right: 10px;
+            font-size: 1em;
+        }
+
+        button {
+            padding: 5px 10px;
+            font-size: 1em;
+        }
+
+        .homes-powered {
+            font-size: 1.2em;
+            margin: 1em 0;
+        }
     </style>
 </head>
 <body>
-    <div class="calculator-header">
-        <h1>Advanced Circular Waste-to-Energy Calculator</h1>
-        <p>Calculate energy potential with enhanced feedback loops and two-stage AD</p>
-    </div>
+    <h1>Advanced Circular Waste-to-Energy Calculator</h1>
+    <p>Calculate energy potential with enhanced feedback loops and two-stage AD</p>
 
-    <div class="input-section">
-        <label for="population">City Population: </label>
+    <div>
+        <label>City Population: </label>
         <input type="number" id="population" placeholder="Enter population" value="10000">
         <button onclick="calculateMaximizedSystem()">Calculate Energy Potential</button>
     </div>
@@ -22,7 +55,6 @@
 
     <script>
         function calculateMaximizedSystem() {
-            // Get population input
             let population = parseInt(document.getElementById("population").value);
 
             if (isNaN(population) || population <= 0) {
@@ -102,83 +134,32 @@
             const avgHomeUsage = 10500; // kWh/year (US average)
             const homesPowered = Math.floor((totalEnergy * 1000) / avgHomeUsage);
 
-            // Display results with enhanced styling
+            // Display results matching current style
             document.getElementById("result").innerHTML = `
-                <div class="total-impact">
-                    <h2>Total Impact</h2>
-                    <div class="homes-powered">
-                        <span class="icon">🏠</span>${homesPowered.toLocaleString()} Homes Powered
-                    </div>
-                    <p>Based on average US household consumption of 10,500 kWh/year</p>
-                </div>
+                <h2>Total Impact</h2>
+                <p>🏠 ${homesPowered.toLocaleString()} Homes Powered</p>
+                <p>Based on average US household consumption of 10,500 kWh/year</p>
 
-                <div class="section">
-                    <h2><span class="icon">⚡</span>Energy Generation</h2>
-                    <div class="metric-row">
-                        <div>Enhanced AD:</div>
-                        <div class="metric-value">${(adEnergy/1000).toFixed(2)} GWh/year</div>
-                    </div>
-                    <div class="metric-row">
-                        <div>WTE:</div>
-                        <div class="metric-value">${(wteEnergy/1000).toFixed(2)} GWh/year</div>
-                    </div>
-                    <div class="metric-row">
-                        <div>Gasification:</div>
-                        <div class="metric-value">${(gasificationEnergy/1000).toFixed(2)} GWh/year</div>
-                    </div>
-                    <div class="metric-row">
-                        <div>Algae Biofuel:</div>
-                        <div class="metric-value">${(biofuelEnergy/1000).toFixed(2)} GWh/year</div>
-                    </div>
-                </div>
+                <h2>⚡ Energy Generation</h2>
+                <p>Enhanced AD: ${(adEnergy/1000).toFixed(2)} GWh/year</p>
+                <p>WTE: ${(wteEnergy/1000).toFixed(2)} GWh/year</p>
+                <p>Gasification: ${(gasificationEnergy/1000).toFixed(2)} GWh/year</p>
+                <p>Algae Biofuel: ${(biofuelEnergy/1000).toFixed(2)} GWh/year</p>
 
-                <div class="section">
-                    <h2><span class="icon">🔄</span>Integration Benefits</h2>
-                    <div class="metric-row">
-                        <div>Heat Recovery:</div>
-                        <div class="metric-value">${(heatRecoveryTotal/1000).toFixed(2)} GWh/year</div>
-                    </div>
-                    <div class="metric-row">
-                        <div>Nutrient Recycling:</div>
-                        <div class="metric-value">${(nutrientRecycling/1000).toFixed(2)} GWh/year</div>
-                    </div>
-                    <div class="metric-row">
-                        <div>Carbon Capture:</div>
-                        <div class="metric-value">${(carbonCapture/1000).toFixed(2)} GWh/year</div>
-                    </div>
-                </div>
+                <h2>🔄 Integration Benefits</h2>
+                <p>Heat Recovery: ${(heatRecoveryTotal/1000).toFixed(2)} GWh/year</p>
+                <p>Nutrient Recycling: ${(nutrientRecycling/1000).toFixed(2)} GWh/year</p>
+                <p>Carbon Capture: ${(carbonCapture/1000).toFixed(2)} GWh/year</p>
 
-                <div class="section">
-                    <h2><span class="icon">📊</span>System Totals</h2>
-                    <div class="metric-row">
-                        <div>Total Energy:</div>
-                        <div class="metric-value">${(totalEnergy/1000).toFixed(2)} GWh/year</div>
-                    </div>
-                    <div class="metric-row">
-                        <div>Biochar Production:</div>
-                        <div class="metric-value">${biocharProduced.toFixed(2)} tonnes/year</div>
-                    </div>
-                    <div class="metric-row">
-                        <div>Algae Lipids:</div>
-                        <div class="metric-value">${extractedLipids.toFixed(2)} tonnes/year</div>
-                    </div>
-                </div>
+                <h2>📊 System Totals</h2>
+                <p>Total Energy: ${(totalEnergy/1000).toFixed(2)} GWh/year</p>
+                <p>Biochar Production: ${biocharProduced.toFixed(2)} tonnes/year</p>
+                <p>Algae Lipids: ${extractedLipids.toFixed(2)} tonnes/year</p>
 
-                <div class="environmental-impact">
-                    <h2><span class="icon">🌍</span>Environmental Impact</h2>
-                    <div class="metric-row">
-                        <div>Trees Equivalent:</div>
-                        <div class="metric-value">${treesEquivalent.toLocaleString()}</div>
-                    </div>
-                    <div class="metric-row">
-                        <div>Cars Removed:</div>
-                        <div class="metric-value">${carsRemoved.toLocaleString()}</div>
-                    </div>
-                    <div class="metric-row">
-                        <div>CO₂ Saved:</div>
-                        <div class="metric-value">${co2Saved.toFixed(2)} tonnes/year</div>
-                    </div>
-                </div>`;
+                <h2>🌍 Environmental Impact</h2>
+                <p>Trees Equivalent: ${treesEquivalent.toLocaleString()}</p>
+                <p>Cars Removed: ${carsRemoved.toLocaleString()}</p>
+                <p>CO₂ Saved: ${co2Saved.toFixed(2)} tonnes/year</p>`;
         }
 
         // Add event listener for Enter key
