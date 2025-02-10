@@ -6,52 +6,138 @@
     <title>Advanced Circular Waste-to-Energy Calculator</title>
     <style>
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px;
             line-height: 1.6;
         }
 
+        .calculator-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
         h1 {
-            font-size: 2em;
-            margin-bottom: 0.5em;
+            font-size: 2.5em;
+            margin-bottom: 10px;
         }
 
-        h2 {
-            font-size: 1.5em;
-            margin-top: 1em;
-            margin-bottom: 0.5em;
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
         }
 
-        input {
-            padding: 5px;
-            margin-right: 10px;
+        .input-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        input[type="number"] {
+            padding: 8px 12px;
             font-size: 1em;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 200px;
         }
 
         button {
-            padding: 5px 10px;
+            padding: 8px 20px;
             font-size: 1em;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #f0f0f0;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 15px;
         }
 
         .homes-powered {
-            font-size: 1.2em;
-            margin: 1em 0;
+            font-size: 1.4em;
+            margin: 20px 0;
+        }
+
+        .assumptions {
+            margin-top: 60px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .assumptions h3 {
+            margin-top: 0;
+        }
+
+        .assumptions ul {
+            margin-bottom: 0;
         }
     </style>
 </head>
 <body>
-    <h1>Advanced Circular Waste-to-Energy Calculator</h1>
-    <p>Calculate energy potential with enhanced feedback loops and two-stage AD</p>
+    <div class="calculator-header">
+        <h1>Advanced Circular Waste-to-Energy Calculator</h1>
+        <p class="subtitle">Calculate energy potential with enhanced feedback loops and two-stage AD</p>
+    </div>
 
-    <div>
+    <div class="input-section">
         <label>City Population: </label>
-        <input type="number" id="population" placeholder="Enter population" value="10000">
+        <input type="number" id="population" value="10000">
         <button onclick="calculateMaximizedSystem()">Calculate Energy Potential</button>
     </div>
 
     <div id="result"></div>
+
+    <div class="assumptions">
+        <h3>Assumptions Used in the Calculator:</h3>
+        <ul>
+            <li>Base Waste Generation:
+                <ul>
+                    <li>Human Waste: 0.2 kg dry solids/person/day</li>
+                    <li>Municipal Solid Waste: 2.0 kg/person/day</li>
+                    <li>Organic Fraction: 50% of MSW</li>
+                </ul>
+            </li>
+            <li>Enhanced Two-Stage AD:
+                <ul>
+                    <li>Base Efficiency: 48%</li>
+                    <li>Co-digestion Boost: 25%</li>
+                    <li>Biogas Yield: 0.65 m³/kg VS</li>
+                    <li>Methane Content: 78%</li>
+                </ul>
+            </li>
+            <li>WTE System:
+                <ul>
+                    <li>Electrical Efficiency: 32%</li>
+                    <li>Heat Recovery: 15%</li>
+                    <li>Calorific Value: 2.8 MWh/tonne</li>
+                </ul>
+            </li>
+            <li>Algae System:
+                <ul>
+                    <li>Yield: 45 g/m²/day</li>
+                    <li>Area: 2.5 m² per person</li>
+                    <li>Lipid Content: 45%</li>
+                    <li>Conversion Efficiency: 40%</li>
+                </ul>
+            </li>
+            <li>Environmental Factors:
+                <ul>
+                    <li>US Household Energy: 10,500 kWh/year</li>
+                    <li>Tree CO₂ Absorption: 22 kg/year</li>
+                    <li>Car Emissions: 4.6 tonnes CO₂/year</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
 
     <script>
         function calculateMaximizedSystem() {
@@ -134,7 +220,6 @@
             const avgHomeUsage = 10500; // kWh/year (US average)
             const homesPowered = Math.floor((totalEnergy * 1000) / avgHomeUsage);
 
-            // Display results matching current style
             document.getElementById("result").innerHTML = `
                 <h2>Total Impact</h2>
                 <p>🏠 ${homesPowered.toLocaleString()} Homes Powered</p>
