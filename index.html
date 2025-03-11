@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>US Integrated Energy & Water Transition Calculator</title>
+
   <style>
     :root {
       /* Light Mode Colors */
@@ -13,7 +14,7 @@
       --secondary-bg: #e5e7eb;
       --border-color: rgba(0,0,0,0.1);
 
-      /* Dark Mode Colors */
+      /* Dark Mode Colors (toggle) */
       --dark-bg-color: #1f2937;
       --dark-text-color: #e5e7eb;
       --dark-card-bg: #374151;
@@ -88,7 +89,7 @@
     body.dark-mode .stat-box.green,
     body.dark-mode .stat-box.yellow,
     body.dark-mode .stat-box.purple {
-      background-color: #495057; /* a neutral darker background for dark mode */
+      background-color: #495057; /* darker background for dark mode */
       color: #e5e7eb;
     }
 
@@ -323,7 +324,7 @@
 <div class="container">
   <div style="display:flex; justify-content: space-between; align-items:center;">
     <h1>US Integrated Energy & Water Transition Calculator</h1>
-    <!-- A simple Dark Mode toggle button (optional) -->
+    <!-- Dark Mode toggle button -->
     <button class="dark-mode-toggle secondary" id="dark-mode-toggle">Toggle Dark Mode</button>
   </div>
   <p>Explore the combined impact of energy efficiency, renewable generation, transportation improvements, and water production systems.</p>
@@ -346,7 +347,7 @@
           <h3 class="card-title">Strategy Approach</h3>
           <div class="toggle-container">
             <span class="toggle-label">Generation First</span>
-            <!-- This slider toggles generation vs efficiency first. 0 = GenFirst, 1 = EffFirst -->
+            <!-- Toggles generation vs efficiency first. 0 = GenFirst, 1 = EffFirst -->
             <input type="range" min="0" max="1" step="1" value="1" id="efficiency-first-toggle" style="max-width: 60px; margin: 0 10px;">
             <span class="toggle-label">Efficiency First</span>
           </div>
@@ -422,7 +423,7 @@
           
           <h4 style="margin-top: 20px;">Carbon Reduction by Component</h4>
           <div id="carbon-breakdown" class="bar-chart">
-            <!-- Bars will be dynamically inserted here -->
+            <!-- Bars inserted dynamically -->
           </div>
         </div>
       </div>
@@ -432,21 +433,23 @@
         <div class="card">
           <h3 class="card-title">Efficiency Impact</h3>
           <div id="efficiency-metrics">
-            <!-- Summaries of Efficiency will be inserted here dynamically -->
+            <!-- Summaries of Efficiency appear here -->
           </div>
         </div>
         
+        <!-- Renewables Summary -->
         <div class="card">
           <h3 class="card-title">Renewable Energy</h3>
           <div id="renewable-metrics">
-            <!-- Summaries of Renewables (incl. Solar & Nuclear) will be inserted here -->
+            <!-- Summaries of Renewables (incl. Solar & Nuclear) appear here -->
           </div>
         </div>
         
+        <!-- Water Summary -->
         <div class="card">
           <h3 class="card-title">Water Production</h3>
           <div id="water-metrics">
-            <!-- Summaries of Water will be inserted here -->
+            <!-- Summaries of Water appear here -->
           </div>
         </div>
       </div>
@@ -706,8 +709,9 @@
             </div>
           </div>
         </div>
+
       </div>
-      <!-- Single "Apply" button for the entire Parameters tab -->
+      <!-- Single "Apply" button for entire Parameters tab -->
       <div style="margin-top: 20px;">
         <button id="apply-parameters-button">Apply Changes</button>
       </div>
@@ -753,7 +757,7 @@
           <div>
             <div class="bar-chart">
               <div id="efficiency-savings-chart">
-                <!-- Bars will be dynamically inserted here -->
+                <!-- Bars inserted dynamically -->
               </div>
             </div>
           </div>
@@ -810,37 +814,37 @@
           <div>
             <div class="metric-row">
               <span class="metric-label">Homes Retrofitted:</span>
-              <span class="metric-value" id="homes-adopting">32.5 million</span>
+              <span class="metric-value" id="homes-adopting">0 million</span>
             </div>
             <div class="metric-row">
               <span class="metric-label">Total Energy Saved:</span>
-              <span class="metric-value" id="national-energy-saved">182.7 TWh</span>
+              <span class="metric-value" id="national-energy-saved">0 TWh</span>
             </div>
             <div class="metric-row">
               <span class="metric-label">Carbon Reduction:</span>
-              <span class="metric-value" id="efficiency-carbon-reduction">76.2 million tons</span>
+              <span class="metric-value" id="efficiency-carbon-reduction">0 million tons</span>
             </div>
             <div class="metric-row">
               <span class="metric-label">% of US Emissions:</span>
-              <span class="metric-value" id="efficiency-emission-percent">1.46%</span>
+              <span class="metric-value" id="efficiency-emission-percent">0%</span>
             </div>
           </div>
           <div>
             <div class="metric-row">
               <span class="metric-label">Grid Capacity Freed:</span>
-              <span class="metric-value" id="grid-capacity-freed">4.8%</span>
+              <span class="metric-value" id="grid-capacity-freed">0%</span>
             </div>
             <div class="metric-row">
               <span class="metric-label">EVs Supported:</span>
-              <span class="metric-value" id="evs-supported">65.4 million</span>
+              <span class="metric-value" id="evs-supported">0 million</span>
             </div>
             <div class="metric-row">
               <span class="metric-label">Total Investment:</span>
-              <span class="metric-value" id="efficiency-investment">$621.0 billion</span>
+              <span class="metric-value" id="efficiency-investment">$0 billion</span>
             </div>
             <div class="metric-row">
               <span class="metric-label">Jobs Created:</span>
-              <span class="metric-value" id="efficiency-jobs">3.1 million</span>
+              <span class="metric-value" id="efficiency-jobs">0 million</span>
             </div>
           </div>
         </div>
@@ -851,17 +855,17 @@
     <div class="tab-content" id="renewable">
       <div class="card">
         <h3 class="card-title">Renewable Energy Generation</h3>
-        <p>This tab would show detailed information about renewable energy production from waste streams, algae, SkySails wind, <strong>and also Solar & Nuclear</strong>.</p>
+        <p>This tab shows details on renewable energy production from waste, algae, SkySails wind, plus Solar & Nuclear.</p>
         
         <div id="renewable-placeholder">
           <div class="center-text">
-            <p>Detailed metrics are being calculated based on your input parameters.</p>
-            <p>The full calculator shows comprehensive analysis of:</p>
+            <p>Metrics calculated from your input parameters.</p>
+            <p>Full calculator includes:</p>
             <ul>
-              <li>Energy generation by source (including solar, nuclear, wastes, algae, SkySails)</li>
+              <li>Energy generation by source</li>
               <li>Waste utilization rates</li>
-              <li>Carbon sequestration and avoidance</li>
-              <li>Economic impacts and ROI</li>
+              <li>Carbon sequestration</li>
+              <li>Economic impacts & ROI</li>
             </ul>
           </div>
         </div>
@@ -872,17 +876,17 @@
     <div class="tab-content" id="transport">
       <div class="card">
         <h3 class="card-title">Transportation Impact</h3>
-        <p>This tab would show detailed information about transportation improvements including fleet retrofits, biofuels, and oil import reductions.</p>
+        <p>This tab shows details on transportation improvements, fleet retrofits, and oil import reductions.</p>
         
         <div id="transport-placeholder">
           <div class="center-text">
-            <p>Detailed transportation metrics are being calculated.</p>
-            <p>The full calculator integrates:</p>
+            <p>Transportation metrics are calculated here.</p>
+            <p>Includes:</p>
             <ul>
-              <li>Vehicle fleet retrofit impacts</li>
+              <li>Fleet retrofit impacts</li>
               <li>Carbon capture utilization</li>
-              <li>Biofuel production from hemp and algae</li>
-              <li>Oil import reduction analysis</li>
+              <li>Biofuel from hemp & algae</li>
+              <li>Oil import reduction</li>
             </ul>
           </div>
         </div>
@@ -893,17 +897,16 @@
     <div class="tab-content" id="water">
       <div class="card">
         <h3 class="card-title">Water Production Impact</h3>
-        <p>This tab would show detailed information about water systems including desalination, atmospheric water generation, and agricultural impacts.</p>
+        <p>This tab shows water systems info: desalination, AWG, agricultural impacts, etc.</p>
         
         <div id="water-placeholder">
           <div class="center-text">
             <p>Water system metrics are being calculated.</p>
-            <p>The full calculator analyzes:</p>
+            <p>Analyzes:</p>
             <ul>
               <li>Solar-powered desalination</li>
-              <li>Atmospheric water harvesting</li>
-              <li>Water-energy-food nexus</li>
-              <li>Population served and agricultural potential</li>
+              <li>Atmospheric water generation</li>
+              <li>Population served & agricultural potential</li>
             </ul>
           </div>
         </div>
@@ -927,7 +930,7 @@
           </tr>
           </thead>
           <tbody id="phased-plan-table">
-          <!-- Implementation phases will be added here dynamically -->
+          <!-- Implementation phases get added dynamically -->
           </tbody>
         </table>
       </div>
@@ -976,7 +979,7 @@ document.getElementById('new-construction-button').addEventListener('click', fun
 // --------------
 const usData = {
   population: 332.8,
-  electricityConsumption: 3800, // TWh
+  electricityConsumption: 3800, // TWh (approx)
   residentialConsumption: 1470,
   commercialConsumption: 1330,
   industrialConsumption: 1000,
@@ -1006,7 +1009,7 @@ function formatNumber(num, decimals = 2) {
 }
 
 // --------------
-// MAIN: Sliders
+// Sliders
 // --------------
 const parameterSliders = [
   'passive-solar-efficiency','gshp-cop','hpwh-efficiency','efficiency-adoption-rate',
@@ -1017,7 +1020,7 @@ const parameterSliders = [
   'nuclear-capacity','nuclear-cost'
 ];
 
-// Show slider values in real time
+// Display slider values in real time
 parameterSliders.forEach(id => {
   const slider = document.getElementById(id);
   const displaySpan = document.getElementById(`${id}-value`);
@@ -1061,21 +1064,21 @@ function calculateEfficiencySavings(
   isNewConstruction,
   electricityPrice
 ){
-  // Original usage placeholders
-  const originalSpaceHeating = 4500;  // kWh
-  const originalCooling = 643;       // kWh
-  const originalWaterHeating = 1928; // kWh
-  const originalDryer = 536;         // kWh
+  // Base usage placeholders (kWh)
+  const originalSpaceHeating = 4500;
+  const originalCooling = 643;
+  const originalWaterHeating = 1928;
+  const originalDryer = 536;
   
   // Passive solar
   const passiveSolarSavings = originalSpaceHeating * (passiveSolarEfficiency / 100);
   const remainingHeatingLoad = originalSpaceHeating - passiveSolarSavings;
   
-  // GSHP for heating
+  // GSHP Heating
   const gshpHeatingElectricity = remainingHeatingLoad / gshpCOP;
   const gshpHeatingSavings = remainingHeatingLoad - gshpHeatingElectricity;
   
-  // GSHP for cooling
+  // GSHP Cooling
   const gshpCoolingElectricity = originalCooling / gshpCOP;
   const gshpCoolingSavings = originalCooling - gshpCoolingElectricity;
   
@@ -1086,7 +1089,7 @@ function calculateEfficiencySavings(
   // HP Dryer (28% savings)
   const drySavings = originalDryer * 0.28;
   
-  // Summation of total savings
+  // Summation
   const totalHeatingSavings = passiveSolarSavings + gshpHeatingSavings;
   const totalSavings = totalHeatingSavings + gshpCoolingSavings + hpwhSavings + drySavings;
   const percentageReduction = (totalSavings / usData.averageHouseholdConsumption) * 100;
@@ -1105,27 +1108,26 @@ function calculateEfficiencySavings(
   const totalIncentives = federalTaxCredit + stateRebate + utilityRebate;
   const netSystemCost = totalSystemCost - totalIncentives;
   
-  // Annual cost savings from the kWh saved
+  // Annual cost savings
   const annualCostSavings = totalSavings * (electricityPrice / 100); 
   const netPayback = netSystemCost / annualCostSavings;
   
-  // National adoption
-  const homesAdopting = usData.households * (efficiencyAdoptionRate / 100);  // million
+  // National
+  const homesAdopting = usData.households * (efficiencyAdoptionRate / 100); // million
   const totalEnergySaved = (homesAdopting * totalSavings) / 1e9; // TWh
-  // Carbon factor: ~0.417 kg/kWh -> 0.417 tons/MWh -> 0.000417 tons/kWh
-  // We'll do a simpler approach: totalSavings * 0.417 / 1000 = tons
-  const carbonReductionPerHousehold = (totalSavings * 0.417) / 1000; 
-  // in million tons
-  const totalCarbonReduction = (homesAdopting * carbonReductionPerHousehold) / 1e6; 
+  // 0.417 kg/kWh => 0.417 tons/MWh => 0.000417 tons/kWh
+  const carbonReductionPerHousehold = (totalSavings * 0.417) / 1000;
+  const totalCarbonReduction = (homesAdopting * carbonReductionPerHousehold) / 1e6; // million tons
   const percentOfUSEmissions = (totalCarbonReduction / usData.co2Emissions) * 100;
   
-  // Freed capacity
+  // Freed capacity, EV usage
   const evAnnualUsage = 2800;
   const evsPerHousehold = totalSavings / evAnnualUsage;
   const totalEvsSupported = homesAdopting * evsPerHousehold;
   const gridCapacityFreed = (totalEnergySaved / usData.electricityConsumption) * 100;
   const totalNationalInvestment = (homesAdopting * netSystemCost) / 1e9; // billions
-  // Rough jobs placeholder: 5 jobs per $1M
+  
+  // Rough job formula
   const jobsCreated = Math.round(((homesAdopting * netSystemCost) / 1e6) * 5);
 
   return {
@@ -1143,20 +1145,19 @@ function calculateEfficiencySavings(
       paybackPeriod: netPayback
     },
     national: {
-      homesAdopting: homesAdopting * 1e6, // convert million -> actual households
-      totalEnergySaved,
-      totalCarbonReduction,
+      homesAdopting: homesAdopting * 1e6, // actual # of households
+      totalEnergySaved, // TWh
+      totalCarbonReduction, // million tons
       percentOfUSEmissions,
       totalEvsSupported,
       gridCapacityFreed,
-      totalInvestment: totalNationalInvestment,
+      totalInvestment: totalNationalInvestment, // billions
       jobsCreated,
       annualSavings: (homesAdopting * annualCostSavings) / 1e9 // billions
     }
   };
 }
 
-// Minimal placeholders for the rest of the system...
 function calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost, electricityPrice) {
   const hoursPerYear = 8760;
   const solarCF = 0.25;
@@ -1169,46 +1170,200 @@ function calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost,
   const nuclearInvestment = (nuclearGW * 1_000_000 * nuclearCost) / 1_000_000_000;
   const totalInvestment = solarInvestment + nuclearInvestment;
   
-  const carbonAvoided = (totalEnergy * 0.4); // placeholder
+  // Rough carbon avoidance
+  const carbonAvoided = totalEnergy * 0.4; 
   const jobs = Math.round(totalInvestment * 1000);
   
   return {
     solarEnergyTWh,
     nuclearEnergyTWh,
     totalEnergy,
+    solarInvestment,
+    nuclearInvestment,
     totalInvestment,
     carbonAvoided,
     jobs
   };
 }
 
-function calculateEnergyGeneration(...) {
-  // (omitted for brevity, but normally you do the waste to energy calc)
-  // We'll return placeholders:
+function calculateEnergyGeneration(foodUtil, agUtil, forestUtil, mswUtil, skySailsUnits, electricityPrice, hempUtil, algaeUtil){
+  // Convert user % to actual
+  const usableFoodWaste = usData.foodWaste * (foodUtil / 100);
+  const usableAgWaste   = usData.agriculturalWaste * (agUtil / 100);
+  const usableForestWaste = usData.forestResidues * (forestUtil / 100);
+  const usableMSW       = usData.municipalSolidWaste * (mswUtil / 100);
+  
+  // MWh/ton placeholders
+  const foodWasteToEnergy = 1.5;
+  const agriculturalWasteToEnergy = 1.2;
+  const forestResiduesToEnergy = 2.0;
+  const mswToEnergy = 0.6;
+  
+  const energyFromFoodWaste = (usableFoodWaste * foodWasteToEnergy) / 1e6;
+  const energyFromAgWaste   = (usableAgWaste * agriculturalWasteToEnergy) / 1e6;
+  const energyFromForestWaste = (usableForestWaste * forestResiduesToEnergy) / 1e6;
+  const energyFromMSW       = (usableMSW * mswToEnergy) / 1e6;
+  
+  // Additional placeholders
+  const totalBiogas = 0.8;
+  const energyFromBiogas = 0.8;
+  
+  // Hemp & algae placeholders
+  const algaeBase = 28;
+  const energyFromAlgae = (algaeUtil / 25) * algaeBase * 4;
+  const hempBase = 3.3;
+  const energyFromHemp = (hempUtil / 50) * hempBase * 2;
+  
+  const wasteToEnergyTotal = energyFromFoodWaste + energyFromAgWaste + energyFromForestWaste +
+                             energyFromMSW + energyFromBiogas;
+  const biofuelsTotal = energyFromAlgae + energyFromHemp;
+  
+  const skySailsPerUnit = 0.001;
+  const energyFromSkySails = skySailsUnits * skySailsPerUnit;
+  
+  const totalEnergyGeneration = wasteToEnergyTotal + biofuelsTotal + energyFromSkySails;
+  
+  const carbonAvoidance = totalEnergyGeneration * 0.417;
+  const carbonSequestration = 20;
+  const totalCarbonImpact = carbonSequestration + carbonAvoidance;
+  
+  // Some investment placeholders
+  const wasteToEnergyCost = 20;
+  const skySailsCost = 10;
+  const batteryCost = 30;
+  const algaeFacilitiesCost = 5;
+  const totalInvestment = wasteToEnergyCost + skySailsCost + batteryCost + algaeFacilitiesCost;
+  
+  // Revenue placeholders
+  const electricityRevenueRate = electricityPrice / 100;
+  const electricityRevenue = totalEnergyGeneration * 1000 * electricityRevenueRate;
+  const carbonCreditValue = (totalCarbonImpact * 30) / 1000;
+  const totalRevenue = electricityRevenue + carbonCreditValue;
+  const operatingCost = totalInvestment * 0.05;
+  const netAnnualRevenue = totalRevenue - operatingCost;
+  const paybackPeriod = netAnnualRevenue > 0 ? totalInvestment / netAnnualRevenue : 0;
+  const jobsCreated = Math.round(totalInvestment * 1000 * 3);
+  
   return {
-    energyGeneration: { total: 219.4 }, // example TWh
-    carbonImpact: { total: 120 },       // MT
-    economics: { totalInvestment: 100, netAnnualRevenue: 10, paybackPeriod: 10, jobsCreated: 500000 }
+    energyGeneration: {
+      total: totalEnergyGeneration
+    },
+    carbonImpact: {
+      total: totalCarbonImpact
+    },
+    economics: {
+      totalInvestment,
+      netAnnualRevenue,
+      paybackPeriod,
+      jobsCreated
+    }
   };
 }
 
-function calculateTransportationImpact(...) {
-  // placeholder
+function calculateTransportationImpact(retrofitPct, ccuPct, hempPct, algaePct, electricityPrice){
+  const fleetBaseReduction = 366.85;
+  const fleetCarbonReduction = (retrofitPct / 50) * fleetBaseReduction;
+  const ccuBaseReduction = 40.5;
+  const ccuCarbonReduction = (ccuPct / 90) * ccuBaseReduction;
+  const hempBaseReduction = 3.78;
+  const hempCarbonReduction = ((hempPct / 50) * hempBaseReduction) * 2;
+  const algaeBaseReduction = 67;
+  const algaeCarbonReduction = ((algaePct / 25) * algaeBaseReduction) * 4;
+  
+  const totalCarbonReduction = fleetCarbonReduction + ccuCarbonReduction + hempCarbonReduction + algaeCarbonReduction;
+  const percentOfUSEmissions = (totalCarbonReduction / usData.co2Emissions) * 100;
+  
+  // Costs placeholders
+  const retrofitCost = (retrofitPct / 50) * 145;
+  const ccuCost = (ccuPct / 90) * 2.43;
+  const totalTransportationCost = retrofitCost + ccuCost;
+  
+  // Revenue placeholders
+  const algaeRevenue = ((algaePct / 25) * 5) * 4;
+  const hempRevenue = ((hempPct / 50) * 0.09) * 2;
+  const carbonCredit = (totalCarbonReduction * 30) / 1000;
+  const oilImportReduction = (retrofitPct / 50) * 3.6;
+  const oilSavings = (oilImportReduction * 365 * 70) / 1000;
+  const totalTransportationRevenue = algaeRevenue + hempRevenue + carbonCredit + oilSavings;
+  
+  const netBenefit = totalTransportationRevenue - totalTransportationCost;
+  const paybackPeriod = totalTransportationCost > 0 ? totalTransportationCost / totalTransportationRevenue : 0;
+  
+  // Jobs placeholders
+  const algaeJobs = ((algaePct / 25) * 60000) * 4;
+  const hempJobs = ((hempPct / 50) * 895) * 2;
+  const retrofitJobs = (retrofitPct / 50) * 50000;
+  const totalTransportationJobs = algaeJobs + hempJobs + retrofitJobs;
+  
   return {
-    carbonReduction: { total: 200, percentOfUSEmissions: 3.8 },
-    economics: { cost: 80, netBenefit: 10, paybackPeriod: 8 },
-    jobs: 200000
+    carbonReduction: {
+      total: totalCarbonReduction,
+      percentOfUSEmissions
+    },
+    economics: {
+      cost: totalTransportationCost,
+      netBenefit,
+      paybackPeriod
+    },
+    jobs: totalTransportationJobs
   };
 }
 
-function calculateWaterProduction(...) {
-  // placeholder
+function calculateWaterProduction(renResults, energyAllocationPct, desalAllocation, waterTechEff, waterValueUSD){
+  const allocatedEnergy = renResults.energyGeneration.total * (energyAllocationPct / 100);
+  const energyForDesal = allocatedEnergy * (desalAllocation / 100);
+  const energyForAWG   = allocatedEnergy * (1 - (desalAllocation / 100));
+  
+  const efficiencyFactor = waterTechEff / 100;
+  const desalIntensity = 3.0;
+  const awgIntensity   = 1.5;
+  
+  const desalProd = (energyForDesal * 1e9 * efficiencyFactor) / desalIntensity;
+  const awgProd   = (energyForAWG * 1e9 * efficiencyFactor) / awgIntensity;
+  const totalWaterProduction = desalProd + awgProd;
+  
+  const populationServed = totalWaterProduction / 365 / 100;
+  const percentOfTotalWithdrawals = (totalWaterProduction / 1e9) / usData.totalWaterWithdrawals * 100;
+  
+  // Investment placeholders
+  const desalCapCost = 15000;
+  const awgCapCost   = 1000;
+  const desalInvest  = ((desalProd / 365)/1000) * desalCapCost / 1e3;
+  const awgInvest    = ((awgProd   / 365)/1000) * awgCapCost   / 1e3;
+  const totalInvestment = desalInvest + awgInvest;
+  
+  const waterVal = (totalWaterProduction / 1e6) * waterValueUSD;
+  const desalOpex = 0.5;
+  const awgOpex   = 0.3;
+  const operatingCost = ((desalProd / 1e6) * desalOpex) + ((awgProd / 1e6) * awgOpex);
+  
+  const netAnnualValue = waterVal - operatingCost;
+  const paybackPeriod = (totalInvestment > 0 && netAnnualValue>0) ? totalInvestment / netAnnualValue : 0;
+  
+  const carbonReduction = (totalWaterProduction / 1e6) * 0.5;
+  const jobsCreated = Math.round(totalInvestment * 1000 * 2);
+  
   return {
-    energy: { allocated: 5 },
-    production: { total: 10 },
-    impact: { populationServed: 2, percentOfTotalWithdrawals: 1.2 },
-    economics: { totalInvestment: 20, operatingCost: 2, netAnnualValue: 5, paybackPeriod: 4, jobsCreated: 100000, waterValue: 7 },
-    carbon: { reduction: 15, percentOfUSEmissions: 0.3 }
+    energy: { allocated: allocatedEnergy },
+    production: {
+      total: totalWaterProduction / 1e6
+    },
+    impact: {
+      populationServed: populationServed / 1e6,
+      percentOfTotalWithdrawals
+    },
+    economics: {
+      totalInvestment,
+      operatingCost,
+      netAnnualValue,
+      paybackPeriod,
+      jobsCreated,
+      waterValue: waterVal
+    },
+    carbon: {
+      reduction: carbonReduction,
+      percentOfUSEmissions: (carbonReduction / usData.co2Emissions)*100
+    }
   };
 }
 
@@ -1216,7 +1371,7 @@ function calculateWaterProduction(...) {
 // UPDATE UI
 // --------------
 function updateEfficiencyUI(efficiencyResults){
-  // "Per Household" Savings
+  // Household details
   document.getElementById('passive-solar-savings').textContent = formatNumber(efficiencyResults.perHousehold.passiveSolarSavings, 0);
   document.getElementById('gshp-heating-savings').textContent  = formatNumber(efficiencyResults.perHousehold.gshpHeatingSavings, 0);
   document.getElementById('gshp-cooling-savings').textContent  = formatNumber(efficiencyResults.perHousehold.gshpCoolingSavings, 0);
@@ -1224,6 +1379,7 @@ function updateEfficiencyUI(efficiencyResults){
   document.getElementById('dry-savings').textContent           = formatNumber(efficiencyResults.perHousehold.drySavings, 0);
   document.getElementById('total-household-savings').textContent = formatNumber(efficiencyResults.perHousehold.totalSavings, 0);
 
+  // Per-household summary
   document.getElementById('annual-energy-savings').textContent  = `${formatNumber(efficiencyResults.perHousehold.totalSavings,0)} kWh`;
   document.getElementById('consumption-reduction-pct').textContent = `${formatNumber(efficiencyResults.perHousehold.percentageReduction,0)}%`;
   document.getElementById('system-cost').textContent           = `$${formatNumber(efficiencyResults.perHousehold.systemCost,0)}`;
@@ -1233,9 +1389,8 @@ function updateEfficiencyUI(efficiencyResults){
 
   // National Impact
   const nat = efficiencyResults.national;
-  // Show adoption rate in that heading
-  document.getElementById('adoption-rate-display').textContent = `${formatNumber(document.getElementById('efficiency-adoption-rate').value,0)}`;
-
+  document.getElementById('adoption-rate-display').textContent = formatNumber(document.getElementById('efficiency-adoption-rate').value,0);
+  
   document.getElementById('homes-adopting').textContent       = `${formatNumber(nat.homesAdopting / 1e6,1)} million`;
   document.getElementById('national-energy-saved').textContent= `${formatNumber(nat.totalEnergySaved,1)} TWh`;
   document.getElementById('efficiency-carbon-reduction').textContent = `${formatNumber(nat.totalCarbonReduction,2)} million tons`;
@@ -1246,12 +1401,12 @@ function updateEfficiencyUI(efficiencyResults){
   document.getElementById('efficiency-investment').textContent = `$${formatNumber(nat.totalInvestment,1)} billion`;
   document.getElementById('efficiency-jobs').textContent       = `${formatNumber(nat.jobsCreated / 1e6,2)} million`;
 
-  // "Household Energy Savings" bar chart
+  // The bar chart inside Efficiency tab
   updateEfficiencySavingsChart(efficiencyResults);
 }
 
+// Efficiency Impact in Summary
 function updateEfficiencyMetrics(efficiencyResults){
-  // The "Efficiency Impact" box in the Summary tab
   const container = document.getElementById('efficiency-metrics');
   if (!container) return;
   
@@ -1288,7 +1443,7 @@ function updateEfficiencySavingsChart(efficiencyResults){
     { name: 'HP Dryer', value: efficiencyResults.perHousehold.drySavings }
   ];
   
-  const total = efficiencyResults.perHousehold.totalSavings;
+  const total = efficiencyResults.perHousehold.totalSavings || 0;
   const colors = ['#0088FE','#00C49F','#FFBB28','#FF8042','#8884d8'];
   
   data.forEach((item, i) => {
@@ -1296,7 +1451,8 @@ function updateEfficiencySavingsChart(efficiencyResults){
     bar.className = 'bar';
     const barFill = document.createElement('div');
     barFill.className = 'bar-fill';
-    barFill.style.width = total>0 ? `${(item.value / total)*100}%` : '0%';
+    const fraction = (total>0) ? item.value / total : 0;
+    barFill.style.width = `${(fraction*100).toFixed(1)}%`;
     barFill.style.backgroundColor = colors[i % colors.length];
     
     const barLabel = document.createElement('div');
@@ -1305,8 +1461,7 @@ function updateEfficiencySavingsChart(efficiencyResults){
     
     const barValue = document.createElement('div');
     barValue.className = 'bar-value';
-    const pct = total>0 ? (item.value / total)*100 : 0;
-    barValue.textContent = `${formatNumber(item.value,0)} kWh (${formatNumber(pct,0)}%)`;
+    barValue.textContent = `${formatNumber(item.value,0)} kWh (${formatNumber(fraction*100,0)}%)`;
     
     bar.appendChild(barFill);
     bar.appendChild(barLabel);
@@ -1315,7 +1470,7 @@ function updateEfficiencySavingsChart(efficiencyResults){
   });
 }
 
-// Minimal carbon breakdown chart to avoid reference errors
+// Carbon breakdown chart
 function updateCarbonBreakdownChart(carbonData) {
   const container = document.getElementById('carbon-breakdown');
   if (!container) return;
@@ -1323,6 +1478,7 @@ function updateCarbonBreakdownChart(carbonData) {
   
   const total = carbonData.reduce((sum, d) => sum + d.value, 0);
   const colors = ['#dc2626','#16a34a','#1d4ed8','#d97706','#6d28d9'];
+  
   carbonData.forEach((item, i) => {
     const bar = document.createElement('div');
     bar.className = 'bar';
@@ -1347,119 +1503,372 @@ function updateCarbonBreakdownChart(carbonData) {
   });
 }
 
-function generatePhasedPlan(...){ /* Omitted for brevity */ return []; }
-function updatePhasedPlanTable(plan){ /* Omitted for brevity */ }
+function generatePhasedPlan(effResults, renResults, transResults, waterResults, snResults, effFirst){
+  const effPhases = [0.05, 0.1, 0.2, 0.4, 0.7, 1.0];
+  const genPhases = [0.0, 0.05, 0.2, 0.5, 0.8, 1.0];
+  const speed = parseFloat(document.getElementById('implementation-speed').value);
+  const speedFactor = speed / 10;
+  const baseYearIncrement = 3 / speedFactor;
+  
+  // We do a simple approach: if effFirst, do efficiency earlier; otherwise do gen earlier
+  const phases = effFirst
+    ? effPhases.map((effF, i) => {
+        const year = 2025 + Math.floor(i*baseYearIncrement);
+        const genF = genPhases[Math.max(0, i-1)];
+        return {
+          year, phase: i+1,
+          efficiencyFactor: effF,
+          generationFactor: genF,
+          transportationFactor: genF,
+          waterFactor: i>=3 ? genPhases[i-2] : 0
+        };
+      })
+    : genPhases.map((genF, i) => {
+        const year = 2025 + Math.floor(i*baseYearIncrement);
+        const effF = effPhases[Math.max(0, i-2)];
+        return {
+          year, phase: i+1,
+          efficiencyFactor: effF,
+          generationFactor: genF,
+          transportationFactor: genF,
+          waterFactor: i>=2 ? genPhases[i-1] : 0
+        };
+      });
+  
+  const eNat = effResults.national;
+  return phases.map(p => {
+    // Efficiency scaling
+    const effSaves = eNat.totalEnergySaved * p.efficiencyFactor;
+    const effCO2  = eNat.totalCarbonReduction * p.efficiencyFactor;
+    const effInv  = eNat.totalInvestment * p.efficiencyFactor;
+    const effJobs = eNat.jobsCreated * p.efficiencyFactor;
+    
+    // Renewables
+    const rTotal = renResults.energyGeneration.total * p.generationFactor;
+    const rCO2   = (renResults.carbonImpact?.total || 0) * p.generationFactor;
+    const rInv   = renResults.economics.totalInvestment * p.generationFactor;
+    const rJobs  = renResults.economics.jobsCreated * p.generationFactor;
+    
+    // SolarNuclear
+    const snE    = snResults.totalEnergy * p.generationFactor;
+    const snCO2  = snResults.carbonAvoided * p.generationFactor;
+    const snInv  = snResults.totalInvestment * p.generationFactor;
+    const snJobs = snResults.jobs * p.generationFactor;
+    
+    // Transport
+    const tCO2   = transResults.carbonReduction.total * p.transportationFactor;
+    const tInv   = transResults.economics.cost * p.transportationFactor;
+    const tJobs  = transResults.jobs * p.transportationFactor;
+    
+    // Water
+    const wProd  = waterResults.production.total * p.waterFactor;
+    const wCO2   = waterResults.carbon.reduction * p.waterFactor;
+    const wInv   = waterResults.economics.totalInvestment * p.waterFactor;
+    const wJobs  = waterResults.economics.jobsCreated * p.waterFactor;
+    
+    const totalEnergyGen = rTotal + snE;
+    const totalCarbon    = effCO2 + rCO2 + snCO2 + tCO2 + wCO2;
+    const totalInvestment= effInv + rInv + snInv + tInv + wInv;
+    const totalJobs      = effJobs + rJobs + snJobs + tJobs + wJobs;
+    const netEnergy      = totalEnergyGen - effSaves;
+    
+    return {
+      year: p.year,
+      phase: p.phase,
+      totals: {
+        investment: totalInvestment,
+        carbonReduction: totalCarbon,
+        jobs: totalJobs,
+        netEnergyImpact: netEnergy,
+        percentOfUSEmissions: (totalCarbon / usData.co2Emissions)*100
+      }
+    };
+  });
+}
+
+function updatePhasedPlanTable(plan){
+  const body = document.getElementById('phased-plan-table');
+  if (!body) return;
+  body.innerHTML = '';
+  plan.forEach(ph => {
+    const row = document.createElement('tr');
+    const cPhase = document.createElement('td'); cPhase.textContent = ph.phase;
+    const cYear  = document.createElement('td'); cYear.textContent = ph.year;
+    const cCO2   = document.createElement('td'); cCO2.textContent = formatNumber(ph.totals.carbonReduction,1);
+    const cInv   = document.createElement('td'); cInv.textContent = formatNumber(ph.totals.investment,1);
+    const cEn    = document.createElement('td'); cEn.textContent = formatNumber(ph.totals.netEnergyImpact,1);
+    const cJobs  = document.createElement('td'); cJobs.textContent= formatNumber(ph.totals.jobs / 1e6,2);
+    
+    row.appendChild(cPhase);
+    row.appendChild(cYear);
+    row.appendChild(cCO2);
+    row.appendChild(cInv);
+    row.appendChild(cEn);
+    row.appendChild(cJobs);
+    body.appendChild(row);
+  });
+}
 
 // ---------------------------
 // MAIN updateCalculations()
 // ---------------------------
 function updateCalculations(){
-  // Grab slider values for Efficiency
+  // 1) Grab all Efficiency slider values
   const passiveSolarEff   = parseFloat(document.getElementById('passive-solar-efficiency').value);
   const gshpCOP           = parseFloat(document.getElementById('gshp-cop').value);
   const hpwhEff           = parseFloat(document.getElementById('hpwh-efficiency').value);
   const effAdoptionRate   = parseFloat(document.getElementById('efficiency-adoption-rate').value);
   const isNewConstruction = document.getElementById('new-construction-button').classList.contains('active');
   const elecPrice         = parseFloat(document.getElementById('electricity-price').value);
-
-  // Do the Efficiency calculation
+  
+  // 2) Renewables, Transport, Water, SolarNuclear
+  const foodUtil   = parseFloat(document.getElementById('food-waste-utilization').value);
+  const agUtil     = parseFloat(document.getElementById('agriculture-utilization').value);
+  const forestUtil = parseFloat(document.getElementById('forest-utilization').value);
+  const mswUtil    = parseFloat(document.getElementById('msw-utilization').value);
+  const skySails   = parseFloat(document.getElementById('skysails-units').value);
+  
+  const retrofitPct = parseFloat(document.getElementById('retrofit-percentage').value);
+  const ccuAdoption = parseFloat(document.getElementById('ccu-adoption').value);
+  const hempUtil    = parseFloat(document.getElementById('hemp-utilization').value);
+  const algaePct    = parseFloat(document.getElementById('algae-percentage').value);
+  
+  const waterAlloc  = parseFloat(document.getElementById('energy-allocation-to-water').value);
+  const desalAlloc  = parseFloat(document.getElementById('desalination-allocation').value);
+  const waterTechEff= parseFloat(document.getElementById('water-techs-efficiency').value);
+  const waterValUSD = parseFloat(document.getElementById('water-value-usd').value);
+  
+  const solarGW   = parseFloat(document.getElementById('solar-capacity').value);
+  const solarCost = parseFloat(document.getElementById('solar-cost').value);
+  const nuclearGW = parseFloat(document.getElementById('nuclear-capacity').value);
+  const nuclearCost= parseFloat(document.getElementById('nuclear-cost').value);
+  
+  // 3) Which approach? Efficiency first or Generation first
+  const effFirst = (document.getElementById('efficiency-first-toggle').value === "1");
+  
+  // 4) Run sub-calculations
   const effResults = calculateEfficiencySavings(
     passiveSolarEff, gshpCOP, hpwhEff, effAdoptionRate,
     isNewConstruction, elecPrice
   );
-
-  // Renewables, Transportation, Water, SolarNuclear placeholders
-  // (So there's no error referencing them)
-  const renResults = calculateEnergyGeneration();
-  const transResults = calculateTransportationImpact();
-  const waterRes = calculateWaterProduction();
-  const solarNuclear = calculateSolarNuclearEnergy(
-    parseFloat(document.getElementById('solar-capacity').value),
-    parseFloat(document.getElementById('solar-cost').value),
-    parseFloat(document.getElementById('nuclear-capacity').value),
-    parseFloat(document.getElementById('nuclear-cost').value),
-    elecPrice
+  
+  const renResults = calculateEnergyGeneration(
+    foodUtil, agUtil, forestUtil, mswUtil,
+    skySails, elecPrice, hempUtil, algaePct
   );
-
-  // Update the Efficiency UI (Efficiency tab)
+  // For completeness, ensure we keep the existing structure
+  // e.g. add placeholders for carbonImpact / economics if needed
+  if (!renResults.carbonImpact) {
+    renResults.carbonImpact = { total: renResults.energyGeneration.total*0.417 + 20 };
+  }
+  if (!renResults.economics) {
+    renResults.economics = { totalInvestment: 100, jobsCreated: 500000 };
+  }
+  
+  const solarNuclear = calculateSolarNuclearEnergy(
+    solarGW, solarCost, nuclearGW, nuclearCost, elecPrice
+  );
+  
+  const transResults = calculateTransportationImpact(
+    retrofitPct, ccuAdoption, hempUtil, algaePct, elecPrice
+  );
+  if (!transResults.economics) {
+    transResults.economics = { cost:0, netBenefit:0, paybackPeriod:0 };
+  }
+  
+  const waterRes = calculateWaterProduction(
+    renResults, waterAlloc, desalAlloc, waterTechEff, waterValUSD
+  );
+  
+  // 5) Update Efficiency UI (tab) and Summary
   updateEfficiencyUI(effResults);
-  // Update Efficiency Impact in Summary
   updateEfficiencyMetrics(effResults);
+  
+  // 6) Update Renewables summary in the "Renewable Energy" card
+  updateRenewablesUI(renResults, solarNuclear);
+  
+  // 7) Update Water summary in the "Water Production" card
+  updateWaterUI(waterRes);
+  
+  // 8) Combine everything for "Key Results" top summary
+  const totalCleanEnergy = renResults.energyGeneration.total + solarNuclear.totalEnergy;
+  const totalRenewCarbon = (renResults.carbonImpact.total || 0) + (solarNuclear.carbonAvoided || 0);
+  const totalTransCarbon = transResults.carbonReduction.total || 0;
+  const totalWaterCarbon = waterRes.carbon.reduction || 0;
+  const netEnergyImpact  = totalCleanEnergy - effResults.national.totalEnergySaved;
+  const totalCarbonReduction = effResults.national.totalCarbonReduction + totalRenewCarbon + totalTransCarbon + totalWaterCarbon;
+  
+  // Sum up total investment placeholders
+  const effInv = effResults.national.totalInvestment || 0;
+  const renInv = renResults.economics.totalInvestment || 0;
+  const snInv  = solarNuclear.totalInvestment || 0;
+  const transC = transResults.economics.cost || 0;
+  const waterI = waterRes.economics.totalInvestment || 0;
+  const totalInvestment = effInv + renInv + snInv + transC + waterI;
+  
+  // Sum up total jobs
+  const effJobs   = effResults.national.jobsCreated || 0;
+  const renJobs   = renResults.economics.jobsCreated || 0;
+  const snJobs    = solarNuclear.jobs || 0;
+  const transJobs = transResults.jobs || 0;
+  const waterJobs = waterRes.economics.jobsCreated || 0;
+  const totalJobs = effJobs + renJobs + snJobs + transJobs + waterJobs;
+  
+  // Some placeholder for payback
+  const annualBenefits = (effResults.national.annualSavings || 0) + (transResults.economics.netBenefit || 0);
+  const payback = (totalInvestment>0 && annualBenefits>0) ? totalInvestment / annualBenefits : 0;
+  
+  const percentEmissionsReduced = (totalCarbonReduction / usData.co2Emissions)*100;
+  
+  // Fill the "Key Results" top area
+  document.getElementById('net-energy-impact').textContent = `${formatNumber(netEnergyImpact,2)} TWh`;
+  document.getElementById('net-energy-percent').textContent = `${formatNumber((netEnergyImpact/usData.electricityConsumption)*100,2)}% of US consumption`;
+  
+  document.getElementById('carbon-reduction').textContent = `${formatNumber(totalCarbonReduction,2)} MT`;
+  document.getElementById('carbon-percent').textContent    = `${formatNumber(percentEmissionsReduced,2)}% of US emissions`;
+  
+  document.getElementById('total-investment').textContent  = `$${formatNumber(totalInvestment/1000,2)}T`;
+  document.getElementById('payback-period').textContent    = `Payback: ${formatNumber(payback,1)} years`;
+  
+  document.getElementById('jobs-created').textContent      = `${formatNumber(totalJobs/1e6,1)}M`;
+  if (totalInvestment>0) {
+    document.getElementById('jobs-per-million').textContent = `${formatNumber(totalJobs / (totalInvestment*1000),1)} jobs per $1M`;
+  } else {
+    document.getElementById('jobs-per-million').textContent = 'N/A';
+  }
+  
+  // Strategy Approach table
+  if (effFirst){
+    document.getElementById('eff-first-investment').textContent = `$${formatNumber(totalInvestment/1000,2)}T`;
+    document.getElementById('eff-first-carbon').textContent      = `${formatNumber(totalCarbonReduction,2)}M tons`;
+    document.getElementById('eff-first-payback').textContent     = `${formatNumber(payback,1)} years`;
+    document.getElementById('eff-first-jobs').textContent        = `${formatNumber(totalJobs/1e6,1)}M`;
+    
+    document.getElementById('gen-first-investment').textContent  = `$${formatNumber(totalInvestment*1.4/1000,2)}T`;
+    document.getElementById('gen-first-carbon').textContent      = `${formatNumber(totalCarbonReduction*0.7,2)}M tons`;
+    document.getElementById('gen-first-payback').textContent     = `${formatNumber(payback*1.8,1)} years`;
+    document.getElementById('gen-first-jobs').textContent        = `${formatNumber(totalJobs*0.45/1e6,1)}M`;
+  } else {
+    document.getElementById('gen-first-investment').textContent  = `$${formatNumber(totalInvestment/1000,2)}T`;
+    document.getElementById('gen-first-carbon').textContent      = `${formatNumber(totalCarbonReduction,2)}M tons`;
+    document.getElementById('gen-first-payback').textContent     = `${formatNumber(payback,1)} years`;
+    document.getElementById('gen-first-jobs').textContent        = `${formatNumber(totalJobs/1e6,1)}M`;
+    
+    document.getElementById('eff-first-investment').textContent  = `$${formatNumber((totalInvestment*0.7)/1000,2)}T`;
+    document.getElementById('eff-first-carbon').textContent      = `${formatNumber(totalCarbonReduction*1.4,2)}M tons`;
+    document.getElementById('eff-first-payback').textContent     = `${formatNumber(payback*0.55,1)} years`;
+    document.getElementById('eff-first-jobs').textContent        = `${formatNumber(totalJobs*2.2/1e6,1)}M`;
+  }
+  
+  // Carbon breakdown
+  const carbonData = [
+    { name: 'Efficiency', value: effResults.national.totalCarbonReduction },
+    { name: 'Renewables', value: (renResults.carbonImpact.total || 0) },
+    { name: 'Transport',  value: transResults.carbonReduction.total || 0 },
+    { name: 'Water',      value: waterRes.carbon.reduction || 0 },
+    { name: 'Solar/Nucl', value: solarNuclear.carbonAvoided || 0 },
+  ];
+  updateCarbonBreakdownChart(carbonData);
+  
+  // Phased plan
+  const phased = generatePhasedPlan(effResults, renResults, transResults, waterRes, solarNuclear, effFirst);
+  updatePhasedPlanTable(phased);
+}
 
-  // Example for Renewables in Summary
-  const containerRenew = document.getElementById('renewable-metrics');
-  containerRenew.innerHTML = `
+// Update Renewables summary in Summary tab
+function updateRenewablesUI(renewableResults, solarNuclearResults){
+  const container = document.getElementById('renewable-metrics');
+  if (!container) return;
+  
+  const totalTWh = (renewableResults.energyGeneration.total || 0) + (solarNuclearResults.totalEnergy || 0);
+  const totalInvest = (renewableResults.economics.totalInvestment || 0) + (solarNuclearResults.totalInvestment || 0);
+  const totalCarbon = (renewableResults.carbonImpact?.total || 0) + (solarNuclearResults.carbonAvoided || 0);
+  const totalJobs = (renewableResults.economics.jobsCreated || 0) + (solarNuclearResults.jobs || 0);
+  const percentEmissions = (totalCarbon / usData.co2Emissions) * 100;
+  
+  container.innerHTML = `
     <div class="metric-row">
       <span class="metric-label">Waste & Bio-based TWh:</span>
-      <span class="metric-value">219.4 TWh</span>
+      <span class="metric-value">${formatNumber(renewableResults.energyGeneration.total,2)} TWh</span>
     </div>
     <div class="metric-row">
       <span class="metric-label">Solar TWh:</span>
-      <span class="metric-value">${formatNumber(solarNuclear.solarEnergyTWh,1)}</span>
+      <span class="metric-value">${formatNumber(solarNuclearResults.solarEnergyTWh,2)}</span>
     </div>
     <div class="metric-row">
       <span class="metric-label">Nuclear TWh:</span>
-      <span class="metric-value">${formatNumber(solarNuclear.nuclearEnergyTWh,1)}</span>
+      <span class="metric-value">${formatNumber(solarNuclearResults.nuclearEnergyTWh,2)}</span>
     </div>
     <div class="metric-row">
       <span class="metric-label"><strong>Total Renewable & Clean TWh:</strong></span>
-      <span class="metric-value"><strong>${formatNumber(solarNuclear.totalEnergy + 219.4,1)}</strong></span>
+      <span class="metric-value"><strong>${formatNumber(totalTWh,2)}</strong></span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Solar & Nuclear Investment:</span>
+      <span class="metric-value">$${formatNumber(solarNuclearResults.totalInvestment,2)} B</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Total Renewables Investment:</span>
+      <span class="metric-value">$${formatNumber(totalInvest,2)} B</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Jobs (Renewables + Solar/Nuclear):</span>
+      <span class="metric-value">${formatNumber(totalJobs,0)}</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Carbon Reduction (Renewables + Solar/Nuclear):</span>
+      <span class="metric-value">${formatNumber(totalCarbon,2)} MT</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">(% of US Emissions):</span>
+      <span class="metric-value">${formatNumber(percentEmissions,2)}%</span>
     </div>
   `;
+}
 
-  // Water Summary
-  const containerWater = document.getElementById('water-metrics');
-  containerWater.innerHTML = `
+// Update Water summary in Summary tab
+function updateWaterUI(waterResults){
+  const container = document.getElementById('water-metrics');
+  if (!container) return;
+  
+  container.innerHTML = `
     <div class="metric-row">
       <span class="metric-label">Total Water Production:</span>
-      <span class="metric-value">${formatNumber(waterRes.production.total,2)} million m³/yr</span>
+      <span class="metric-value">${formatNumber(waterResults.production.total,2)} million m³/yr</span>
     </div>
     <div class="metric-row">
       <span class="metric-label">Population Served:</span>
-      <span class="metric-value">${formatNumber(waterRes.impact.populationServed,2)} million</span>
+      <span class="metric-value">${formatNumber(waterResults.impact.populationServed,2)} million</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">% of US Withdrawals:</span>
+      <span class="metric-value">${formatNumber(waterResults.impact.percentOfTotalWithdrawals,2)}%</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Total Investment:</span>
+      <span class="metric-value">$${formatNumber(waterResults.economics.totalInvestment,2)} B</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Annual Water Value:</span>
+      <span class="metric-value">$${formatNumber(waterResults.economics.waterValue,2)} B</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Operating Cost:</span>
+      <span class="metric-value">$${formatNumber(waterResults.economics.operatingCost,2)} B</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Payback Period:</span>
+      <span class="metric-value">${formatNumber(waterResults.economics.paybackPeriod,1)} years</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Jobs Created:</span>
+      <span class="metric-value">${formatNumber(waterResults.economics.jobsCreated,0)}</span>
+    </div>
+    <div class="metric-row">
+      <span class="metric-label">Carbon Reduction:</span>
+      <span class="metric-value">${formatNumber(waterResults.carbon.reduction,2)} MT</span>
     </div>
   `;
-
-  // Quick Carbon Breakdown example
-  const totalCarbon = effResults.national.totalCarbonReduction
-                    + (renResults.carbonImpact ? renResults.carbonImpact.total : 0)
-                    + (transResults.carbonReduction ? transResults.carbonReduction.total : 0)
-                    + (waterRes.carbon ? waterRes.carbon.reduction : 0)
-                    + solarNuclear.carbonAvoided;
-  const carbonData = [
-    { name: 'Efficiency', value: effResults.national.totalCarbonReduction },
-    { name: 'Renewables', value: renResults.carbonImpact ? renResults.carbonImpact.total : 0 },
-    { name: 'Transport',  value: transResults.carbonReduction ? transResults.carbonReduction.total : 0 },
-    { name: 'Water',      value: waterRes.carbon ? waterRes.carbon.reduction : 0 },
-    { name: 'Solar/Nucl', value: solarNuclear.carbonAvoided },
-  ];
-  updateCarbonBreakdownChart(carbonData);
-
-  // *If* we had phased plan logic, we'd do that here:
-  // const phased = generatePhasedPlan(...);
-  // updatePhasedPlanTable(phased);
-
-  // Summaries for Key Results
-  document.getElementById('net-energy-impact').textContent = `${formatNumber(solarNuclear.totalEnergy - effResults.national.totalEnergySaved,1)} TWh`;
-  document.getElementById('carbon-reduction').textContent  = `${formatNumber(totalCarbon,1)} MT`;
-  // Example payback/investment
-  document.getElementById('total-investment').textContent  = `$1.23T`;
-  document.getElementById('payback-period').textContent    = `Payback: 12.3 years`;
-  const totalJobs = effResults.national.jobsCreated + solarNuclear.jobs;
-  document.getElementById('jobs-created').textContent      = `${formatNumber(totalJobs/1e6,2)}M`;
-  // Just an example for jobs per million
-  document.getElementById('jobs-per-million').textContent  = `2.5 jobs per $1M`;
-
-  // Strategy approach table
-  document.getElementById('eff-first-investment').textContent = `$${formatNumber(1.89,2)}T`;
-  document.getElementById('eff-first-carbon').textContent = '920M tons';
-  document.getElementById('eff-first-payback').textContent = '10.3 years';
-  document.getElementById('eff-first-jobs').textContent = '3.3M';
-  
-  document.getElementById('gen-first-investment').textContent = `$${formatNumber(2.65,2)}T`;
-  document.getElementById('gen-first-carbon').textContent = '644M tons';
-  document.getElementById('gen-first-payback').textContent = '18.5 years';
-  document.getElementById('gen-first-jobs').textContent = '1.5M';
 }
 
 // --------------
@@ -1475,7 +1884,7 @@ document.getElementById('apply-parameters-button').addEventListener('click', () 
 
 document.getElementById('export-button').addEventListener('click', exportResults);
 
-// Export
+// Export a JSON of final summary stats
 function exportResults(){
   const dataToExport = {
     netEnergyImpact: document.getElementById('net-energy-impact').textContent,
@@ -1494,7 +1903,7 @@ function exportResults(){
   URL.revokeObjectURL(url);
 }
 
-// Run once on page load with default slider values
+// Auto-run once on load
 window.onload = updateCalculations;
 </script>
 </body>
