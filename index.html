@@ -220,7 +220,7 @@
     <h1>US Integrated Energy Transition Calculator</h1>
     <button class="dark-mode-toggle secondary" id="dark-mode-toggle">Toggle Dark Mode</button>
   </div>
-  <p>This simplified calculator helps you explore an energy transition by combining energy efficiency improvements with clean (solar & nuclear) energy generation.</p>
+  <p>This calculator explores an energy transition by combining energy efficiency improvements, clean (solar & nuclear) energy, and wind energy (via SkySails Power systems).</p>
 
   <!-- TAB LIST -->
   <div class="tabs">
@@ -306,11 +306,10 @@
           </div>
         </div>
       </div>
-      <!-- New Methodology & Assumptions Card -->
       <div class="card">
         <h3 class="card-title">Methodology & Assumptions</h3>
         <p>
-          This calculator uses a national household base of <strong>129.9 million</strong> households and an average household energy consumption of <strong>10,715 kWh</strong>. Efficiency savings are estimated based on fixed values for passive solar, geothermal, and heat pump technologies. Solar and nuclear generation use capacity factors of 25% and 90%, respectively. All costs, incentives, and scaling factors are illustrative.
+          The calculator uses a national base of <strong>129.9 million households</strong> (set as 129,900,000) with an average consumption of <strong>10,715 kWh</strong> per household. Efficiency savings, solar/nuclear generation, and wind (SkySails) energy estimates are based on illustrative capacity factors and cost assumptions. For wind energy, each SkySails unit is assumed to have a rated capacity of 0.2 MW with a capacity factor of 75%, yielding about <strong>0.001314 TWh</strong> per unit per year. Cost and job estimates are placeholders.
         </p>
       </div>
     </div>
@@ -410,6 +409,19 @@
               <span class="slider-current" id="electricity-price-value">10¢</span>
               <span>25¢</span>
             </div>
+          </div>
+        </div>
+      </div>
+      <!-- New Wind Energy Parameters Card -->
+      <div class="card">
+        <h3 class="card-title">Wind Energy (SkySails)</h3>
+        <div class="slider-container">
+          <label class="slider-label">SkySails Units Deployed</label>
+          <input type="range" min="0" max="100000" step="5000" value="50000" id="skysails-units">
+          <div class="slider-values">
+            <span>0</span>
+            <span class="slider-current" id="skysails-units-value">50,000</span>
+            <span>100,000</span>
           </div>
         </div>
       </div>
@@ -570,10 +582,10 @@ const usData = {
   electricityConsumption: 3800,
   averageHouseholdConsumption: 10715,
   co2Emissions: 5222,  // million tons
-  households: 129900000,  // Updated: 129.9 million households
+  households: 129900000, // 129.9 million households
 };
 
-// Utility for formatting numbers
+// Utility function for formatting numbers
 function formatNumber(num, decimals = 2) {
   if (num === undefined || num === null) return 'N/A';
   if (num === 0) return '0';
@@ -589,7 +601,7 @@ function formatNumber(num, decimals = 2) {
 // --------------
 const parameterSliders = [
   'passive-solar-efficiency','gshp-cop','hpwh-efficiency','efficiency-adoption-rate',
-  'solar-capacity','solar-cost','nuclear-capacity','nuclear-cost','electricity-price','implementation-speed'
+  'solar-capacity','solar-cost','nuclear-capacity','nuclear-cost','electricity-price','implementation-speed','skysails-units'
 ];
 
 parameterSliders.forEach(id => {
@@ -606,6 +618,8 @@ parameterSliders.forEach(id => {
         val = `$${val}/kW`;
       } else if (id === 'hpwh-efficiency') {
         val = `${parseFloat(val).toFixed(1)}x`;
+      } else if (id === 'skysails-units') {
+        val = parseInt(val).toLocaleString();
       } else if (id.includes('efficiency') || id.includes('adoption')) {
         val = `${val}%`;
       }
@@ -615,8 +629,10 @@ parameterSliders.forEach(id => {
 });
 
 // --------------
-// CALC FUNCTIONS
+// CALCULATION FUNCTIONS
 // --------------
+
+// Solar & Nuclear Energy Calculation (unchanged)
 function calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost, electricityPrice) {
   const hoursPerYear = 8760;
   const solarCF = 0.25;
@@ -629,8 +645,7 @@ function calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost,
   const nuclearInvestment = (nuclearGW * 1_000_000 * nuclearCost) / 1_000_000_000;
   const totalInvestment = solarInvestment + nuclearInvestment;
   
-  // Placeholder for carbon avoidance
-  const carbonAvoided = (totalEnergy * 1_000_000 * 0.4) / 1_000_000; 
+  const carbonAvoided = totalEnergy * 0.4; // Placeholder factor
   const jobs = Math.round(totalInvestment * 1000);
   
   const annualRevenue = (totalEnergy * 1_000_000_000 * (electricityPrice / 100)) / 1_000_000_000;
@@ -655,6 +670,7 @@ function calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost,
   };
 }
 
+// Energy Efficiency Savings Calculation (unchanged)
 function calculateEfficiencySavings(passiveSolarEfficiency, gshpCOP, hpwhEfficiency, efficiencyAdoptionRate, isNewConstruction, electricityPrice) {
   const originalSpaceHeating = 4500;
   const originalCooling = 643;
@@ -674,14 +690,12 @@ function calculateEfficiencySavings(passiveSolarEfficiency, gshpCOP, hpwhEfficie
   const totalSavings = passiveSolarSavings + gshpHeatingSavings + gshpCoolingSavings + hpwhSavings + drySavings;
   const percentageReduction = (totalSavings / usData.averageHouseholdConsumption) * 100;
   
-  // Cost placeholders
   const passiveSolarCost = isNewConstruction ? 8000 : 18000;
   const geothermalInstallCost = 18000;
   const hpwhCost = 1800;
   const heatPumpDryerCost = 1200;
   const totalSystemCost = passiveSolarCost + geothermalInstallCost + hpwhCost + heatPumpDryerCost;
   
-  // Incentives
   const federalTaxCredit = (passiveSolarCost + geothermalInstallCost) * 0.30;
   const stateRebate = 3000;
   const utilityRebate = 2000;
@@ -691,7 +705,6 @@ function calculateEfficiencySavings(passiveSolarEfficiency, gshpCOP, hpwhEfficie
   const annualCostSavings = totalSavings * (electricityPrice / 100);
   const netPayback = netSystemCost / annualCostSavings;
   
-  // National scaling (households in absolute numbers)
   const homesAdopting = usData.households * (efficiencyAdoptionRate / 100);
   const totalEnergySaved = (homesAdopting * totalSavings) / 1e9; // in TWh
   const carbonReductionPerHousehold = (totalSavings * 0.417) / 1000;
@@ -733,15 +746,60 @@ function calculateEfficiencySavings(passiveSolarEfficiency, gshpCOP, hpwhEfficie
   };
 }
 
+// NEW: Wind Energy (SkySails) Calculation
+function calculateWindEnergy(skySailsUnits, electricityPrice) {
+  // Assumptions:
+  // Each unit: rated capacity = 0.2 MW, capacity factor = 0.75, annual production = 0.2*8760*0.75/1000 TWh ≈ 0.001314 TWh per unit
+  const hoursPerYear = 8760;
+  const capacityMW = 0.2; // per unit
+  const capacityFactor = 0.75;
+  const productionPerUnitTWh = (capacityMW * hoursPerYear * capacityFactor) / 1e6; // TWh
+  const energyTWh = skySailsUnits * productionPerUnitTWh;
+  
+  // Investment: Assume $1M per unit (in billions)
+  const investmentB = skySailsUnits / 1000; // since 1M = 0.001B
+  
+  // Carbon avoided: assume 40% factor as with solar/nuclear
+  const carbonAvoided = energyTWh * 0.4;
+  
+  // Jobs: assume 3 jobs per unit
+  const jobs = skySailsUnits * 3;
+  
+  // Revenue and operating cost calculations similar to solar/nuclear
+  const annualRevenue = (energyTWh * 1e9 * (electricityPrice / 100)) / 1e9;
+  const operatingCost = investmentB * 0.03;
+  let netAnnualRevenue = annualRevenue - operatingCost;
+  let payback = 0;
+  if (netAnnualRevenue > 0) payback = investmentB / netAnnualRevenue;
+  
+  return {
+    energy: energyTWh,
+    investment: investmentB,
+    carbonAvoided: carbonAvoided,
+    jobs: jobs,
+    annualRevenue: annualRevenue,
+    operatingCost: operatingCost,
+    netAnnualRevenue: netAnnualRevenue,
+    payback: payback
+  };
+}
+
 // --------------
 // PHASED PLAN CALCULATIONS
 // --------------
-function generatePhasedPlan(effResults, solarNuclearResults, effFirst) {
+// Updated to combine solar/nuclear and wind under "renewables"
+function generatePhasedPlan(effResults, solarNuclearResults, windResults, effFirst) {
   const effPhases = [0.05, 0.1, 0.2, 0.4, 0.7, 1.0];
   const genPhases = [0.0, 0.05, 0.2, 0.5, 0.8, 1.0];
   const speed = parseFloat(document.getElementById('implementation-speed').value);
   const speedFactor = speed / 10;
   const baseYearIncrement = 3 / speedFactor;
+  
+  // Combine solar/nuclear and wind into one "renewables" category
+  const renewableEnergyTotal = solarNuclearResults.totalEnergy + windResults.energy;
+  const renewableCarbonTotal = solarNuclearResults.carbonAvoided + windResults.carbonAvoided;
+  const renewableInvestment = solarNuclearResults.totalInvestment + windResults.investment;
+  const renewableJobs = solarNuclearResults.jobs + windResults.jobs;
   
   const phases = effFirst
     ? effPhases.map((effF, i) => {
@@ -769,16 +827,16 @@ function generatePhasedPlan(effResults, solarNuclearResults, effFirst) {
     const effInv  = effResults.national.totalInvestment * p.efficiencyFactor;
     const effJobs = effResults.national.jobsCreated * p.efficiencyFactor;
     
-    const genEnergy = solarNuclearResults.totalEnergy * p.generationFactor;
-    const genCO2    = solarNuclearResults.carbonAvoided * p.generationFactor;
-    const genInv    = solarNuclearResults.totalInvestment * p.generationFactor;
-    const genJobs   = solarNuclearResults.jobs * p.generationFactor;
+    const renEnergy = renewableEnergyTotal * p.generationFactor;
+    const renCO2    = renewableCarbonTotal * p.generationFactor;
+    const renInv    = renewableInvestment * p.generationFactor;
+    const renJobs   = renewableJobs * p.generationFactor;
     
-    const totalEnergyGen = genEnergy;
+    const totalEnergyGen = renEnergy;
     const netEnergy = totalEnergyGen - effSaves;
-    const totalCarbon = effCO2 + genCO2;
-    const totalInvestment = effInv + genInv;
-    const totalJobs = effJobs + genJobs;
+    const totalCarbon = effCO2 + renCO2;
+    const totalInvestment = effInv + renInv;
+    const totalJobs = effJobs + renJobs;
     
     return {
       year: p.year,
@@ -848,19 +906,22 @@ function updateCalculations() {
   const nuclearGW  = parseFloat(document.getElementById('nuclear-capacity').value);
   const nuclearCost= parseFloat(document.getElementById('nuclear-cost').value);
   
+  const skySailsUnits = parseFloat(document.getElementById('skysails-units').value);
+  
   const effFirst = (document.getElementById('efficiency-first-toggle').value === "1");
   
   const effResults = calculateEfficiencySavings(passiveSolarEff, gshpCOP, hpwhEff, effAdoptionRate, isNewConstruction, elecPrice);
   const solarNuclear = calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost, elecPrice);
+  const windResults = calculateWindEnergy(skySailsUnits, elecPrice);
   
-  // Overall summary calculations (combining efficiency and solar/nuclear)
-  const totalCleanEnergy = solarNuclear.totalEnergy;
-  const totalCarbonReduction = effResults.national.totalCarbonReduction + solarNuclear.carbonAvoided;
-  const netEnergyImpact  = solarNuclear.totalEnergy - effResults.national.totalEnergySaved;
-  const totalInvestment = effResults.national.totalInvestment + solarNuclear.totalInvestment;
-  const totalJobs = effResults.national.jobsCreated + solarNuclear.jobs;
+  // Overall summary calculations (combining efficiency and renewables)
+  const totalCleanEnergy = solarNuclear.totalEnergy + windResults.energy;
+  const totalCarbonReduction = effResults.national.totalCarbonReduction + solarNuclear.carbonAvoided + windResults.carbonAvoided;
+  const netEnergyImpact  = totalCleanEnergy - effResults.national.totalEnergySaved;
+  const totalInvestment = effResults.national.totalInvestment + solarNuclear.totalInvestment + windResults.investment;
+  const totalJobs = effResults.national.jobsCreated + solarNuclear.jobs + windResults.jobs;
   
-  const annualBenefits = effResults.national.annualSavings;
+  const annualBenefits = effResults.national.annualSavings + solarNuclear.netAnnualRevenue + windResults.netAnnualRevenue;
   const payback = (totalInvestment > 0 && annualBenefits > 0) ? (totalInvestment / annualBenefits) : 0;
   const percentEmissionsReduced = (totalCarbonReduction / usData.co2Emissions) * 100;
   
@@ -899,7 +960,7 @@ function updateCalculations() {
     document.getElementById('eff-first-jobs').textContent        = `${formatNumber((totalJobs * 2.2) / 1e6,1)}M`;
   }
   
-  const phased = generatePhasedPlan(effResults, solarNuclear, effFirst);
+  const phased = generatePhasedPlan(effResults, solarNuclear, windResults, effFirst);
   updatePhasedPlanTable(phased);
   
   updateEfficiencyUI(effResults);
