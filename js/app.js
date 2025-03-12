@@ -72,6 +72,8 @@ document.addEventListener("DOMContentLoaded", function(){
     const hoursPerYear = 8760;
     const solarCF = 0.25;
     const nuclearCF = 0.90;
+
+    // separate energies
     const solarEnergyTWh = (solarGW * hoursPerYear * solarCF) / 1000;
     const nuclearEnergyTWh = (nuclearGW * hoursPerYear * nuclearCF) / 1000;
     const totalEnergy = solarEnergyTWh + nuclearEnergyTWh;
@@ -105,8 +107,12 @@ document.addEventListener("DOMContentLoaded", function(){
     };
   }
 
-  function calculateEfficiencySavings(passiveSolarEfficiency, gshpCOP, hpwhEfficiency, efficiencyAdoptionRate, isNewConstruction, electricityPrice) {
-    const originalSpaceHeating = 4500, originalCooling = 643, originalWaterHeating = 1928, originalDryer = 536;
+  function calculateEfficiencySavings(
+    passiveSolarEfficiency, gshpCOP, hpwhEfficiency, efficiencyAdoptionRate,
+    isNewConstruction, electricityPrice
+  ) {
+    const originalSpaceHeating = 4500, originalCooling = 643,
+          originalWaterHeating = 1928, originalDryer = 536;
     
     // Passive solar
     const passiveSolarSavings = originalSpaceHeating * (passiveSolarEfficiency / 100);
@@ -114,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const gshpHeatingSavings = remainingHeatingLoad - (remainingHeatingLoad / gshpCOP);
     const gshpCoolingSavings = originalCooling - (originalCooling / gshpCOP);
     const hpwhSavings = originalWaterHeating - (originalWaterHeating / hpwhEfficiency);
-    const drySavings = originalDryer * 0.28;
+    const drySavings = originalDryer * 0.28; // ~28% savings for HP dryer
 
     const totalSavings = passiveSolarSavings + gshpHeatingSavings + gshpCoolingSavings + hpwhSavings + drySavings;
     const percentageReduction = (totalSavings / 10715) * 100;
@@ -139,17 +145,16 @@ document.addEventListener("DOMContentLoaded", function(){
     const carbonReductionPerHousehold = (totalSavings * 0.417) / 1000; 
     const totalCarbonReduction = (homesAdopting * carbonReductionPerHousehold) / 1e6; 
     const percentOfUSEmissions = (totalCarbonReduction / 5222) * 100;
-
-    // Freed capacity
-    const evAnnualUsage = 2800;
-    const evsPerHousehold = totalSavings / evAnnualUsage;
-    const totalEvsSupported = homesAdopting * evsPerHousehold;
-    const gridCapacityFreed = (totalEnergySaved / 3800) * 100;
     const totalNationalInvestment = (homesAdopting * netSystemCost) / 1e9; 
     const jobsCreated = Math.round(((homesAdopting * netSystemCost) / 1e6) * 5);
 
     return {
       perHousehold: {
+        passiveSolarSavings,
+        gshpHeatingSavings,
+        gshpCoolingSavings,
+        hpwhSavings,
+        drySavings,
         totalSavings,
         percentageReduction,
         systemCost: totalSystemCost,
@@ -248,6 +253,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const speedFactor = speed / 10;
     const baseYearIncrement = 3 / speedFactor;
 
+    // Separate out energies
     const renewableEnergyTotal = solarNuclearResults.totalEnergy + windResults.energy + wasteResults.energyGeneration.total;
     const renewableCarbonTotal = solarNuclearResults.carbonAvoided + windResults.carbonAvoided + wasteResults.carbonImpact.total;
     const renewableInvestment  = solarNuclearResults.totalInvestment + windResults.investment + wasteResults.economics.totalInvestment;
@@ -274,11 +280,13 @@ document.addEventListener("DOMContentLoaded", function(){
         });
 
     return phases.map(p => {
+      // Efficiency partial
       const effSaves = effResults.national.totalEnergySaved * p.efficiencyFactor;
       const effCO2   = effResults.national.totalCarbonReduction * p.efficiencyFactor;
       const effInv   = effResults.national.totalInvestment * p.efficiencyFactor;
       const effJobs  = effResults.national.jobsCreated * p.efficiencyFactor;
 
+      // Renewables partial
       const renEnergy= renewableEnergyTotal * p.generationFactor;
       const renCO2   = renewableCarbonTotal * p.generationFactor;
       const renInv   = renewableInvestment * p.generationFactor;
@@ -304,6 +312,7 @@ document.addEventListener("DOMContentLoaded", function(){
     });
   }
 
+  // TABLE for phased plan
   function updatePhasedPlanTable(plan) {
     const tbody = document.getElementById("phased-plan-table").querySelector("tbody");
     tbody.innerHTML = "";
@@ -324,15 +333,18 @@ document.addEventListener("DOMContentLoaded", function(){
   // CHART for the Dashboard
   let energyMixChart;
   function updateEnergyMixChart(solarNuclear, windResults, wasteResults){
-    const labels = ["Solar/Nuclear", "Wind (SkySails)", "Waste"];
+    // We separate solar vs nuclear
+    const labels = ["Solar","Nuclear","Wind","Waste"];
     const data = [
-      solarNuclear.totalEnergy,
+      solarNuclear.solarEnergyTWh,
+      solarNuclear.nuclearEnergyTWh,
       windResults.energy,
       wasteResults.energyGeneration.total
     ];
     const ctx = document.getElementById("energyMixChart").getContext("2d");
 
     if(energyMixChart){
+      energyMixChart.data.labels = labels;
       energyMixChart.data.datasets[0].data = data;
       energyMixChart.update();
     } else {
@@ -342,7 +354,7 @@ document.addEventListener("DOMContentLoaded", function(){
           labels: labels,
           datasets: [{
             data: data,
-            backgroundColor: ["#2563eb","#16a34a","#d97706"]
+            backgroundColor: ["#2563eb","#6b21a8","#16a34a","#d97706"]
           }]
         },
         options: {
@@ -350,6 +362,73 @@ document.addEventListener("DOMContentLoaded", function(){
           plugins: {
             legend: {
               position: "bottom"
+            }
+          }
+        }
+      });
+    }
+  }
+
+  // EFFICIENCY UI
+  // We'll fill a table with perHousehold data, plus a bar chart
+  let efficiencyChart;
+  function updateEfficiencyUI(effResults){
+    // Fill the #efficiency-table with data
+    const tBody = document.querySelector("#efficiency-table tbody");
+    tBody.innerHTML = "";
+
+    // Per-household
+    const ph = effResults.perHousehold;
+    // We'll show a few key fields:
+    const rows = [
+      ["Passive Solar Savings (kWh)", formatNumber(ph.passiveSolarSavings,0)],
+      ["GSHP Heating Savings (kWh)", formatNumber(ph.gshpHeatingSavings,0)],
+      ["GSHP Cooling Savings (kWh)", formatNumber(ph.gshpCoolingSavings,0)],
+      ["HP Water Heater Savings (kWh)", formatNumber(ph.hpwhSavings,0)],
+      ["HP Dryer Savings (kWh)", formatNumber(ph.drySavings,0)],
+      ["Total Household Savings (kWh)", formatNumber(ph.totalSavings,0)],
+      ["Reduction in Consumption (%)", formatNumber(ph.percentageReduction,1)+"%"],
+      ["Annual Cost Savings ($)", "$"+formatNumber(ph.annualCostSavings,0)],
+      ["Payback Period (years)", formatNumber(ph.paybackPeriod,1)],
+    ];
+
+    rows.forEach(item => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${item[0]}</td><td>${item[1]}</td>`;
+      tBody.appendChild(tr);
+    });
+
+    // Efficiency bar chart
+    const barLabels = ["Passive Solar","GSHP Heat","GSHP Cool","HP Water Heater","Dryer"];
+    const barData = [
+      ph.passiveSolarSavings,
+      ph.gshpHeatingSavings,
+      ph.gshpCoolingSavings,
+      ph.hpwhSavings,
+      ph.drySavings
+    ];
+
+    const ctx = document.getElementById("efficiencySavingsChart").getContext("2d");
+    if(efficiencyChart){
+      efficiencyChart.data.labels = barLabels;
+      efficiencyChart.data.datasets[0].data = barData;
+      efficiencyChart.update();
+    } else {
+      efficiencyChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: barLabels,
+          datasets: [{
+            label: "Household kWh Savings",
+            data: barData,
+            backgroundColor: "#2563eb"
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
             }
           }
         }
@@ -371,48 +450,49 @@ document.addEventListener("DOMContentLoaded", function(){
   // MAIN updateCalculations
   function updateCalculations(){
     // Grab all input values
-    const passiveSolarEff = parseFloat(document.getElementById("passive-solar-efficiency").value);
-    const gshpCOP         = parseFloat(document.getElementById("gshp-cop").value);
-    const hpwhEff         = parseFloat(document.getElementById("hpwh-efficiency").value);
-    const effAdoptionRate = parseFloat(document.getElementById("efficiency-adoption-rate").value);
+    const passiveSolarEff   = parseFloat(document.getElementById("passive-solar-efficiency").value);
+    const gshpCOP           = parseFloat(document.getElementById("gshp-cop").value);
+    const hpwhEff           = parseFloat(document.getElementById("hpwh-efficiency").value);
+    const effAdoptionRate   = parseFloat(document.getElementById("efficiency-adoption-rate").value);
     const isNewConstruction = document.getElementById("new-construction-button").classList.contains("active");
-    const elecPrice       = parseFloat(document.getElementById("electricity-price").value);
+    const elecPrice         = parseFloat(document.getElementById("electricity-price").value);
 
-    const solarGW         = parseFloat(document.getElementById("solar-capacity").value);
-    const solarCost       = parseFloat(document.getElementById("solar-cost").value);
-    const nuclearGW       = parseFloat(document.getElementById("nuclear-capacity").value);
-    const nuclearCost     = parseFloat(document.getElementById("nuclear-cost").value);
+    const solarGW           = parseFloat(document.getElementById("solar-capacity").value);
+    const solarCost         = parseFloat(document.getElementById("solar-cost").value);
+    const nuclearGW         = parseFloat(document.getElementById("nuclear-capacity").value);
+    const nuclearCost       = parseFloat(document.getElementById("nuclear-cost").value);
 
-    const skySailsUnits   = parseFloat(document.getElementById("skysails-units").value);
+    const skySailsUnits     = parseFloat(document.getElementById("skysails-units").value);
 
-    const foodWasteUtil   = parseFloat(document.getElementById("food-waste-utilization").value);
-    const agWasteUtil     = parseFloat(document.getElementById("agriculture-utilization").value);
-    const forestUtil      = parseFloat(document.getElementById("forest-utilization").value);
-    const mswUtil         = parseFloat(document.getElementById("msw-utilization").value);
-    const algaeUtil       = parseFloat(document.getElementById("algae-percentage").value);
-    const hempUtil        = parseFloat(document.getElementById("hemp-utilization").value);
+    const foodWasteUtil     = parseFloat(document.getElementById("food-waste-utilization").value);
+    const agWasteUtil       = parseFloat(document.getElementById("agriculture-utilization").value);
+    const forestUtil        = parseFloat(document.getElementById("forest-utilization").value);
+    const mswUtil           = parseFloat(document.getElementById("msw-utilization").value);
+    const algaeUtil         = parseFloat(document.getElementById("algae-percentage").value);
+    const hempUtil          = parseFloat(document.getElementById("hemp-utilization").value);
 
-    // This was missing from the HTML before; we just re-added it:
-    const effFirst = false; // or set from a toggle if you have one
-    // If you had a slider/toggle for efficiency-first:
-    // const effFirst = (document.getElementById("efficiency-first-toggle").value === "1");
+    const speedValue        = parseFloat(document.getElementById("implementation-speed").value);
+    // If you had a separate toggle for Efficiency First vs. Generation First, you can handle it. 
+    // For now, let's default effFirst to false:
+    const effFirst = false;
 
     // Perform calculations
-    const effResults = calculateEfficiencySavings(
+    const effResults    = calculateEfficiencySavings(
       passiveSolarEff, gshpCOP, hpwhEff,
       effAdoptionRate, isNewConstruction, elecPrice
     );
-    const solarNuclear = calculateSolarNuclearEnergy(
+    const solarNuclear  = calculateSolarNuclearEnergy(
       solarGW, solarCost, nuclearGW, nuclearCost, elecPrice
     );
-    const windResults = calculateWindEnergy(
+    const windResults   = calculateWindEnergy(
       skySailsUnits, elecPrice
     );
-    const wasteResults = calculateWasteProcessing(
+    const wasteResults  = calculateWasteProcessing(
       foodWasteUtil, agWasteUtil, forestUtil,
       mswUtil, algaeUtil, hempUtil, elecPrice
     );
 
+    // Summaries
     const totalCleanEnergy = solarNuclear.totalEnergy + windResults.energy + wasteResults.energyGeneration.total;
     const totalCarbonReduction = effResults.national.totalCarbonReduction +
                                  solarNuclear.carbonAvoided +
@@ -459,17 +539,18 @@ document.addEventListener("DOMContentLoaded", function(){
       document.getElementById("jobs-per-million").textContent = "-";
     }
 
-    // Update Chart
+    // Update main chart (Solar vs. Nuclear vs. Wind vs. Waste)
     updateEnergyMixChart(solarNuclear, windResults, wasteResults);
 
     // Generate phased plan
     const phased = generatePhasedPlan(effResults, solarNuclear, windResults, wasteResults, effFirst);
     updatePhasedPlanTable(phased);
+
+    // Update Efficiency UI
+    updateEfficiencyUI(effResults);
   }
 
-  // ========================
-  // 5. EVENT LISTENERS
-  // ========================
+  // EVENT LISTENERS
   document.getElementById("apply-parameters-button").addEventListener("click", updateCalculations);
 
   const resetButton = document.getElementById("reset-button");
@@ -497,6 +578,6 @@ document.addEventListener("DOMContentLoaded", function(){
     });
   }
 
-  // Run initial calculations on load
+  // INITIAL RUN
   updateCalculations();
 });
