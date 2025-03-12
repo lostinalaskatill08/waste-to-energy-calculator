@@ -129,8 +129,9 @@
           <h2>Wind Energy (SkySails) Parameters</h2>
           <div class="slider-container">
             <label for="skysails-units">SkySails Units Deployed</label>
-            <input type="range" id="skysails-units" min="0" max="100000" step="5000" value="50000">
-            <span id="skysails-units-value">50,000</span>
+            <!-- Increased max to 1,000,000, step 50,000 -->
+            <input type="range" id="skysails-units" min="0" max="1000000" step="50000" value="200000">
+            <span id="skysails-units-value">200,000</span>
           </div>
         </div>
 
@@ -169,7 +170,7 @@
           </div>
         </div>
 
-        <!-- Implementation Speed (Missing from earlier code) -->
+        <!-- Implementation Speed -->
         <div class="parameter-group">
           <h2>Implementation Speed</h2>
           <div class="slider-container">
@@ -187,7 +188,25 @@
       <!-- EFFICIENCY SECTION -->
       <section id="efficiency" class="content-section">
         <h1>Energy Efficiency Details</h1>
-        <p>Household energy savings details and breakdowns are provided here.</p>
+        <p>Below is a breakdown of per‐household energy savings, along with a chart of the sources of savings.</p>
+
+        <!-- Table showing per-household savings -->
+        <table id="efficiency-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Filled dynamically by JavaScript -->
+          </tbody>
+        </table>
+
+        <!-- Chart for Efficiency Savings breakdown -->
+        <div style="margin-top: 20px;">
+          <canvas id="efficiencySavingsChart"></canvas>
+        </div>
       </section>
 
       <!-- PHASED IMPLEMENTATION SECTION -->
