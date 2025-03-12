@@ -3,568 +3,179 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>US Integrated Energy Transition Calculator</title>
-  <style>
-    :root {
-      /* Light Mode Colors */
-      --bg-color: #f5f5f5;
-      --text-color: #333;
-      --card-bg: #ffffff;
-      --secondary-bg: #e5e7eb;
-      --border-color: rgba(0,0,0,0.1);
-
-      /* Dark Mode Colors */
-      --dark-bg-color: #1f2937;
-      --dark-text-color: #e5e7eb;
-      --dark-card-bg: #374151;
-      --dark-border-color: #4b5563;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      line-height: 1.5;
-      margin: 0;
-      padding: 20px;
-      color: var(--text-color);
-      background-color: var(--bg-color);
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    body.dark-mode {
-      background-color: var(--dark-bg-color);
-      color: var(--dark-text-color);
-    }
-    h1, h2, h3, h4 { margin-top: 0; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      box-shadow: 0 2px 4px var(--border-color);
-      padding: 20px;
-      margin-bottom: 20px;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    }
-    body.dark-mode .card {
-      background-color: var(--dark-card-bg);
-      box-shadow: 0 2px 4px var(--dark-border-color);
-    }
-    .card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 15px; }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-    }
-    @media (min-width: 768px) {
-      .stats-grid { grid-template-columns: repeat(4, 1fr); }
-      .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-    }
-    .stat-box { padding: 15px; border-radius: 6px; border: 1px solid #e5e7eb; }
-    body.dark-mode .stat-box { border-color: var(--dark-border-color); }
-    .stat-box.blue { background-color: #eff6ff; }
-    .stat-box.green { background-color: #ecfdf5; }
-    .stat-box.yellow { background-color: #fffbeb; }
-    .stat-box.purple { background-color: #f5f3ff; }
-    body.dark-mode .stat-box.blue,
-    body.dark-mode .stat-box.green,
-    body.dark-mode .stat-box.yellow,
-    body.dark-mode .stat-box.purple {
-      background-color: #495057;
-      color: #e5e7eb;
-    }
-    .stat-label { font-size: 0.875rem; color: #6b7280; margin-bottom: 5px; }
-    body.dark-mode .stat-label { color: #d1d5db; }
-    .stat-value { font-size: 1.25rem; font-weight: 600; }
-    .stat-subtitle { font-size: 0.75rem; color: #6b7280; margin-top: 5px; }
-    body.dark-mode .stat-subtitle { color: #d1d5db; }
-    .grid { display: grid; gap: 20px; }
-    .tabs { margin-bottom: 20px; }
-    .tab-list {
-      display: flex;
-      border-bottom: 1px solid #e5e7eb;
-      overflow-x: auto;
-    }
-    body.dark-mode .tab-list { border-color: var(--dark-border-color); }
-    .tab-button {
-      padding: 10px 15px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      font-size: 0.875rem;
-      color: #6b7280;
-      border-bottom: 2px solid transparent;
-      transition: background-color 0.3s ease;
-    }
-    body.dark-mode .tab-button { color: #cbd5e1; }
-    .tab-button.active {
-      color: #2563eb;
-      border-bottom-color: #2563eb;
-      font-weight: 500;
-    }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .slider-container { margin-bottom: 15px; }
-    .slider-label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 5px; }
-    .slider-values {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      margin-top: 5px;
-    }
-    .slider-current { font-weight: 500; font-size: 0.875rem; }
-    input[type="range"] { width: 100%; }
-    .flex { display: flex; align-items: center; }
-    .toggle-container { display: flex; align-items: center; margin-bottom: 15px; }
-    .toggle-label { font-size: 0.875rem; font-weight: 500; margin-right: 10px; }
-    .toggle-button {
-      border: 1px solid #d1d5db;
-      background-color: #f9fafb;
-      padding: 6px 12px;
-      cursor: pointer;
-      font-size: 0.875rem;
-      border-radius: 4px;
-    }
-    body.dark-mode .toggle-button {
-      background-color: #4b5563;
-      border-color: #6b7280;
-      color: #e5e7eb;
-    }
-    .toggle-button.active {
-      background-color: #2563eb;
-      color: white;
-      border-color: #2563eb;
-    }
-    body.dark-mode .toggle-button.active {
-      background-color: #1d4ed8;
-      border-color: #1d4ed8;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      text-align: left;
-      padding: 8px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    body.dark-mode th, body.dark-mode td { border-color: var(--dark-border-color); }
-    th { font-weight: 500; color: #4b5563; }
-    body.dark-mode th { color: #cbd5e1; }
-    .text-right { text-align: right; }
-    .bar-chart { margin-top: 15px; }
-    .bar {
-      height: 25px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      border-radius: 4px;
-      overflow: hidden;
-      position: relative;
-    }
-    .bar-label {
-      width: 120px;
-      font-size: 0.75rem;
-      padding-left: 8px;
-      z-index: 1;
-    }
-    .bar-value {
-      font-size: 0.75rem;
-      margin-left: auto;
-      padding-right: 8px;
-      z-index: 1;
-    }
-    .bar-fill {
-      position: absolute;
-      height: 25px;
-      background-color: #3b82f6;
-      transition: width 0.3s ease;
-      border-radius: 4px;
-    }
-    .center-text { text-align: center; }
-    .metric-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      border-bottom: 1px solid #f3f4f6;
-      padding-bottom: 8px;
-    }
-    body.dark-mode .metric-row { border-color: #4b5563; }
-    .metric-label { font-size: 0.875rem; }
-    .metric-value { font-size: 0.875rem; font-weight: 500; }
-    .action-buttons { display: flex; justify-content: space-between; margin-top: 20px; }
-    button {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      background-color: #2563eb;
-      color: white;
-      cursor: pointer;
-      font-size: 0.875rem;
-      transition: background-color 0.2s ease;
-    }
-    button:hover { background-color: #1d4ed8; }
-    button.secondary {
-      background-color: #e5e7eb;
-      color: #374151;
-    }
-    body.dark-mode button.secondary {
-      background-color: #4b5563;
-      color: #e5e7eb;
-    }
-    button.secondary:hover { background-color: #d1d5db; }
-    body.dark-mode button.secondary:hover { background-color: #6b7280; }
-    .dark-mode-toggle { margin-right: 1rem; }
-  </style>
+  <title>US Integrated Energy Transition Visualizer</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Chart.js for interactive charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<div class="container">
-  <div style="display:flex; justify-content: space-between; align-items:center;">
-    <h1>US Integrated Energy Transition Calculator</h1>
-    <button class="dark-mode-toggle secondary" id="dark-mode-toggle">Toggle Dark Mode</button>
-  </div>
-  <p>This calculator explores an energy transition by combining energy efficiency improvements, clean (solar & nuclear) energy, wind energy (via SkySails), and waste processing/bioenergy from organic materials.</p>
-
-  <!-- TAB LIST -->
-  <div class="tabs">
-    <div class="tab-list">
-      <button class="tab-button active" data-tab="summary">Summary</button>
-      <button class="tab-button" data-tab="parameters">Input Parameters</button>
-      <button class="tab-button" data-tab="efficiency">Energy Efficiency</button>
-      <button class="tab-button" data-tab="phased">Phased Implementation</button>
+  <div id="container">
+    <!-- Sidebar Navigation -->
+    <div id="sidebar">
+      <h2>Navigation</h2>
+      <ul>
+        <li><a href="#" class="nav-link" data-target="dashboard">Dashboard</a></li>
+        <li><a href="#" class="nav-link" data-target="parameters">Input Parameters</a></li>
+        <li><a href="#" class="nav-link" data-target="efficiency">Energy Efficiency</a></li>
+        <li><a href="#" class="nav-link" data-target="phased">Phased Implementation</a></li>
+        <li><a href="#" class="nav-link" data-target="methodology">Methodology</a></li>
+      </ul>
     </div>
 
-    <!-- SUMMARY TAB -->
-    <div class="tab-content active" id="summary">
-      <div class="grid grid-cols-2">
-        <div class="card">
-          <h3 class="card-title">Strategy Approach</h3>
-          <div class="toggle-container">
-            <span class="toggle-label">Generation First</span>
-            <input type="range" min="0" max="1" step="1" value="1" id="efficiency-first-toggle" style="max-width: 60px; margin: 0 10px;">
-            <span class="toggle-label">Efficiency First</span>
+    <!-- Main Content Area -->
+    <div id="main-content">
+      <!-- Dashboard Section -->
+      <section id="dashboard" class="content-section active">
+        <h1>Dashboard</h1>
+        <div class="key-results">
+          <div class="result-box">
+            <h3>Net Energy Impact</h3>
+            <p id="net-energy-impact">0 TWh</p>
+            <p id="net-energy-percent">0% of US consumption</p>
           </div>
-          <div class="slider-container">
-            <label class="slider-label">Implementation Speed</label>
-            <input type="range" min="1" max="20" value="10" id="implementation-speed">
-            <div class="slider-values">
-              <span>Slower</span>
-              <span class="slider-current" id="implementation-speed-value">10</span>
-              <span>Faster</span>
-            </div>
+          <div class="result-box">
+            <h3>Carbon Reduction</h3>
+            <p id="carbon-reduction">0 MT</p>
+            <p id="carbon-percent">0% of US emissions</p>
           </div>
-          <div id="strategy-comparison">
-            <table>
-              <thead>
-                <tr>
-                  <th>Strategy</th>
-                  <th>Investment</th>
-                  <th>Carbon Reduction</th>
-                  <th>Payback</th>
-                  <th>Jobs</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Efficiency First</td>
-                  <td id="eff-first-investment">$0.00B</td>
-                  <td id="eff-first-carbon">0 MT</td>
-                  <td id="eff-first-payback">0 years</td>
-                  <td id="eff-first-jobs">0</td>
-                </tr>
-                <tr>
-                  <td>Generation First</td>
-                  <td id="gen-first-investment">$0.00B</td>
-                  <td id="gen-first-carbon">0 MT</td>
-                  <td id="gen-first-payback">0 years</td>
-                  <td id="gen-first-jobs">0</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="result-box">
+            <h3>Total Investment</h3>
+            <p id="total-investment">$0.00 B</p>
+            <p id="payback-period">Payback: 0 years</p>
+          </div>
+          <div class="result-box">
+            <h3>Jobs Created</h3>
+            <p id="jobs-created">0</p>
+            <p id="jobs-per-million">0 jobs per $1M</p>
           </div>
         </div>
-        <div class="card">
-          <h3 class="card-title">Key Results</h3>
-          <div class="stats-grid">
-            <div class="stat-box blue">
-              <div class="stat-label">Net Energy Impact</div>
-              <div class="stat-value" id="net-energy-impact">0 TWh</div>
-              <div class="stat-subtitle" id="net-energy-percent">0% of US consumption</div>
-            </div>
-            <div class="stat-box green">
-              <div class="stat-label">Carbon Reduction</div>
-              <div class="stat-value" id="carbon-reduction">0 MT</div>
-              <div class="stat-subtitle" id="carbon-percent">0% of US emissions</div>
-            </div>
-            <div class="stat-box yellow">
-              <div class="stat-label">Total Investment</div>
-              <div class="stat-value" id="total-investment">$0.00 B</div>
-              <div class="stat-subtitle" id="payback-period">Payback: 0 years</div>
-            </div>
-            <div class="stat-box purple">
-              <div class="stat-label">Jobs Created</div>
-              <div class="stat-value" id="jobs-created">0</div>
-              <div class="stat-subtitle" id="jobs-per-million">0 jobs per $1M</div>
-            </div>
-          </div>
+        <div class="charts">
+          <canvas id="energyMixChart"></canvas>
         </div>
-      </div>
-      <div class="card">
-        <h3 class="card-title">Methodology & Assumptions</h3>
-        <p>
-          The calculator uses a national base of <strong>129.9 million households</strong> (set as 129,900,000) with an average consumption of <strong>10,715 kWh</strong> per household. Efficiency savings, solar/nuclear generation, wind energy (via SkySails), and waste processing estimates are based on illustrative capacity factors and cost assumptions. For waste processing, conversion factors (e.g., 1.5 MWh/ton for food waste) and fixed cost estimates are placeholders.
-        </p>
-      </div>
-    </div>
+      </section>
 
-    <!-- PARAMETERS TAB -->
-    <div class="tab-content" id="parameters">
-      <div class="grid grid-cols-2">
-        <!-- Energy Efficiency Parameters -->
-        <div class="card">
-          <h3 class="card-title">Energy Efficiency Parameters</h3>
+      <!-- Input Parameters Section -->
+      <section id="parameters" class="content-section">
+        <h1>Input Parameters</h1>
+        <!-- Group: Energy Efficiency -->
+        <div class="parameter-group">
+          <h2>Energy Efficiency Parameters</h2>
           <div class="slider-container">
-            <label class="slider-label">Passive Solar Design Efficiency (%)</label>
-            <input type="range" min="20" max="90" value="50" id="passive-solar-efficiency">
-            <div class="slider-values">
-              <span>20%</span>
-              <span class="slider-current" id="passive-solar-efficiency-value">50%</span>
-              <span>90%</span>
-            </div>
+            <label for="passive-solar-efficiency">Passive Solar Design Efficiency (%)</label>
+            <input type="range" id="passive-solar-efficiency" min="20" max="90" value="50">
+            <span id="passive-solar-efficiency-value">50%</span>
           </div>
           <div class="slider-container">
-            <label class="slider-label">Geothermal Heat Pump COP</label>
-            <input type="range" min="2.5" max="5.0" step="0.1" value="3.5" id="gshp-cop">
-            <div class="slider-values">
-              <span>2.5</span>
-              <span class="slider-current" id="gshp-cop-value">3.5</span>
-              <span>5.0</span>
-            </div>
+            <label for="gshp-cop">Geothermal Heat Pump COP</label>
+            <input type="range" id="gshp-cop" min="2.5" max="5.0" step="0.1" value="3.5">
+            <span id="gshp-cop-value">3.5</span>
           </div>
           <div class="slider-container">
-            <label class="slider-label">Heat Pump Water Heater Efficiency</label>
-            <input type="range" min="2.0" max="3.5" step="0.1" value="2.5" id="hpwh-efficiency">
-            <div class="slider-values">
-              <span>2.0x</span>
-              <span class="slider-current" id="hpwh-efficiency-value">2.5x</span>
-              <span>3.5x</span>
-            </div>
+            <label for="hpwh-efficiency">Heat Pump Water Heater Efficiency</label>
+            <input type="range" id="hpwh-efficiency" min="2.0" max="3.5" step="0.1" value="2.5">
+            <span id="hpwh-efficiency-value">2.5x</span>
           </div>
           <div class="slider-container">
-            <label class="slider-label">National Adoption Rate (%)</label>
-            <input type="range" min="5" max="50" value="25" id="efficiency-adoption-rate">
-            <div class="slider-values">
-              <span>5%</span>
-              <span class="slider-current" id="efficiency-adoption-rate-value">25%</span>
-              <span>50%</span>
-            </div>
+            <label for="efficiency-adoption-rate">National Adoption Rate (%)</label>
+            <input type="range" id="efficiency-adoption-rate" min="5" max="50" value="25">
+            <span id="efficiency-adoption-rate-value">25%</span>
           </div>
           <div class="toggle-container">
-            <span class="toggle-label">Implementation Type:</span>
-            <button class="toggle-button active" id="retrofit-button">Retrofit</button>
-            <button class="toggle-button" id="new-construction-button">New Construction</button>
+            <span>Implementation Type:</span>
+            <button id="retrofit-button" class="toggle-button active">Retrofit</button>
+            <button id="new-construction-button" class="toggle-button">New Construction</button>
           </div>
         </div>
-        <!-- Solar & Nuclear Parameters -->
-        <div class="card">
-          <h3 class="card-title">Solar & Nuclear Energy Parameters</h3>
-          <div class="slider-container">
-            <label class="slider-label">Solar Capacity (GW)</label>
-            <input type="range" min="0" max="1000" step="10" value="200" id="solar-capacity">
-            <div class="slider-values">
-              <span>0 GW</span>
-              <span class="slider-current" id="solar-capacity-value">200 GW</span>
-              <span>1000 GW</span>
-            </div>
-          </div>
-          <div class="slider-container">
-            <label class="slider-label">Solar Average Cost ($/kW)</label>
-            <input type="range" min="300" max="2000" step="50" value="1000" id="solar-cost">
-            <div class="slider-values">
-              <span>$300/kW</span>
-              <span class="slider-current" id="solar-cost-value">$1000/kW</span>
-              <span>$2000/kW</span>
-            </div>
-          </div>
-          <div class="slider-container">
-            <label class="slider-label">Nuclear Capacity (GW)</label>
-            <input type="range" min="0" max="300" step="5" value="50" id="nuclear-capacity">
-            <div class="slider-values">
-              <span>0 GW</span>
-              <span class="slider-current" id="nuclear-capacity-value">50 GW</span>
-              <span>300 GW</span>
-            </div>
-          </div>
-          <div class="slider-container">
-            <label class="slider-label">Nuclear Average Cost ($/kW)</label>
-            <input type="range" min="2000" max="8000" step="100" value="5000" id="nuclear-cost">
-            <div class="slider-values">
-              <span>$2000/kW</span>
-              <span class="slider-current" id="nuclear-cost-value">$5000/kW</span>
-              <span>$8000/kW</span>
-            </div>
-          </div>
-          <div class="slider-container">
-            <label class="slider-label">Electricity Price (¢/kWh)</label>
-            <input type="range" min="5" max="25" value="10" id="electricity-price">
-            <div class="slider-values">
-              <span>5¢</span>
-              <span class="slider-current" id="electricity-price-value">10¢</span>
-              <span>25¢</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Waste Processing & Bioenergy Parameters -->
-      <div class="card">
-        <h3 class="card-title">Waste Processing & Bioenergy Parameters</h3>
-        <div class="slider-container">
-          <label class="slider-label">Food Waste Utilization (%)</label>
-          <input type="range" min="0" max="90" value="60" id="food-waste-utilization">
-          <div class="slider-values">
-            <span>0%</span>
-            <span class="slider-current" id="food-waste-utilization-value">60%</span>
-            <span>90%</span>
-          </div>
-        </div>
-        <div class="slider-container">
-          <label class="slider-label">Agricultural Waste Utilization (%)</label>
-          <input type="range" min="0" max="80" value="40" id="agriculture-utilization">
-          <div class="slider-values">
-            <span>0%</span>
-            <span class="slider-current" id="agriculture-utilization-value">40%</span>
-            <span>80%</span>
-          </div>
-        </div>
-        <div class="slider-container">
-          <label class="slider-label">Forest Residues Utilization (%)</label>
-          <input type="range" min="0" max="100" value="30" id="forest-utilization">
-          <div class="slider-values">
-            <span>0%</span>
-            <span class="slider-current" id="forest-utilization-value">30%</span>
-            <span>100%</span>
-          </div>
-        </div>
-        <div class="slider-container">
-          <label class="slider-label">Municipal Solid Waste Utilization (%)</label>
-          <input type="range" min="0" max="100" value="50" id="msw-utilization">
-          <div class="slider-values">
-            <span>0%</span>
-            <span class="slider-current" id="msw-utilization-value">50%</span>
-            <span>100%</span>
-          </div>
-        </div>
-        <div class="slider-container">
-          <label class="slider-label">Algae Feedstock Adoption (%)</label>
-          <input type="range" min="0" max="100" value="25" id="algae-percentage">
-          <div class="slider-values">
-            <span>0%</span>
-            <span class="slider-current" id="algae-percentage-value">25%</span>
-            <span>100%</span>
-          </div>
-        </div>
-        <div class="slider-container">
-          <label class="slider-label">Hemp Utilization (%)</label>
-          <input type="range" min="0" max="100" value="50" id="hemp-utilization">
-          <div class="slider-values">
-            <span>0%</span>
-            <span class="slider-current" id="hemp-utilization-value">50%</span>
-            <span>100%</span>
-          </div>
-        </div>
-      </div>
-      <div style="margin-top: 20px;">
-        <button id="apply-parameters-button">Apply Changes</button>
-      </div>
-    </div>
 
-    <!-- EFFICIENCY TAB -->
-    <div class="tab-content" id="efficiency">
-      <div class="card">
-        <h3 class="card-title">Household Energy Savings</h3>
-        <div class="grid grid-cols-2">
-          <div>
-            <table>
-              <tr>
-                <th>Source</th>
-                <th>Energy Saved (kWh)</th>
-              </tr>
-              <tr>
-                <td>Passive Solar</td>
-                <td id="passive-solar-savings">2,250</td>
-              </tr>
-              <tr>
-                <td>GSHP Heating</td>
-                <td id="gshp-heating-savings">1,607</td>
-              </tr>
-              <tr>
-                <td>GSHP Cooling</td>
-                <td id="gshp-cooling-savings">459</td>
-              </tr>
-              <tr>
-                <td>HP Water Heater</td>
-                <td id="hpwh-savings">1,157</td>
-              </tr>
-              <tr>
-                <td>HP Dryer</td>
-                <td id="dry-savings">150</td>
-              </tr>
-              <tr>
-                <td><strong>Total Savings</strong></td>
-                <td id="total-household-savings"><strong>5,623</strong></td>
-              </tr>
-            </table>
+        <!-- Group: Solar & Nuclear -->
+        <div class="parameter-group">
+          <h2>Solar & Nuclear Energy Parameters</h2>
+          <div class="slider-container">
+            <label for="solar-capacity">Solar Capacity (GW)</label>
+            <input type="range" id="solar-capacity" min="0" max="1000" step="10" value="200">
+            <span id="solar-capacity-value">200 GW</span>
           </div>
-          <div>
-            <div class="bar-chart">
-              <div id="efficiency-savings-chart">
-                <!-- Efficiency savings bars will be inserted here -->
-              </div>
-            </div>
+          <div class="slider-container">
+            <label for="solar-cost">Solar Average Cost ($/kW)</label>
+            <input type="range" id="solar-cost" min="300" max="2000" step="50" value="1000">
+            <span id="solar-cost-value">$1000/kW</span>
+          </div>
+          <div class="slider-container">
+            <label for="nuclear-capacity">Nuclear Capacity (GW)</label>
+            <input type="range" id="nuclear-capacity" min="0" max="300" step="5" value="50">
+            <span id="nuclear-capacity-value">50 GW</span>
+          </div>
+          <div class="slider-container">
+            <label for="nuclear-cost">Nuclear Average Cost ($/kW)</label>
+            <input type="range" id="nuclear-cost" min="2000" max="8000" step="100" value="5000">
+            <span id="nuclear-cost-value">$5000/kW</span>
+          </div>
+          <div class="slider-container">
+            <label for="electricity-price">Electricity Price (¢/kWh)</label>
+            <input type="range" id="electricity-price" min="5" max="25" value="10">
+            <span id="electricity-price-value">10¢</span>
           </div>
         </div>
-        <div class="grid grid-cols-2" style="margin-top: 20px;">
-          <div class="stat-box blue">
-            <div class="stat-label">Annual Energy Savings</div>
-            <div class="stat-value" id="annual-energy-savings">5,623 kWh</div>
-            <div class="stat-subtitle">per household</div>
-          </div>
-          <div class="stat-box green">
-            <div class="stat-label">Reduction in Consumption</div>
-            <div class="stat-value" id="consumption-reduction-pct">52%</div>
-            <div class="stat-subtitle">of household energy use</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <h3 class="card-title">Economic Analysis</h3>
-        <div class="grid grid-cols-2">
-          <div class="stat-box">
-            <div class="stat-label">System Cost</div>
-            <div class="stat-value" id="system-cost">$29,000</div>
-            <div class="stat-subtitle">Before incentives</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">After Incentives</div>
-            <div class="stat-value" id="net-system-cost">$19,100</div>
-            <div class="stat-subtitle">Net cost</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Annual Savings</div>
-            <div class="stat-value" id="annual-cost-savings">$562</div>
-            <div class="stat-subtitle">Utility bill reduction</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Payback Period</div>
-            <div class="stat-value" id="household-payback">8.5 years</div>
-            <div class="stat-subtitle">With incentives</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- PHASED IMPLEMENTATION TAB -->
-    <div class="tab-content" id="phased">
-      <div class="card">
-        <h3 class="card-title">Phased Implementation Timeline</h3>
-        <table>
+        <!-- Group: Wind (SkySails) -->
+        <div class="parameter-group">
+          <h2>Wind Energy (SkySails) Parameters</h2>
+          <div class="slider-container">
+            <label for="skysails-units">SkySails Units Deployed</label>
+            <input type="range" id="skysails-units" min="0" max="100000" step="5000" value="50000">
+            <span id="skysails-units-value">50,000</span>
+          </div>
+        </div>
+
+        <!-- Group: Waste Processing & Bioenergy -->
+        <div class="parameter-group">
+          <h2>Waste Processing & Bioenergy Parameters</h2>
+          <div class="slider-container">
+            <label for="food-waste-utilization">Food Waste Utilization (%)</label>
+            <input type="range" id="food-waste-utilization" min="0" max="90" value="60">
+            <span id="food-waste-utilization-value">60%</span>
+          </div>
+          <div class="slider-container">
+            <label for="agriculture-utilization">Agricultural Waste Utilization (%)</label>
+            <input type="range" id="agriculture-utilization" min="0" max="80" value="40">
+            <span id="agriculture-utilization-value">40%</span>
+          </div>
+          <div class="slider-container">
+            <label for="forest-utilization">Forest Residues Utilization (%)</label>
+            <input type="range" id="forest-utilization" min="0" max="100" value="30">
+            <span id="forest-utilization-value">30%</span>
+          </div>
+          <div class="slider-container">
+            <label for="msw-utilization">Municipal Solid Waste Utilization (%)</label>
+            <input type="range" id="msw-utilization" min="0" max="100" value="50">
+            <span id="msw-utilization-value">50%</span>
+          </div>
+          <div class="slider-container">
+            <label for="algae-percentage">Algae Feedstock Adoption (%)</label>
+            <input type="range" id="algae-percentage" min="0" max="100" value="25">
+            <span id="algae-percentage-value">25%</span>
+          </div>
+          <div class="slider-container">
+            <label for="hemp-utilization">Hemp Utilization (%)</label>
+            <input type="range" id="hemp-utilization" min="0" max="100" value="50">
+            <span id="hemp-utilization-value">50%</span>
+          </div>
+        </div>
+        <div class="action-buttons">
+          <button id="apply-parameters-button">Apply Changes</button>
+        </div>
+      </section>
+
+      <!-- Efficiency Tab -->
+      <section id="efficiency" class="content-section">
+        <h1>Energy Efficiency Details</h1>
+        <p>Household energy savings details and breakdowns are provided here.</p>
+      </section>
+
+      <!-- Phased Implementation Tab -->
+      <section id="phased" class="content-section">
+        <h1>Phased Implementation Plan</h1>
+        <table id="phased-plan-table">
           <thead>
             <tr>
               <th>Phase</th>
@@ -575,538 +186,21 @@
               <th>Jobs (millions)</th>
             </tr>
           </thead>
-          <tbody id="phased-plan-table">
-            <!-- Phased plan rows will be generated dynamically -->
+          <tbody>
+            <!-- Dynamic rows inserted by JavaScript -->
           </tbody>
         </table>
-      </div>
+      </section>
+
+      <!-- Methodology & Assumptions Tab -->
+      <section id="methodology" class="content-section">
+        <h1>Methodology & Assumptions</h1>
+        <p>
+          This visualizer uses a base of 129.9 million households (set as 129,900,000) and assumes an average household consumption of 10,715 kWh. Energy efficiency, solar/nuclear, wind (SkySails), and waste processing parameters are based on recent market research and illustrative conversion factors. Adjust the sliders to explore different scenarios.
+        </p>
+      </section>
     </div>
   </div>
-
-  <div class="action-buttons">
-    <button id="export-button">Export Results</button>
-    <button class="secondary" id="reset-button">Reset Parameters</button>
-  </div>
-</div>
-
-<script>
-// -------------------
-// Dark Mode Toggle
-// -------------------
-document.getElementById('dark-mode-toggle').addEventListener('click', () => {
-  document.body.classList.toggle('dark-mode');
-});
-
-// -------------------
-// Tab Switching Logic
-// -------------------
-document.querySelectorAll('.tab-button').forEach(button => {
-  button.addEventListener('click', () => {
-    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    button.classList.add('active');
-    document.getElementById(button.dataset.tab).classList.add('active');
-  });
-});
-
-// Implementation type toggle
-document.getElementById('retrofit-button').addEventListener('click', function() {
-  this.classList.add('active');
-  document.getElementById('new-construction-button').classList.remove('active');
-});
-document.getElementById('new-construction-button').addEventListener('click', function() {
-  this.classList.add('active');
-  document.getElementById('retrofit-button').classList.remove('active');
-});
-
-// --------------
-// Data constants
-// --------------
-const usData = {
-  population: 332.8,
-  electricityConsumption: 3800,
-  averageHouseholdConsumption: 10715,
-  co2Emissions: 5222,  // million tons
-  households: 129900000, // 129.9 million households
-  foodWaste: 63,
-  agriculturalWaste: 800,
-  municipalSolidWaste: 292,
-  forestResidues: 93
-};
-
-// Utility function for formatting numbers
-function formatNumber(num, decimals = 2) {
-  if (num === undefined || num === null) return 'N/A';
-  if (num === 0) return '0';
-  if (Math.abs(num) < 1000) return parseFloat(num.toFixed(decimals));
-  return num.toLocaleString(undefined, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
-  });
-}
-
-// --------------
-// MAIN: Sliders
-// --------------
-const parameterSliders = [
-  'passive-solar-efficiency','gshp-cop','hpwh-efficiency','efficiency-adoption-rate',
-  'solar-capacity','solar-cost','nuclear-capacity','nuclear-cost','electricity-price','implementation-speed',
-  'skysails-units',
-  'food-waste-utilization','agriculture-utilization','forest-utilization','msw-utilization','algae-percentage','hemp-utilization'
-];
-
-parameterSliders.forEach(id => {
-  const slider = document.getElementById(id);
-  const displaySpan = document.getElementById(`${id}-value`);
-  if (slider) {
-    slider.addEventListener('input', () => {
-      let val = slider.value;
-      if (id === 'electricity-price') {
-        val = `${val}¢`;
-      } else if (id === 'solar-capacity' || id === 'nuclear-capacity') {
-        val = `${val} GW`;
-      } else if (id === 'solar-cost' || id === 'nuclear-cost') {
-        val = `$${val}/kW`;
-      } else if (id === 'hpwh-efficiency') {
-        val = `${parseFloat(val).toFixed(1)}x`;
-      } else if (id === 'skysails-units') {
-        val = parseInt(val).toLocaleString();
-      } else if (id.includes('efficiency') || id.includes('adoption') ||
-                         id.includes('utilization') || id.includes('percentage')) {
-        val = `${val}%`;
-      }
-      if (displaySpan) displaySpan.textContent = val;
-    });
-  }
-});
-
-// --------------
-// CALCULATION FUNCTIONS
-// --------------
-
-// Solar & Nuclear Energy Calculation (unchanged)
-function calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost, electricityPrice) {
-  const hoursPerYear = 8760;
-  const solarCF = 0.25;
-  const nuclearCF = 0.90;
-  const solarEnergyTWh = (solarGW * hoursPerYear * solarCF) / 1000;
-  const nuclearEnergyTWh = (nuclearGW * hoursPerYear * nuclearCF) / 1000;
-  const totalEnergy = solarEnergyTWh + nuclearEnergyTWh;
-  
-  const solarInvestment = (solarGW * 1_000_000 * solarCost) / 1_000_000_000;
-  const nuclearInvestment = (nuclearGW * 1_000_000 * nuclearCost) / 1_000_000_000;
-  const totalInvestment = solarInvestment + nuclearInvestment;
-  
-  const carbonAvoided = totalEnergy * 0.4;
-  const jobs = Math.round(totalInvestment * 1000);
-  
-  const annualRevenue = (totalEnergy * 1_000_000_000 * (electricityPrice / 100)) / 1_000_000_000;
-  const operatingCost = totalInvestment * 0.03;
-  const netAnnualRevenue = annualRevenue - operatingCost;
-  let payback = 0;
-  if (netAnnualRevenue > 0) payback = totalInvestment / netAnnualRevenue;
-  
-  return {
-    solarEnergyTWh, 
-    nuclearEnergyTWh, 
-    totalEnergy,
-    solarInvestment, 
-    nuclearInvestment, 
-    totalInvestment,
-    carbonAvoided, 
-    jobs, 
-    annualRevenue, 
-    operatingCost,
-    netAnnualRevenue, 
-    payback
-  };
-}
-
-// Energy Efficiency Savings Calculation (unchanged)
-function calculateEfficiencySavings(passiveSolarEfficiency, gshpCOP, hpwhEfficiency, efficiencyAdoptionRate, isNewConstruction, electricityPrice) {
-  const originalSpaceHeating = 4500;
-  const originalCooling = 643;
-  const originalWaterHeating = 1928;
-  const originalDryer = 536;
-  
-  const passiveSolarSavings = originalSpaceHeating * (passiveSolarEfficiency / 100);
-  const remainingHeatingLoad = originalSpaceHeating - passiveSolarSavings;
-  const gshpHeatingElectricity = remainingHeatingLoad / gshpCOP;
-  const gshpHeatingSavings = remainingHeatingLoad - gshpHeatingElectricity;
-  const gshpCoolingElectricity = originalCooling / gshpCOP;
-  const gshpCoolingSavings = originalCooling - gshpCoolingElectricity;
-  const hpwhConsumption = originalWaterHeating / hpwhEfficiency;
-  const hpwhSavings = originalWaterHeating - hpwhConsumption;
-  const drySavings = originalDryer * 0.28;
-  
-  const totalSavings = passiveSolarSavings + gshpHeatingSavings + gshpCoolingSavings + hpwhSavings + drySavings;
-  const percentageReduction = (totalSavings / usData.averageHouseholdConsumption) * 100;
-  
-  const passiveSolarCost = isNewConstruction ? 8000 : 18000;
-  const geothermalInstallCost = 18000;
-  const hpwhCost = 1800;
-  const heatPumpDryerCost = 1200;
-  const totalSystemCost = passiveSolarCost + geothermalInstallCost + hpwhCost + heatPumpDryerCost;
-  
-  const federalTaxCredit = (passiveSolarCost + geothermalInstallCost) * 0.30;
-  const stateRebate = 3000;
-  const utilityRebate = 2000;
-  const totalIncentives = federalTaxCredit + stateRebate + utilityRebate;
-  const netSystemCost = totalSystemCost - totalIncentives;
-  
-  const annualCostSavings = totalSavings * (electricityPrice / 100);
-  const netPayback = netSystemCost / annualCostSavings;
-  
-  const homesAdopting = usData.households * (efficiencyAdoptionRate / 100);
-  const totalEnergySaved = (homesAdopting * totalSavings) / 1e9;
-  const carbonReductionPerHousehold = (totalSavings * 0.417) / 1000;
-  const totalCarbonReduction = (homesAdopting * carbonReductionPerHousehold) / 1e6;
-  const percentOfUSEmissions = (totalCarbonReduction / usData.co2Emissions) * 100;
-  
-  const evAnnualUsage = 2800;
-  const evsPerHousehold = totalSavings / evAnnualUsage;
-  const totalEvsSupported = homesAdopting * evsPerHousehold;
-  const gridCapacityFreed = (totalEnergySaved / usData.electricityConsumption) * 100;
-  const totalNationalInvestment = (homesAdopting * netSystemCost) / 1e9;
-  const jobsCreated = Math.round(((homesAdopting * netSystemCost) / 1e6) * 5);
-  
-  return {
-    perHousehold: {
-      passiveSolarSavings, 
-      gshpHeatingSavings, 
-      gshpCoolingSavings,
-      hpwhSavings, 
-      drySavings, 
-      totalSavings, 
-      percentageReduction,
-      systemCost: totalSystemCost, 
-      netSystemCost, 
-      annualCostSavings,
-      paybackPeriod: netPayback
-    },
-    national: {
-      homesAdopting, 
-      totalEnergySaved, 
-      totalCarbonReduction,
-      percentOfUSEmissions, 
-      totalEvsSupported, 
-      gridCapacityFreed,
-      totalInvestment: totalNationalInvestment, 
-      jobsCreated,
-      annualSavings: (homesAdopting * annualCostSavings) / 1e9
-    }
-  };
-}
-
-// Wind Energy (SkySails) Calculation (as before)
-function calculateWindEnergy(skySailsUnits, electricityPrice) {
-  const hoursPerYear = 8760;
-  const capacityMW = 0.2; // per unit
-  const capacityFactor = 0.75;
-  const productionPerUnitTWh = (capacityMW * hoursPerYear * capacityFactor) / 1e6;
-  const energyTWh = skySailsUnits * productionPerUnitTWh;
-  
-  const investmentB = skySailsUnits / 1000; // $1M per unit
-  const carbonAvoided = energyTWh * 0.4;
-  const jobs = skySailsUnits * 3;
-  const annualRevenue = (energyTWh * 1e9 * (electricityPrice / 100)) / 1e9;
-  const operatingCost = investmentB * 0.03;
-  let netAnnualRevenue = annualRevenue - operatingCost;
-  let payback = 0;
-  if (netAnnualRevenue > 0) payback = investmentB / netAnnualRevenue;
-  
-  return {
-    energy: energyTWh,
-    investment: investmentB,
-    carbonAvoided: carbonAvoided,
-    jobs: jobs,
-    annualRevenue: annualRevenue,
-    operatingCost: operatingCost,
-    netAnnualRevenue: netAnnualRevenue,
-    payback: payback
-  };
-}
-
-// NEW: Waste Processing & Bioenergy Calculation
-function calculateWasteProcessing(foodWasteUtil, agWasteUtil, forestUtil, mswUtil, algaeUtil, hempUtil, electricityPrice) {
-  // Convert percentages to usable quantities
-  const usableFoodWaste = usData.foodWaste * (foodWasteUtil / 100);
-  const usableAgWaste = usData.agriculturalWaste * (agWasteUtil / 100);
-  const usableForestWaste = usData.forestResidues * (forestUtil / 100);
-  const usableMSW = usData.municipalSolidWaste * (mswUtil / 100);
-  
-  // Conversion factors (MWh per ton)
-  const foodWasteToEnergy = 1.5;
-  const agriculturalWasteToEnergy = 1.2;
-  const forestResiduesToEnergy = 2.0;
-  const mswToEnergy = 0.6;
-  
-  const energyFromFoodWaste = (usableFoodWaste * foodWasteToEnergy) / 1e6; // TWh
-  const energyFromAgWaste = (usableAgWaste * agriculturalWasteToEnergy) / 1e6;
-  const energyFromForestWaste = (usableForestWaste * forestResiduesToEnergy) / 1e6;
-  const energyFromMSW = (usableMSW * mswToEnergy) / 1e6;
-  
-  // Additional energy from biogas (dummy constant)
-  const energyFromBiogas = 0.8; // TWh, placeholder
-  
-  // Bioenergy from algae and hemp
-  const algaeBase = 28; // placeholder multiplier
-  const energyFromAlgae = (algaeUtil / 25) * algaeBase * 4;
-  const hempBase = 3.3;
-  const energyFromHemp = (hempUtil / 50) * hempBase * 2;
-  
-  const wasteToEnergyTotal = energyFromFoodWaste + energyFromAgWaste + energyFromForestWaste + energyFromMSW + energyFromBiogas;
-  const biofuelsTotal = energyFromAlgae + energyFromHemp;
-  const totalEnergy = wasteToEnergyTotal + biofuelsTotal;
-  
-  // Carbon avoidance (placeholder factor)
-  const carbonAvoided = totalEnergy * 0.417;
-  
-  // Investment placeholder (in billions)
-  const totalInvestment = 20; // B, placeholder for waste processing infrastructure
-  
-  // Revenue calculation
-  const electricityRevenueRate = electricityPrice / 100;
-  const electricityRevenue = totalEnergy * 1000 * electricityRevenueRate;
-  const carbonCreditValue = (carbonAvoided * 30) / 1000;
-  const totalRevenue = electricityRevenue + carbonCreditValue;
-  const operatingCost = totalInvestment * 0.05;
-  const netAnnualRevenue = totalRevenue - operatingCost;
-  const paybackPeriod = netAnnualRevenue > 0 ? totalInvestment / netAnnualRevenue : 0;
-  
-  // Jobs estimation (placeholder: 3 jobs per $M investment)
-  const jobsCreated = Math.round(totalInvestment * 1000 * 3);
-  
-  return {
-    energyGeneration: { total: totalEnergy },
-    carbonImpact: { total: carbonAvoided },
-    economics: {
-      totalInvestment, 
-      netAnnualRevenue, 
-      paybackPeriod, 
-      jobsCreated
-    }
-  };
-}
-
-// --------------
-// PHASED PLAN CALCULATIONS
-// --------------
-// Now combining solar/nuclear, wind, and waste processing into "renewables"
-function generatePhasedPlan(effResults, solarNuclearResults, windResults, wasteResults, effFirst) {
-  const effPhases = [0.05, 0.1, 0.2, 0.4, 0.7, 1.0];
-  const genPhases = [0.0, 0.05, 0.2, 0.5, 0.8, 1.0];
-  const speed = parseFloat(document.getElementById('implementation-speed').value);
-  const speedFactor = speed / 10;
-  const baseYearIncrement = 3 / speedFactor;
-  
-  // Combine all renewable outputs:
-  const renewableEnergyTotal = solarNuclearResults.totalEnergy + windResults.energy + wasteResults.energyGeneration.total;
-  const renewableCarbonTotal = solarNuclearResults.carbonAvoided + windResults.carbonAvoided + wasteResults.carbonImpact.total;
-  const renewableInvestment = solarNuclearResults.totalInvestment + windResults.investment + wasteResults.economics.totalInvestment;
-  const renewableJobs = solarNuclearResults.jobs + windResults.jobs + wasteResults.economics.jobsCreated;
-  
-  const phases = effFirst
-    ? effPhases.map((effF, i) => {
-        const year = 2025 + Math.floor(i * baseYearIncrement);
-        const genF = genPhases[Math.max(0, i - 1)];
-        return {
-          year, phase: i + 1,
-          efficiencyFactor: effF,
-          generationFactor: genF
-        };
-      })
-    : genPhases.map((genF, i) => {
-        const year = 2025 + Math.floor(i * baseYearIncrement);
-        const effF = effPhases[Math.max(0, i - 2)];
-        return {
-          year, phase: i + 1,
-          efficiencyFactor: effF,
-          generationFactor: genF
-        };
-      });
-  
-  return phases.map(p => {
-    const effSaves = effResults.national.totalEnergySaved * p.efficiencyFactor;
-    const effCO2  = effResults.national.totalCarbonReduction * p.efficiencyFactor;
-    const effInv  = effResults.national.totalInvestment * p.efficiencyFactor;
-    const effJobs = effResults.national.jobsCreated * p.efficiencyFactor;
-    
-    const renEnergy = renewableEnergyTotal * p.generationFactor;
-    const renCO2    = renewableCarbonTotal * p.generationFactor;
-    const renInv    = renewableInvestment * p.generationFactor;
-    const renJobs   = renewableJobs * p.generationFactor;
-    
-    const totalEnergyGen = renEnergy;
-    const netEnergy = totalEnergyGen - effSaves;
-    const totalCarbon = effCO2 + renCO2;
-    const totalInvestment = effInv + renInv;
-    const totalJobs = effJobs + renJobs;
-    
-    return {
-      year: p.year,
-      phase: p.phase,
-      totals: {
-        investment: totalInvestment,
-        carbonReduction: totalCarbon,
-        jobs: totalJobs,
-        netEnergyImpact: netEnergy,
-        percentOfUSEmissions: (totalCarbon / usData.co2Emissions) * 100
-      }
-    };
-  });
-}
-
-function updatePhasedPlanTable(plan) {
-  const body = document.getElementById('phased-plan-table');
-  body.innerHTML = '';
-  plan.forEach(ph => {
-    const row = document.createElement('tr');
-    const cPhase = document.createElement('td'); cPhase.textContent = ph.phase;
-    const cYear  = document.createElement('td'); cYear.textContent = ph.year;
-    const cCO2   = document.createElement('td'); cCO2.textContent = formatNumber(ph.totals.carbonReduction);
-    const cInv   = document.createElement('td'); cInv.textContent = formatNumber(ph.totals.investment);
-    const cEn    = document.createElement('td'); cEn.textContent = formatNumber(ph.totals.netEnergyImpact);
-    const cJobs  = document.createElement('td'); cJobs.textContent = formatNumber(ph.totals.jobs / 1e6, 2);
-    row.appendChild(cPhase);
-    row.appendChild(cYear);
-    row.appendChild(cCO2);
-    row.appendChild(cInv);
-    row.appendChild(cEn);
-    row.appendChild(cJobs);
-    body.appendChild(row);
-  });
-}
-
-// --------------
-// UI UPDATE FUNCTIONS
-// --------------
-function updateEfficiencyUI(effResults) {
-  const adoptionRate = parseFloat(document.getElementById('efficiency-adoption-rate').value);
-  if(document.getElementById('adoption-rate-display')) {
-    document.getElementById('adoption-rate-display').textContent = adoptionRate.toFixed(0);
-  }
-  document.getElementById('passive-solar-savings').textContent = formatNumber(effResults.perHousehold.passiveSolarSavings, 0);
-  document.getElementById('gshp-heating-savings').textContent  = formatNumber(effResults.perHousehold.gshpHeatingSavings, 0);
-  document.getElementById('gshp-cooling-savings').textContent  = formatNumber(effResults.perHousehold.gshpCoolingSavings, 0);
-  document.getElementById('hpwh-savings').textContent          = formatNumber(effResults.perHousehold.hpwhSavings, 0);
-  document.getElementById('dry-savings').textContent           = formatNumber(effResults.perHousehold.drySavings, 0);
-  document.getElementById('total-household-savings').textContent = formatNumber(effResults.perHousehold.totalSavings, 0);
-  document.getElementById('annual-energy-savings').textContent  = `${formatNumber(effResults.perHousehold.totalSavings,0)} kWh`;
-  document.getElementById('consumption-reduction-pct').textContent = `${formatNumber(effResults.perHousehold.percentageReduction,0)}%`;
-  document.getElementById('system-cost').textContent           = `$${formatNumber(effResults.perHousehold.systemCost,0)}`;
-  document.getElementById('net-system-cost').textContent       = `$${formatNumber(effResults.perHousehold.netSystemCost,0)}`;
-  document.getElementById('annual-cost-savings').textContent   = `$${formatNumber(effResults.perHousehold.annualCostSavings,0)}`;
-  document.getElementById('household-payback').textContent     = `${formatNumber(effResults.perHousehold.paybackPeriod,1)} years`;
-}
-
-function updateCalculations() {
-  const passiveSolarEff   = parseFloat(document.getElementById('passive-solar-efficiency').value);
-  const gshpCOP           = parseFloat(document.getElementById('gshp-cop').value);
-  const hpwhEff           = parseFloat(document.getElementById('hpwh-efficiency').value);
-  const effAdoptionRate   = parseFloat(document.getElementById('efficiency-adoption-rate').value);
-  const isNewConstruction = document.getElementById('new-construction-button').classList.contains('active');
-  const elecPrice         = parseFloat(document.getElementById('electricity-price').value);
-  
-  const solarGW    = parseFloat(document.getElementById('solar-capacity').value);
-  const solarCost  = parseFloat(document.getElementById('solar-cost').value);
-  const nuclearGW  = parseFloat(document.getElementById('nuclear-capacity').value);
-  const nuclearCost= parseFloat(document.getElementById('nuclear-cost').value);
-  const skySailsUnits = parseFloat(document.getElementById('skysails-units').value);
-  
-  // Waste parameters
-  const foodWasteUtil = parseFloat(document.getElementById('food-waste-utilization').value);
-  const agWasteUtil = parseFloat(document.getElementById('agriculture-utilization').value);
-  const forestUtil = parseFloat(document.getElementById('forest-utilization').value);
-  const mswUtil = parseFloat(document.getElementById('msw-utilization').value);
-  const algaeUtil = parseFloat(document.getElementById('algae-percentage').value);
-  const hempUtil = parseFloat(document.getElementById('hemp-utilization').value);
-  
-  const effFirst = (document.getElementById('efficiency-first-toggle').value === "1");
-  
-  const effResults = calculateEfficiencySavings(passiveSolarEff, gshpCOP, hpwhEff, effAdoptionRate, isNewConstruction, elecPrice);
-  const solarNuclear = calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost, elecPrice);
-  const windResults = calculateWindEnergy(skySailsUnits, elecPrice);
-  const wasteResults = calculateWasteProcessing(foodWasteUtil, agWasteUtil, forestUtil, mswUtil, algaeUtil, hempUtil, elecPrice);
-  
-  // Overall summary: combine efficiency (as negative savings) and all renewables
-  const totalCleanEnergy = solarNuclear.totalEnergy + windResults.energy + wasteResults.energyGeneration.total;
-  const totalCarbonReduction = effResults.national.totalCarbonReduction + solarNuclear.carbonAvoided + windResults.carbonAvoided + wasteResults.carbonImpact.total;
-  const netEnergyImpact  = totalCleanEnergy - effResults.national.totalEnergySaved;
-  const totalInvestment = effResults.national.totalInvestment + solarNuclear.totalInvestment + windResults.investment + wasteResults.economics.totalInvestment;
-  const totalJobs = effResults.national.jobsCreated + solarNuclear.jobs + windResults.jobs + wasteResults.economics.jobsCreated;
-  
-  const annualBenefits = effResults.national.annualSavings + solarNuclear.netAnnualRevenue + windResults.netAnnualRevenue + wasteResults.economics.netAnnualRevenue;
-  const payback = (totalInvestment > 0 && annualBenefits > 0) ? (totalInvestment / annualBenefits) : 0;
-  const percentEmissionsReduced = (totalCarbonReduction / usData.co2Emissions) * 100;
-  
-  document.getElementById('net-energy-impact').textContent = `${formatNumber(netEnergyImpact,2)} TWh`;
-  document.getElementById('net-energy-percent').textContent = `${formatNumber((netEnergyImpact / usData.electricityConsumption) * 100,2)}% of US consumption`;
-  document.getElementById('carbon-reduction').textContent = `${formatNumber(totalCarbonReduction,2)} MT`;
-  document.getElementById('carbon-percent').textContent    = `${formatNumber(percentEmissionsReduced,2)}% of US emissions`;
-  document.getElementById('total-investment').textContent  = `$${formatNumber(totalInvestment,2)} B`;
-  document.getElementById('payback-period').textContent    = `Payback: ${formatNumber(payback,1)} years`;
-  document.getElementById('jobs-created').textContent      = `${formatNumber(totalJobs / 1e6,1)}M`;
-  if (totalInvestment > 0) {
-    document.getElementById('jobs-per-million').textContent = `${formatNumber(totalJobs / (totalInvestment * 1000),1)} jobs per $1M`;
-  } else {
-    document.getElementById('jobs-per-million').textContent = '-';
-  }
-  
-  if (effFirst) {
-    document.getElementById('eff-first-investment').textContent = `$${formatNumber(totalInvestment,2)} B`;
-    document.getElementById('eff-first-carbon').textContent      = `${formatNumber(totalCarbonReduction,2)} MT`;
-    document.getElementById('eff-first-payback').textContent     = `${formatNumber(payback,1)} years`;
-    document.getElementById('eff-first-jobs').textContent        = `${formatNumber(totalJobs / 1e6,1)}M`;
-    
-    document.getElementById('gen-first-investment').textContent  = `$${formatNumber(totalInvestment * 1.4,2)} B`;
-    document.getElementById('gen-first-carbon').textContent      = `${formatNumber(totalCarbonReduction * 0.7,2)} MT`;
-    document.getElementById('gen-first-payback').textContent     = `${formatNumber(payback * 1.8,1)} years`;
-    document.getElementById('gen-first-jobs').textContent        = `${formatNumber((totalJobs * 0.45) / 1e6,1)}M`;
-  } else {
-    document.getElementById('gen-first-investment').textContent  = `$${formatNumber(totalInvestment,2)} B`;
-    document.getElementById('gen-first-carbon').textContent      = `${formatNumber(totalCarbonReduction,2)} MT`;
-    document.getElementById('gen-first-payback').textContent     = `${formatNumber(payback,1)} years`;
-    document.getElementById('gen-first-jobs').textContent        = `${formatNumber(totalJobs / 1e6,1)}M`;
-    
-    document.getElementById('eff-first-investment').textContent  = `$${formatNumber(totalInvestment * 0.7,2)} B`;
-    document.getElementById('eff-first-carbon').textContent      = `${formatNumber(totalCarbonReduction * 1.4,2)} MT`;
-    document.getElementById('eff-first-payback').textContent     = `${formatNumber(payback * 0.55,1)} years`;
-    document.getElementById('eff-first-jobs').textContent        = `${formatNumber((totalJobs * 2.2) / 1e6,1)}M`;
-  }
-  
-  const phased = generatePhasedPlan(effResults, solarNuclear, windResults, wasteResults, effFirst);
-  updatePhasedPlanTable(phased);
-  
-  updateEfficiencyUI(effResults);
-}
-
-document.getElementById('reset-button').addEventListener('click', () => {
-  window.location.reload();
-});
-document.getElementById('apply-parameters-button').addEventListener('click', () => {
-  updateCalculations();
-});
-document.getElementById('export-button').addEventListener('click', exportResults);
-
-function exportResults() {
-  const dataToExport = {
-    netEnergyImpact: document.getElementById('net-energy-impact').textContent,
-    carbonReduction: document.getElementById('carbon-reduction').textContent,
-    totalInvestment: document.getElementById('total-investment').textContent,
-    jobsCreated:     document.getElementById('jobs-created').textContent,
-  };
-  const json = JSON.stringify(dataToExport, null, 2);
-  const blob = new Blob([json], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'results.json';
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-window.onload = updateCalculations;
-</script>
+  <script src="js/app.js"></script>
 </body>
 </html>
