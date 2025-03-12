@@ -306,7 +306,13 @@
           </div>
         </div>
       </div>
-      <!-- Note: The Efficiency Impact card has been removed from the Summary page -->
+      <!-- New Methodology & Assumptions Card -->
+      <div class="card">
+        <h3 class="card-title">Methodology & Assumptions</h3>
+        <p>
+          This calculator uses a national household base of <strong>129.9 million</strong> households and an average household energy consumption of <strong>10,715 kWh</strong>. Efficiency savings are estimated based on fixed values for passive solar, geothermal, and heat pump technologies. Solar and nuclear generation use capacity factors of 25% and 90%, respectively. All costs, incentives, and scaling factors are illustrative.
+        </p>
+      </div>
     </div>
 
     <!-- PARAMETERS TAB -->
@@ -564,10 +570,10 @@ const usData = {
   electricityConsumption: 3800,
   averageHouseholdConsumption: 10715,
   co2Emissions: 5222,  // million tons
-  households: 129.9,
+  households: 129900000,  // Updated: 129.9 million households
 };
 
-// Utility for formatting
+// Utility for formatting numbers
 function formatNumber(num, decimals = 2) {
   if (num === undefined || num === null) return 'N/A';
   if (num === 0) return '0';
@@ -586,7 +592,6 @@ const parameterSliders = [
   'solar-capacity','solar-cost','nuclear-capacity','nuclear-cost','electricity-price','implementation-speed'
 ];
 
-// Display slider values
 parameterSliders.forEach(id => {
   const slider = document.getElementById(id);
   const displaySpan = document.getElementById(`${id}-value`);
@@ -624,7 +629,7 @@ function calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost,
   const nuclearInvestment = (nuclearGW * 1_000_000 * nuclearCost) / 1_000_000_000;
   const totalInvestment = solarInvestment + nuclearInvestment;
   
-  // Placeholder carbon avoided
+  // Placeholder for carbon avoidance
   const carbonAvoided = (totalEnergy * 1_000_000 * 0.4) / 1_000_000; 
   const jobs = Math.round(totalInvestment * 1000);
   
@@ -650,11 +655,7 @@ function calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost,
   };
 }
 
-function calculateEfficiencySavings(
-  passiveSolarEfficiency, gshpCOP, hpwhEfficiency, efficiencyAdoptionRate, 
-  isNewConstruction, electricityPrice
-){
-  // Placeholder original usage values
+function calculateEfficiencySavings(passiveSolarEfficiency, gshpCOP, hpwhEfficiency, efficiencyAdoptionRate, isNewConstruction, electricityPrice) {
   const originalSpaceHeating = 4500;
   const originalCooling = 643;
   const originalWaterHeating = 1928;
@@ -662,16 +663,12 @@ function calculateEfficiencySavings(
   
   const passiveSolarSavings = originalSpaceHeating * (passiveSolarEfficiency / 100);
   const remainingHeatingLoad = originalSpaceHeating - passiveSolarSavings;
-  
   const gshpHeatingElectricity = remainingHeatingLoad / gshpCOP;
   const gshpHeatingSavings = remainingHeatingLoad - gshpHeatingElectricity;
-  
   const gshpCoolingElectricity = originalCooling / gshpCOP;
   const gshpCoolingSavings = originalCooling - gshpCoolingElectricity;
-  
   const hpwhConsumption = originalWaterHeating / hpwhEfficiency;
   const hpwhSavings = originalWaterHeating - hpwhConsumption;
-  
   const drySavings = originalDryer * 0.28;
   
   const totalSavings = passiveSolarSavings + gshpHeatingSavings + gshpCoolingSavings + hpwhSavings + drySavings;
@@ -694,7 +691,7 @@ function calculateEfficiencySavings(
   const annualCostSavings = totalSavings * (electricityPrice / 100);
   const netPayback = netSystemCost / annualCostSavings;
   
-  // National scaling
+  // National scaling (households in absolute numbers)
   const homesAdopting = usData.households * (efficiencyAdoptionRate / 100);
   const totalEnergySaved = (homesAdopting * totalSavings) / 1e9; // in TWh
   const carbonReductionPerHousehold = (totalSavings * 0.417) / 1000;
@@ -737,9 +734,9 @@ function calculateEfficiencySavings(
 }
 
 // --------------
-// PHASED PLAN
+// PHASED PLAN CALCULATIONS
 // --------------
-function generatePhasedPlan(effResults, solarNuclearResults, effFirst){
+function generatePhasedPlan(effResults, solarNuclearResults, effFirst) {
   const effPhases = [0.05, 0.1, 0.2, 0.4, 0.7, 1.0];
   const genPhases = [0.0, 0.05, 0.2, 0.5, 0.8, 1.0];
   const speed = parseFloat(document.getElementById('implementation-speed').value);
@@ -797,7 +794,7 @@ function generatePhasedPlan(effResults, solarNuclearResults, effFirst){
   });
 }
 
-function updatePhasedPlanTable(plan){
+function updatePhasedPlanTable(plan) {
   const body = document.getElementById('phased-plan-table');
   body.innerHTML = '';
   plan.forEach(ph => {
@@ -826,3 +823,114 @@ function updateEfficiencyUI(effResults) {
   document.getElementById('adoption-rate-display') && (document.getElementById('adoption-rate-display').textContent = adoptionRate.toFixed(0));
   document.getElementById('passive-solar-savings').textContent = formatNumber(effResults.perHousehold.passiveSolarSavings, 0);
   document.getElementById('gshp-heating-savings').textContent  = formatNumber(effResults.perHousehold.gshpHeatingSavings, 0);
+  document.getElementById('gshp-cooling-savings').textContent  = formatNumber(effResults.perHousehold.gshpCoolingSavings, 0);
+  document.getElementById('hpwh-savings').textContent          = formatNumber(effResults.perHousehold.hpwhSavings, 0);
+  document.getElementById('dry-savings').textContent           = formatNumber(effResults.perHousehold.drySavings, 0);
+  document.getElementById('total-household-savings').textContent = formatNumber(effResults.perHousehold.totalSavings, 0);
+  document.getElementById('annual-energy-savings').textContent  = `${formatNumber(effResults.perHousehold.totalSavings,0)} kWh`;
+  document.getElementById('consumption-reduction-pct').textContent = `${formatNumber(effResults.perHousehold.percentageReduction,0)}%`;
+  document.getElementById('system-cost').textContent           = `$${formatNumber(effResults.perHousehold.systemCost,0)}`;
+  document.getElementById('net-system-cost').textContent       = `$${formatNumber(effResults.perHousehold.netSystemCost,0)}`;
+  document.getElementById('annual-cost-savings').textContent   = `$${formatNumber(effResults.perHousehold.annualCostSavings,0)}`;
+  document.getElementById('household-payback').textContent     = `${formatNumber(effResults.perHousehold.paybackPeriod,1)} years`;
+}
+
+function updateCalculations() {
+  const passiveSolarEff   = parseFloat(document.getElementById('passive-solar-efficiency').value);
+  const gshpCOP           = parseFloat(document.getElementById('gshp-cop').value);
+  const hpwhEff           = parseFloat(document.getElementById('hpwh-efficiency').value);
+  const effAdoptionRate   = parseFloat(document.getElementById('efficiency-adoption-rate').value);
+  const isNewConstruction = document.getElementById('new-construction-button').classList.contains('active');
+  const elecPrice         = parseFloat(document.getElementById('electricity-price').value);
+  
+  const solarGW    = parseFloat(document.getElementById('solar-capacity').value);
+  const solarCost  = parseFloat(document.getElementById('solar-cost').value);
+  const nuclearGW  = parseFloat(document.getElementById('nuclear-capacity').value);
+  const nuclearCost= parseFloat(document.getElementById('nuclear-cost').value);
+  
+  const effFirst = (document.getElementById('efficiency-first-toggle').value === "1");
+  
+  const effResults = calculateEfficiencySavings(passiveSolarEff, gshpCOP, hpwhEff, effAdoptionRate, isNewConstruction, elecPrice);
+  const solarNuclear = calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost, elecPrice);
+  
+  // Overall summary calculations (combining efficiency and solar/nuclear)
+  const totalCleanEnergy = solarNuclear.totalEnergy;
+  const totalCarbonReduction = effResults.national.totalCarbonReduction + solarNuclear.carbonAvoided;
+  const netEnergyImpact  = solarNuclear.totalEnergy - effResults.national.totalEnergySaved;
+  const totalInvestment = effResults.national.totalInvestment + solarNuclear.totalInvestment;
+  const totalJobs = effResults.national.jobsCreated + solarNuclear.jobs;
+  
+  const annualBenefits = effResults.national.annualSavings;
+  const payback = (totalInvestment > 0 && annualBenefits > 0) ? (totalInvestment / annualBenefits) : 0;
+  const percentEmissionsReduced = (totalCarbonReduction / usData.co2Emissions) * 100;
+  
+  document.getElementById('net-energy-impact').textContent = `${formatNumber(netEnergyImpact,2)} TWh`;
+  document.getElementById('net-energy-percent').textContent = `${formatNumber((netEnergyImpact / usData.electricityConsumption) * 100,2)}% of US consumption`;
+  document.getElementById('carbon-reduction').textContent = `${formatNumber(totalCarbonReduction,2)} MT`;
+  document.getElementById('carbon-percent').textContent    = `${formatNumber(percentEmissionsReduced,2)}% of US emissions`;
+  document.getElementById('total-investment').textContent  = `$${formatNumber(totalInvestment,2)} B`;
+  document.getElementById('payback-period').textContent    = `Payback: ${formatNumber(payback,1)} years`;
+  document.getElementById('jobs-created').textContent      = `${formatNumber(totalJobs / 1e6,1)}M`;
+  if (totalInvestment > 0) {
+    document.getElementById('jobs-per-million').textContent = `${formatNumber(totalJobs / (totalInvestment * 1000),1)} jobs per $1M`;
+  } else {
+    document.getElementById('jobs-per-million').textContent = '-';
+  }
+  
+  if (effFirst) {
+    document.getElementById('eff-first-investment').textContent = `$${formatNumber(totalInvestment,2)} B`;
+    document.getElementById('eff-first-carbon').textContent      = `${formatNumber(totalCarbonReduction,2)} MT`;
+    document.getElementById('eff-first-payback').textContent     = `${formatNumber(payback,1)} years`;
+    document.getElementById('eff-first-jobs').textContent        = `${formatNumber(totalJobs / 1e6,1)}M`;
+    
+    document.getElementById('gen-first-investment').textContent  = `$${formatNumber(totalInvestment * 1.4,2)} B`;
+    document.getElementById('gen-first-carbon').textContent      = `${formatNumber(totalCarbonReduction * 0.7,2)} MT`;
+    document.getElementById('gen-first-payback').textContent     = `${formatNumber(payback * 1.8,1)} years`;
+    document.getElementById('gen-first-jobs').textContent        = `${formatNumber((totalJobs * 0.45) / 1e6,1)}M`;
+  } else {
+    document.getElementById('gen-first-investment').textContent  = `$${formatNumber(totalInvestment,2)} B`;
+    document.getElementById('gen-first-carbon').textContent      = `${formatNumber(totalCarbonReduction,2)} MT`;
+    document.getElementById('gen-first-payback').textContent     = `${formatNumber(payback,1)} years`;
+    document.getElementById('gen-first-jobs').textContent        = `${formatNumber(totalJobs / 1e6,1)}M`;
+    
+    document.getElementById('eff-first-investment').textContent  = `$${formatNumber(totalInvestment * 0.7,2)} B`;
+    document.getElementById('eff-first-carbon').textContent      = `${formatNumber(totalCarbonReduction * 1.4,2)} MT`;
+    document.getElementById('eff-first-payback').textContent     = `${formatNumber(payback * 0.55,1)} years`;
+    document.getElementById('eff-first-jobs').textContent        = `${formatNumber((totalJobs * 2.2) / 1e6,1)}M`;
+  }
+  
+  const phased = generatePhasedPlan(effResults, solarNuclear, effFirst);
+  updatePhasedPlanTable(phased);
+  
+  updateEfficiencyUI(effResults);
+}
+
+document.getElementById('reset-button').addEventListener('click', () => {
+  window.location.reload();
+});
+document.getElementById('apply-parameters-button').addEventListener('click', () => {
+  updateCalculations();
+});
+document.getElementById('export-button').addEventListener('click', exportResults);
+
+function exportResults() {
+  const dataToExport = {
+    netEnergyImpact: document.getElementById('net-energy-impact').textContent,
+    carbonReduction: document.getElementById('carbon-reduction').textContent,
+    totalInvestment: document.getElementById('total-investment').textContent,
+    jobsCreated:     document.getElementById('jobs-created').textContent,
+  };
+  const json = JSON.stringify(dataToExport, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'results.json';
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+window.onload = updateCalculations;
+</script>
+</body>
+</html>
