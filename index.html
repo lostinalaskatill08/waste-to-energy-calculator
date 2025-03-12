@@ -220,7 +220,7 @@
     <h1>US Integrated Energy Transition Calculator</h1>
     <button class="dark-mode-toggle secondary" id="dark-mode-toggle">Toggle Dark Mode</button>
   </div>
-  <p>This calculator explores an energy transition by combining energy efficiency improvements, clean (solar & nuclear) energy, and wind energy (via SkySails Power systems).</p>
+  <p>This calculator explores an energy transition by combining energy efficiency improvements, clean (solar & nuclear) energy, wind energy (via SkySails), and waste processing/bioenergy from organic materials.</p>
 
   <!-- TAB LIST -->
   <div class="tabs">
@@ -309,7 +309,7 @@
       <div class="card">
         <h3 class="card-title">Methodology & Assumptions</h3>
         <p>
-          The calculator uses a national base of <strong>129.9 million households</strong> (set as 129,900,000) with an average consumption of <strong>10,715 kWh</strong> per household. Efficiency savings, solar/nuclear generation, and wind (SkySails) energy estimates are based on illustrative capacity factors and cost assumptions. For wind energy, each SkySails unit is assumed to have a rated capacity of 0.2 MW with a capacity factor of 75%, yielding about <strong>0.001314 TWh</strong> per unit per year. Cost and job estimates are placeholders.
+          The calculator uses a national base of <strong>129.9 million households</strong> (set as 129,900,000) with an average consumption of <strong>10,715 kWh</strong> per household. Efficiency savings, solar/nuclear generation, wind energy (via SkySails), and waste processing estimates are based on illustrative capacity factors and cost assumptions. For waste processing, conversion factors (e.g., 1.5 MWh/ton for food waste) and fixed cost estimates are placeholders.
         </p>
       </div>
     </div>
@@ -412,16 +412,61 @@
           </div>
         </div>
       </div>
-      <!-- New Wind Energy Parameters Card -->
+      <!-- Waste Processing & Bioenergy Parameters -->
       <div class="card">
-        <h3 class="card-title">Wind Energy (SkySails)</h3>
+        <h3 class="card-title">Waste Processing & Bioenergy Parameters</h3>
         <div class="slider-container">
-          <label class="slider-label">SkySails Units Deployed</label>
-          <input type="range" min="0" max="100000" step="5000" value="50000" id="skysails-units">
+          <label class="slider-label">Food Waste Utilization (%)</label>
+          <input type="range" min="0" max="90" value="60" id="food-waste-utilization">
           <div class="slider-values">
-            <span>0</span>
-            <span class="slider-current" id="skysails-units-value">50,000</span>
-            <span>100,000</span>
+            <span>0%</span>
+            <span class="slider-current" id="food-waste-utilization-value">60%</span>
+            <span>90%</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label class="slider-label">Agricultural Waste Utilization (%)</label>
+          <input type="range" min="0" max="80" value="40" id="agriculture-utilization">
+          <div class="slider-values">
+            <span>0%</span>
+            <span class="slider-current" id="agriculture-utilization-value">40%</span>
+            <span>80%</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label class="slider-label">Forest Residues Utilization (%)</label>
+          <input type="range" min="0" max="100" value="30" id="forest-utilization">
+          <div class="slider-values">
+            <span>0%</span>
+            <span class="slider-current" id="forest-utilization-value">30%</span>
+            <span>100%</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label class="slider-label">Municipal Solid Waste Utilization (%)</label>
+          <input type="range" min="0" max="100" value="50" id="msw-utilization">
+          <div class="slider-values">
+            <span>0%</span>
+            <span class="slider-current" id="msw-utilization-value">50%</span>
+            <span>100%</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label class="slider-label">Algae Feedstock Adoption (%)</label>
+          <input type="range" min="0" max="100" value="25" id="algae-percentage">
+          <div class="slider-values">
+            <span>0%</span>
+            <span class="slider-current" id="algae-percentage-value">25%</span>
+            <span>100%</span>
+          </div>
+        </div>
+        <div class="slider-container">
+          <label class="slider-label">Hemp Utilization (%)</label>
+          <input type="range" min="0" max="100" value="50" id="hemp-utilization">
+          <div class="slider-values">
+            <span>0%</span>
+            <span class="slider-current" id="hemp-utilization-value">50%</span>
+            <span>100%</span>
           </div>
         </div>
       </div>
@@ -583,6 +628,10 @@ const usData = {
   averageHouseholdConsumption: 10715,
   co2Emissions: 5222,  // million tons
   households: 129900000, // 129.9 million households
+  foodWaste: 63,
+  agriculturalWaste: 800,
+  municipalSolidWaste: 292,
+  forestResidues: 93
 };
 
 // Utility function for formatting numbers
@@ -601,7 +650,9 @@ function formatNumber(num, decimals = 2) {
 // --------------
 const parameterSliders = [
   'passive-solar-efficiency','gshp-cop','hpwh-efficiency','efficiency-adoption-rate',
-  'solar-capacity','solar-cost','nuclear-capacity','nuclear-cost','electricity-price','implementation-speed','skysails-units'
+  'solar-capacity','solar-cost','nuclear-capacity','nuclear-cost','electricity-price','implementation-speed',
+  'skysails-units',
+  'food-waste-utilization','agriculture-utilization','forest-utilization','msw-utilization','algae-percentage','hemp-utilization'
 ];
 
 parameterSliders.forEach(id => {
@@ -620,7 +671,8 @@ parameterSliders.forEach(id => {
         val = `${parseFloat(val).toFixed(1)}x`;
       } else if (id === 'skysails-units') {
         val = parseInt(val).toLocaleString();
-      } else if (id.includes('efficiency') || id.includes('adoption')) {
+      } else if (id.includes('efficiency') || id.includes('adoption') ||
+                         id.includes('utilization') || id.includes('percentage')) {
         val = `${val}%`;
       }
       if (displaySpan) displaySpan.textContent = val;
@@ -645,7 +697,7 @@ function calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost,
   const nuclearInvestment = (nuclearGW * 1_000_000 * nuclearCost) / 1_000_000_000;
   const totalInvestment = solarInvestment + nuclearInvestment;
   
-  const carbonAvoided = totalEnergy * 0.4; // Placeholder factor
+  const carbonAvoided = totalEnergy * 0.4;
   const jobs = Math.round(totalInvestment * 1000);
   
   const annualRevenue = (totalEnergy * 1_000_000_000 * (electricityPrice / 100)) / 1_000_000_000;
@@ -706,7 +758,7 @@ function calculateEfficiencySavings(passiveSolarEfficiency, gshpCOP, hpwhEfficie
   const netPayback = netSystemCost / annualCostSavings;
   
   const homesAdopting = usData.households * (efficiencyAdoptionRate / 100);
-  const totalEnergySaved = (homesAdopting * totalSavings) / 1e9; // in TWh
+  const totalEnergySaved = (homesAdopting * totalSavings) / 1e9;
   const carbonReductionPerHousehold = (totalSavings * 0.417) / 1000;
   const totalCarbonReduction = (homesAdopting * carbonReductionPerHousehold) / 1e6;
   const percentOfUSEmissions = (totalCarbonReduction / usData.co2Emissions) * 100;
@@ -746,26 +798,17 @@ function calculateEfficiencySavings(passiveSolarEfficiency, gshpCOP, hpwhEfficie
   };
 }
 
-// NEW: Wind Energy (SkySails) Calculation
+// Wind Energy (SkySails) Calculation (as before)
 function calculateWindEnergy(skySailsUnits, electricityPrice) {
-  // Assumptions:
-  // Each unit: rated capacity = 0.2 MW, capacity factor = 0.75, annual production = 0.2*8760*0.75/1000 TWh ≈ 0.001314 TWh per unit
   const hoursPerYear = 8760;
   const capacityMW = 0.2; // per unit
   const capacityFactor = 0.75;
-  const productionPerUnitTWh = (capacityMW * hoursPerYear * capacityFactor) / 1e6; // TWh
+  const productionPerUnitTWh = (capacityMW * hoursPerYear * capacityFactor) / 1e6;
   const energyTWh = skySailsUnits * productionPerUnitTWh;
   
-  // Investment: Assume $1M per unit (in billions)
-  const investmentB = skySailsUnits / 1000; // since 1M = 0.001B
-  
-  // Carbon avoided: assume 40% factor as with solar/nuclear
+  const investmentB = skySailsUnits / 1000; // $1M per unit
   const carbonAvoided = energyTWh * 0.4;
-  
-  // Jobs: assume 3 jobs per unit
   const jobs = skySailsUnits * 3;
-  
-  // Revenue and operating cost calculations similar to solar/nuclear
   const annualRevenue = (energyTWh * 1e9 * (electricityPrice / 100)) / 1e9;
   const operatingCost = investmentB * 0.03;
   let netAnnualRevenue = annualRevenue - operatingCost;
@@ -784,22 +827,84 @@ function calculateWindEnergy(skySailsUnits, electricityPrice) {
   };
 }
 
+// NEW: Waste Processing & Bioenergy Calculation
+function calculateWasteProcessing(foodWasteUtil, agWasteUtil, forestUtil, mswUtil, algaeUtil, hempUtil, electricityPrice) {
+  // Convert percentages to usable quantities
+  const usableFoodWaste = usData.foodWaste * (foodWasteUtil / 100);
+  const usableAgWaste = usData.agriculturalWaste * (agWasteUtil / 100);
+  const usableForestWaste = usData.forestResidues * (forestUtil / 100);
+  const usableMSW = usData.municipalSolidWaste * (mswUtil / 100);
+  
+  // Conversion factors (MWh per ton)
+  const foodWasteToEnergy = 1.5;
+  const agriculturalWasteToEnergy = 1.2;
+  const forestResiduesToEnergy = 2.0;
+  const mswToEnergy = 0.6;
+  
+  const energyFromFoodWaste = (usableFoodWaste * foodWasteToEnergy) / 1e6; // TWh
+  const energyFromAgWaste = (usableAgWaste * agriculturalWasteToEnergy) / 1e6;
+  const energyFromForestWaste = (usableForestWaste * forestResiduesToEnergy) / 1e6;
+  const energyFromMSW = (usableMSW * mswToEnergy) / 1e6;
+  
+  // Additional energy from biogas (dummy constant)
+  const energyFromBiogas = 0.8; // TWh, placeholder
+  
+  // Bioenergy from algae and hemp
+  const algaeBase = 28; // placeholder multiplier
+  const energyFromAlgae = (algaeUtil / 25) * algaeBase * 4;
+  const hempBase = 3.3;
+  const energyFromHemp = (hempUtil / 50) * hempBase * 2;
+  
+  const wasteToEnergyTotal = energyFromFoodWaste + energyFromAgWaste + energyFromForestWaste + energyFromMSW + energyFromBiogas;
+  const biofuelsTotal = energyFromAlgae + energyFromHemp;
+  const totalEnergy = wasteToEnergyTotal + biofuelsTotal;
+  
+  // Carbon avoidance (placeholder factor)
+  const carbonAvoided = totalEnergy * 0.417;
+  
+  // Investment placeholder (in billions)
+  const totalInvestment = 20; // B, placeholder for waste processing infrastructure
+  
+  // Revenue calculation
+  const electricityRevenueRate = electricityPrice / 100;
+  const electricityRevenue = totalEnergy * 1000 * electricityRevenueRate;
+  const carbonCreditValue = (carbonAvoided * 30) / 1000;
+  const totalRevenue = electricityRevenue + carbonCreditValue;
+  const operatingCost = totalInvestment * 0.05;
+  const netAnnualRevenue = totalRevenue - operatingCost;
+  const paybackPeriod = netAnnualRevenue > 0 ? totalInvestment / netAnnualRevenue : 0;
+  
+  // Jobs estimation (placeholder: 3 jobs per $M investment)
+  const jobsCreated = Math.round(totalInvestment * 1000 * 3);
+  
+  return {
+    energyGeneration: { total: totalEnergy },
+    carbonImpact: { total: carbonAvoided },
+    economics: {
+      totalInvestment, 
+      netAnnualRevenue, 
+      paybackPeriod, 
+      jobsCreated
+    }
+  };
+}
+
 // --------------
 // PHASED PLAN CALCULATIONS
 // --------------
-// Updated to combine solar/nuclear and wind under "renewables"
-function generatePhasedPlan(effResults, solarNuclearResults, windResults, effFirst) {
+// Now combining solar/nuclear, wind, and waste processing into "renewables"
+function generatePhasedPlan(effResults, solarNuclearResults, windResults, wasteResults, effFirst) {
   const effPhases = [0.05, 0.1, 0.2, 0.4, 0.7, 1.0];
   const genPhases = [0.0, 0.05, 0.2, 0.5, 0.8, 1.0];
   const speed = parseFloat(document.getElementById('implementation-speed').value);
   const speedFactor = speed / 10;
   const baseYearIncrement = 3 / speedFactor;
   
-  // Combine solar/nuclear and wind into one "renewables" category
-  const renewableEnergyTotal = solarNuclearResults.totalEnergy + windResults.energy;
-  const renewableCarbonTotal = solarNuclearResults.carbonAvoided + windResults.carbonAvoided;
-  const renewableInvestment = solarNuclearResults.totalInvestment + windResults.investment;
-  const renewableJobs = solarNuclearResults.jobs + windResults.jobs;
+  // Combine all renewable outputs:
+  const renewableEnergyTotal = solarNuclearResults.totalEnergy + windResults.energy + wasteResults.energyGeneration.total;
+  const renewableCarbonTotal = solarNuclearResults.carbonAvoided + windResults.carbonAvoided + wasteResults.carbonImpact.total;
+  const renewableInvestment = solarNuclearResults.totalInvestment + windResults.investment + wasteResults.economics.totalInvestment;
+  const renewableJobs = solarNuclearResults.jobs + windResults.jobs + wasteResults.economics.jobsCreated;
   
   const phases = effFirst
     ? effPhases.map((effF, i) => {
@@ -878,7 +983,9 @@ function updatePhasedPlanTable(plan) {
 // --------------
 function updateEfficiencyUI(effResults) {
   const adoptionRate = parseFloat(document.getElementById('efficiency-adoption-rate').value);
-  document.getElementById('adoption-rate-display') && (document.getElementById('adoption-rate-display').textContent = adoptionRate.toFixed(0));
+  if(document.getElementById('adoption-rate-display')) {
+    document.getElementById('adoption-rate-display').textContent = adoptionRate.toFixed(0);
+  }
   document.getElementById('passive-solar-savings').textContent = formatNumber(effResults.perHousehold.passiveSolarSavings, 0);
   document.getElementById('gshp-heating-savings').textContent  = formatNumber(effResults.perHousehold.gshpHeatingSavings, 0);
   document.getElementById('gshp-cooling-savings').textContent  = formatNumber(effResults.perHousehold.gshpCoolingSavings, 0);
@@ -905,23 +1012,31 @@ function updateCalculations() {
   const solarCost  = parseFloat(document.getElementById('solar-cost').value);
   const nuclearGW  = parseFloat(document.getElementById('nuclear-capacity').value);
   const nuclearCost= parseFloat(document.getElementById('nuclear-cost').value);
-  
   const skySailsUnits = parseFloat(document.getElementById('skysails-units').value);
+  
+  // Waste parameters
+  const foodWasteUtil = parseFloat(document.getElementById('food-waste-utilization').value);
+  const agWasteUtil = parseFloat(document.getElementById('agriculture-utilization').value);
+  const forestUtil = parseFloat(document.getElementById('forest-utilization').value);
+  const mswUtil = parseFloat(document.getElementById('msw-utilization').value);
+  const algaeUtil = parseFloat(document.getElementById('algae-percentage').value);
+  const hempUtil = parseFloat(document.getElementById('hemp-utilization').value);
   
   const effFirst = (document.getElementById('efficiency-first-toggle').value === "1");
   
   const effResults = calculateEfficiencySavings(passiveSolarEff, gshpCOP, hpwhEff, effAdoptionRate, isNewConstruction, elecPrice);
   const solarNuclear = calculateSolarNuclearEnergy(solarGW, solarCost, nuclearGW, nuclearCost, elecPrice);
   const windResults = calculateWindEnergy(skySailsUnits, elecPrice);
+  const wasteResults = calculateWasteProcessing(foodWasteUtil, agWasteUtil, forestUtil, mswUtil, algaeUtil, hempUtil, elecPrice);
   
-  // Overall summary calculations (combining efficiency and renewables)
-  const totalCleanEnergy = solarNuclear.totalEnergy + windResults.energy;
-  const totalCarbonReduction = effResults.national.totalCarbonReduction + solarNuclear.carbonAvoided + windResults.carbonAvoided;
+  // Overall summary: combine efficiency (as negative savings) and all renewables
+  const totalCleanEnergy = solarNuclear.totalEnergy + windResults.energy + wasteResults.energyGeneration.total;
+  const totalCarbonReduction = effResults.national.totalCarbonReduction + solarNuclear.carbonAvoided + windResults.carbonAvoided + wasteResults.carbonImpact.total;
   const netEnergyImpact  = totalCleanEnergy - effResults.national.totalEnergySaved;
-  const totalInvestment = effResults.national.totalInvestment + solarNuclear.totalInvestment + windResults.investment;
-  const totalJobs = effResults.national.jobsCreated + solarNuclear.jobs + windResults.jobs;
+  const totalInvestment = effResults.national.totalInvestment + solarNuclear.totalInvestment + windResults.investment + wasteResults.economics.totalInvestment;
+  const totalJobs = effResults.national.jobsCreated + solarNuclear.jobs + windResults.jobs + wasteResults.economics.jobsCreated;
   
-  const annualBenefits = effResults.national.annualSavings + solarNuclear.netAnnualRevenue + windResults.netAnnualRevenue;
+  const annualBenefits = effResults.national.annualSavings + solarNuclear.netAnnualRevenue + windResults.netAnnualRevenue + wasteResults.economics.netAnnualRevenue;
   const payback = (totalInvestment > 0 && annualBenefits > 0) ? (totalInvestment / annualBenefits) : 0;
   const percentEmissionsReduced = (totalCarbonReduction / usData.co2Emissions) * 100;
   
@@ -960,7 +1075,7 @@ function updateCalculations() {
     document.getElementById('eff-first-jobs').textContent        = `${formatNumber((totalJobs * 2.2) / 1e6,1)}M`;
   }
   
-  const phased = generatePhasedPlan(effResults, solarNuclear, windResults, effFirst);
+  const phased = generatePhasedPlan(effResults, solarNuclear, windResults, wasteResults, effFirst);
   updatePhasedPlanTable(phased);
   
   updateEfficiencyUI(effResults);
