@@ -24,7 +24,7 @@
 
     <!-- Main Content Area -->
     <div id="main-content">
-      <!-- Dashboard Section -->
+      <!-- DASHBOARD SECTION -->
       <section id="dashboard" class="content-section active">
         <h1>Dashboard</h1>
         <div class="key-results">
@@ -52,11 +52,18 @@
         <div class="charts">
           <canvas id="energyMixChart"></canvas>
         </div>
+
+        <!-- Optional: Reset and Export Buttons -->
+        <div class="action-buttons" style="margin-top: 30px;">
+          <button id="reset-button" class="secondary">Reset</button>
+          <button id="export-button">Export Results</button>
+        </div>
       </section>
 
-      <!-- Input Parameters Section -->
+      <!-- PARAMETERS SECTION -->
       <section id="parameters" class="content-section">
         <h1>Input Parameters</h1>
+
         <!-- Group: Energy Efficiency -->
         <div class="parameter-group">
           <h2>Energy Efficiency Parameters</h2>
@@ -161,18 +168,29 @@
             <span id="hemp-utilization-value">50%</span>
           </div>
         </div>
+
+        <!-- Implementation Speed (Missing from earlier code) -->
+        <div class="parameter-group">
+          <h2>Implementation Speed</h2>
+          <div class="slider-container">
+            <label for="implementation-speed">Implementation Speed</label>
+            <input type="range" id="implementation-speed" min="1" max="20" value="10">
+            <span id="implementation-speed-value">10</span>
+          </div>
+        </div>
+
         <div class="action-buttons">
           <button id="apply-parameters-button">Apply Changes</button>
         </div>
       </section>
 
-      <!-- Efficiency Tab -->
+      <!-- EFFICIENCY SECTION -->
       <section id="efficiency" class="content-section">
         <h1>Energy Efficiency Details</h1>
         <p>Household energy savings details and breakdowns are provided here.</p>
       </section>
 
-      <!-- Phased Implementation Tab -->
+      <!-- PHASED IMPLEMENTATION SECTION -->
       <section id="phased" class="content-section">
         <h1>Phased Implementation Plan</h1>
         <table id="phased-plan-table">
@@ -192,11 +210,13 @@
         </table>
       </section>
 
-      <!-- Methodology & Assumptions Tab -->
+      <!-- METHODOLOGY SECTION -->
       <section id="methodology" class="content-section">
         <h1>Methodology & Assumptions</h1>
         <p>
-          This visualizer uses a base of 129.9 million households (set as 129,900,000) and assumes an average household consumption of 10,715 kWh. Energy efficiency, solar/nuclear, wind (SkySails), and waste processing parameters are based on recent market research and illustrative conversion factors. Adjust the sliders to explore different scenarios.
+          This visualizer uses a base of 129.9 million households and assumes an average household consumption of 10,715 kWh.
+          Energy efficiency, solar/nuclear, wind (SkySails), and waste processing parameters are based on
+          recent market research and illustrative conversion factors. Adjust the sliders to explore different scenarios.
         </p>
       </section>
     </div>
