@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>US Integrated Energy Transition Visualizer</title>
+  <title>Circular Economy Waste-to-Energy Calculator</title>
   <link rel="stylesheet" href="css/style.css">
   <!-- Chart.js for interactive charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,6 +17,8 @@
         <li><a href="#" class="nav-link" data-target="dashboard">Dashboard</a></li>
         <li><a href="#" class="nav-link" data-target="parameters">Input Parameters</a></li>
         <li><a href="#" class="nav-link" data-target="efficiency">Energy Efficiency</a></li>
+        <li><a href="#" class="nav-link" data-target="circular">Circular Economy</a></li>
+        <li><a href="#" class="nav-link" data-target="carbon-capture">Carbon Capture</a></li>
         <li><a href="#" class="nav-link" data-target="phased">Phased Implementation</a></li>
         <li><a href="#" class="nav-link" data-target="methodology">Methodology</a></li>
       </ul>
@@ -29,6 +31,11 @@
         <h1>Dashboard</h1>
         <div class="key-results">
           <div class="result-box">
+            <h3>Energy Efficiency</h3>
+            <p id="energy-efficiency-impact">0 TWh</p>
+            <p id="efficiency-percent">0% reduction</p>
+          </div>
+          <div class="result-box">
             <h3>Net Energy Impact</h3>
             <p id="net-energy-impact">0 TWh</p>
             <p id="net-energy-percent">0% of US consumption</p>
@@ -37,6 +44,11 @@
             <h3>Carbon Reduction</h3>
             <p id="carbon-reduction">0 MT</p>
             <p id="carbon-percent">0% of US emissions</p>
+          </div>
+          <div class="result-box">
+            <h3>Landfill Space Saved</h3>
+            <p id="landfill-space-saved">0 cubic yards</p>
+            <p id="landfill-percent">0% reduction</p>
           </div>
           <div class="result-box">
             <h3>Total Investment</h3>
@@ -49,14 +61,22 @@
             <p id="jobs-per-million">0 jobs per $1M</p>
           </div>
         </div>
-        <div class="charts">
-          <canvas id="energyMixChart"></canvas>
+        <div class="charts-container">
+          <div class="chart-box">
+            <h3>Energy Mix</h3>
+            <canvas id="energyMixChart"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>Jobs Distribution</h3>
+            <canvas id="jobsDistributionChart"></canvas>
+          </div>
         </div>
 
-        <!-- Optional: Reset and Export Buttons -->
+        <!-- Reset, Export, and Share Buttons -->
         <div class="action-buttons" style="margin-top: 30px;">
           <button id="reset-button" class="secondary">Reset</button>
           <button id="export-button">Export Results</button>
+          <button id="share-button">Share Results</button>
         </div>
       </section>
 
@@ -94,9 +114,9 @@
           </div>
         </div>
 
-        <!-- Group: Solar & Nuclear -->
+        <!-- Group: Solar Energy -->
         <div class="parameter-group">
-          <h2>Solar & Nuclear Energy Parameters</h2>
+          <h2>Solar Energy Parameters</h2>
           <div class="slider-container">
             <label for="solar-capacity">Solar Capacity (GW)</label>
             <input type="range" id="solar-capacity" min="0" max="1000" step="10" value="200">
@@ -108,6 +128,56 @@
             <span id="solar-cost-value">$1000/kW</span>
           </div>
           <div class="slider-container">
+            <label for="solar-jobs-factor">Jobs per MW</label>
+            <input type="range" id="solar-jobs-factor" min="1" max="10" step="0.5" value="3.5">
+            <span id="solar-jobs-factor-value">3.5</span>
+          </div>
+        </div>
+
+        <!-- Group: Wind Energy -->
+        <div class="parameter-group">
+          <h2>Wind Energy Parameters</h2>
+          <div class="slider-container">
+            <label for="skysails-units">SkySails Units Deployed</label>
+            <input type="range" id="skysails-units" min="0" max="1000000" step="50000" value="200000">
+            <span id="skysails-units-value">200,000</span>
+          </div>
+          <div class="slider-container">
+            <label for="traditional-wind-capacity">Traditional Wind Capacity (GW)</label>
+            <input type="range" id="traditional-wind-capacity" min="0" max="500" step="5" value="100">
+            <span id="traditional-wind-capacity-value">100 GW</span>
+          </div>
+          <div class="slider-container">
+            <label for="wind-jobs-factor">Jobs per MW</label>
+            <input type="range" id="wind-jobs-factor" min="1" max="10" step="0.5" value="2.5">
+            <span id="wind-jobs-factor-value">2.5</span>
+          </div>
+        </div>
+
+        <!-- Group: Hydro Energy -->
+        <div class="parameter-group">
+          <h2>Hydro Energy Parameters</h2>
+          <div class="slider-container">
+            <label for="hydro-capacity">Hydro Capacity (GW)</label>
+            <input type="range" id="hydro-capacity" min="0" max="200" step="5" value="80">
+            <span id="hydro-capacity-value">80 GW</span>
+          </div>
+          <div class="slider-container">
+            <label for="hydro-cost">Hydro Average Cost ($/kW)</label>
+            <input type="range" id="hydro-cost" min="1000" max="5000" step="100" value="2500">
+            <span id="hydro-cost-value">$2500/kW</span>
+          </div>
+          <div class="slider-container">
+            <label for="hydro-jobs-factor">Jobs per MW</label>
+            <input type="range" id="hydro-jobs-factor" min="1" max="10" step="0.5" value="2.0">
+            <span id="hydro-jobs-factor-value">2.0</span>
+          </div>
+        </div>
+
+        <!-- Group: Nuclear Energy -->
+        <div class="parameter-group">
+          <h2>Nuclear Energy Parameters</h2>
+          <div class="slider-container">
             <label for="nuclear-capacity">Nuclear Capacity (GW)</label>
             <input type="range" id="nuclear-capacity" min="0" max="300" step="5" value="50">
             <span id="nuclear-capacity-value">50 GW</span>
@@ -118,26 +188,25 @@
             <span id="nuclear-cost-value">$5000/kW</span>
           </div>
           <div class="slider-container">
+            <label for="nuclear-jobs-factor">Jobs per MW</label>
+            <input type="range" id="nuclear-jobs-factor" min="1" max="15" step="0.5" value="5.0">
+            <span id="nuclear-jobs-factor-value">5.0</span>
+          </div>
+        </div>
+
+        <!-- Electricity Price -->
+        <div class="parameter-group">
+          <h2>Electricity Parameters</h2>
+          <div class="slider-container">
             <label for="electricity-price">Electricity Price (¢/kWh)</label>
             <input type="range" id="electricity-price" min="5" max="25" value="10">
             <span id="electricity-price-value">10¢</span>
           </div>
         </div>
 
-        <!-- Group: Wind (SkySails) -->
+        <!-- Group: Biomass & Waste Processing -->
         <div class="parameter-group">
-          <h2>Wind Energy (SkySails) Parameters</h2>
-          <div class="slider-container">
-            <label for="skysails-units">SkySails Units Deployed</label>
-            <!-- Increased max to 1,000,000, step 50,000 -->
-            <input type="range" id="skysails-units" min="0" max="1000000" step="50000" value="200000">
-            <span id="skysails-units-value">200,000</span>
-          </div>
-        </div>
-
-        <!-- Group: Waste Processing & Bioenergy -->
-        <div class="parameter-group">
-          <h2>Waste Processing & Bioenergy Parameters</h2>
+          <h2>Biomass & Waste Processing Parameters</h2>
           <div class="slider-container">
             <label for="food-waste-utilization">Food Waste Utilization (%)</label>
             <input type="range" id="food-waste-utilization" min="0" max="90" value="60">
@@ -168,15 +237,60 @@
             <input type="range" id="hemp-utilization" min="0" max="100" value="50">
             <span id="hemp-utilization-value">50%</span>
           </div>
+          <div class="slider-container">
+            <label for="biomass-jobs-factor">Jobs per Million Tons Processed</label>
+            <input type="range" id="biomass-jobs-factor" min="100" max="1000" step="50" value="500">
+            <span id="biomass-jobs-factor-value">500</span>
+          </div>
         </div>
 
-        <!-- Implementation Speed -->
+        <!-- Group: Carbon Capture -->
         <div class="parameter-group">
-          <h2>Implementation Speed</h2>
+          <h2>Carbon Capture Parameters</h2>
           <div class="slider-container">
-            <label for="implementation-speed">Implementation Speed</label>
+            <label for="carbon-capture-capacity">Carbon Capture Capacity (MT/year)</label>
+            <input type="range" id="carbon-capture-capacity" min="0" max="1000" step="10" value="100">
+            <span id="carbon-capture-capacity-value">100 MT/year</span>
+          </div>
+          <div class="slider-container">
+            <label for="carbon-storage-percentage">Underground Storage Percentage (%)</label>
+            <input type="range" id="carbon-storage-percentage" min="0" max="100" step="5" value="60">
+            <span id="carbon-storage-percentage-value">60%</span>
+          </div>
+          <div class="slider-container">
+            <label for="carbon-fuel-percentage">Carbon to Fuels Percentage (%)</label>
+            <input type="range" id="carbon-fuel-percentage" min="0" max="100" step="5" value="40">
+            <span id="carbon-fuel-percentage-value">40%</span>
+          </div>
+          <div class="slider-container">
+            <label for="carbon-capture-cost">Carbon Capture Cost ($/ton)</label>
+            <input type="range" id="carbon-capture-cost" min="20" max="200" step="5" value="80">
+            <span id="carbon-capture-cost-value">$80/ton</span>
+          </div>
+          <div class="slider-container">
+            <label for="carbon-capture-jobs-factor">Jobs per MT Captured</label>
+            <input type="range" id="carbon-capture-jobs-factor" min="1" max="20" step="0.5" value="5">
+            <span id="carbon-capture-jobs-factor-value">5</span>
+          </div>
+        </div>
+
+        <!-- Implementation Timeline -->
+        <div class="parameter-group">
+          <h2>Implementation Timeline</h2>
+          <div class="slider-container">
+            <label for="implementation-years">Implementation Period (years)</label>
+            <input type="range" id="implementation-years" min="10" max="30" step="1" value="20">
+            <span id="implementation-years-value">20 years</span>
+          </div>
+          <div class="slider-container">
+            <label for="implementation-speed">Implementation Speed Factor</label>
             <input type="range" id="implementation-speed" min="1" max="20" value="10">
             <span id="implementation-speed-value">10</span>
+          </div>
+          <div class="toggle-container">
+            <span>Priority:</span>
+            <button id="efficiency-first-button" class="toggle-button active">Efficiency First</button>
+            <button id="generation-first-button" class="toggle-button">Generation First</button>
           </div>
         </div>
 
@@ -209,9 +323,70 @@
         </div>
       </section>
 
+      <!-- CIRCULAR ECONOMY SECTION -->
+      <section id="circular" class="content-section">
+        <h1>Circular Economy Impact</h1>
+        <p>This section shows the impact of implementing circular economy principles in the waste-to-energy system.</p>
+        
+        <div class="charts-container">
+          <div class="chart-box">
+            <h3>Material Flow</h3>
+            <canvas id="materialFlowChart"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>Resource Recovery</h3>
+            <canvas id="resourceRecoveryChart"></canvas>
+          </div>
+        </div>
+        
+        <table id="circular-economy-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Filled dynamically by JavaScript -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- CARBON CAPTURE SECTION -->
+      <section id="carbon-capture" class="content-section">
+        <h1>Carbon Capture Details</h1>
+        <p>This section provides details on carbon capture, utilization, and storage.</p>
+        
+        <div class="charts-container">
+          <div class="chart-box">
+            <h3>Carbon Capture Allocation</h3>
+            <canvas id="carbonCaptureChart"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>Carbon Capture Timeline</h3>
+            <canvas id="carbonTimelineChart"></canvas>
+          </div>
+        </div>
+        
+        <table id="carbon-capture-table">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Filled dynamically by JavaScript -->
+          </tbody>
+        </table>
+      </section>
+
       <!-- PHASED IMPLEMENTATION SECTION -->
       <section id="phased" class="content-section">
         <h1>Phased Implementation Plan</h1>
+        <div class="charts-container">
+          <canvas id="phasedImplementationChart"></canvas>
+        </div>
         <table id="phased-plan-table">
           <thead>
             <tr>
@@ -221,6 +396,7 @@
               <th>Investment ($B)</th>
               <th>Net Energy Impact (TWh)</th>
               <th>Jobs (millions)</th>
+              <th>Landfill Space Saved (cubic yards)</th>
             </tr>
           </thead>
           <tbody>
@@ -233,9 +409,34 @@
       <section id="methodology" class="content-section">
         <h1>Methodology & Assumptions</h1>
         <p>
-          This visualizer uses a base of 129.9 million households and assumes an average household consumption of 10,715 kWh.
-          Energy efficiency, solar/nuclear, wind (SkySails), and waste processing parameters are based on
-          recent market research and illustrative conversion factors. Adjust the sliders to explore different scenarios.
+          This calculator implements circular economy principles to maximize resource efficiency and minimize waste.
+          It prioritizes energy efficiency and job creation, followed by clean energy production, and calculates
+          environmental benefits including CO2 reduction and landfill space savings.
+        </p>
+        
+        <h2>Key Assumptions</h2>
+        <ul>
+          <li>Base of 129.9 million households with average consumption of 10,715 kWh</li>
+          <li>Carbon intensity of grid electricity: 0.417 kg CO2/kWh</li>
+          <li>Landfill density: 1,200 pounds per cubic yard</li>
+          <li>Circular economy principles prioritize waste reduction, reuse, and recycling before energy recovery</li>
+          <li>Carbon capture can be used for underground storage or conversion to fuels</li>
+          <li>Implementation timeline can range from 10-30 years with customizable phasing</li>
+        </ul>
+        
+        <h2>Circular Economy Model</h2>
+        <p>
+          The calculator follows a circular economy model that prioritizes:
+        </p>
+        <ol>
+          <li>Energy efficiency to reduce overall demand</li>
+          <li>Material recovery and reuse to minimize waste</li>
+          <li>Clean energy production from renewable sources</li>
+          <li>Carbon capture and utilization to close the carbon loop</li>
+        </ol>
+        
+        <p>
+          This approach maximizes economic benefits (jobs, ROI) while minimizing environmental impact.
         </p>
       </section>
     </div>
