@@ -497,8 +497,74 @@ document.addEventListener("DOMContentLoaded", function(){
             generationFactor: genF
           };
         });
-        
-    return phases;
+    
+    // Calculate totals for each phase
+    return phases.map(p => {
+      // Efficiency partial
+      const effSaves = effResults.national.totalEnergySaved * p.efficiencyFactor;
+      const effCO2 = effResults.national.totalCarbonReduction * p.efficiencyFactor;
+      const effInv = effResults.national.totalInvestment * p.efficiencyFactor;
+      const effJobs = effResults.national.jobsCreated * p.efficiencyFactor;
+      
+      // Generation partial - solar
+      const solarEnergy = solarResults.energyTWh * p.generationFactor;
+      const solarCO2 = solarResults.carbonAvoided * p.generationFactor;
+      const solarInv = solarResults.investment * p.generationFactor;
+      const solarJobs = solarResults.jobs * p.generationFactor;
+      
+      // Generation partial - nuclear
+      const nuclearEnergy = nuclearResults.energyTWh * p.generationFactor;
+      const nuclearCO2 = nuclearResults.carbonAvoided * p.generationFactor;
+      const nuclearInv = nuclearResults.investment * p.generationFactor;
+      const nuclearJobs = nuclearResults.jobs * p.generationFactor;
+      
+      // Generation partial - hydro
+      const hydroEnergy = hydroResults.energyTWh * p.generationFactor;
+      const hydroCO2 = hydroResults.carbonAvoided * p.generationFactor;
+      const hydroInv = hydroResults.investment * p.generationFactor;
+      const hydroJobs = hydroResults.jobs * p.generationFactor;
+      
+      // Generation partial - wind
+      const windEnergy = windResults.totalEnergyTWh * p.generationFactor;
+      const windCO2 = windResults.carbonAvoided * p.generationFactor;
+      const windInv = windResults.totalInvestment * p.generationFactor;
+      const windJobs = windResults.totalJobs * p.generationFactor;
+      
+      // Generation partial - waste
+      const wasteEnergy = wasteResults.energyGeneration.total * p.generationFactor;
+      const wasteCO2 = wasteResults.carbonImpact.total * p.generationFactor;
+      const wasteInv = wasteResults.economics.totalInvestment * p.generationFactor;
+      const wasteJobs = wasteResults.economics.jobsCreated * p.generationFactor;
+      const landfillSaved = wasteResults.landfillSpaceSaved * p.generationFactor;
+      
+      // Generation partial - carbon capture
+      const ccEnergy = carbonCaptureResults.energyFromFuels * p.generationFactor;
+      const ccCO2 = carbonCaptureResults.carbonAvoided * p.generationFactor;
+      const ccInv = carbonCaptureResults.investment * p.generationFactor;
+      const ccJobs = carbonCaptureResults.jobs * p.generationFactor;
+      
+      // Totals
+      const totalEnergyGen = solarEnergy + nuclearEnergy + hydroEnergy + windEnergy + wasteEnergy + ccEnergy;
+      const netEnergy = totalEnergyGen - effSaves;
+      const totalCarbon = effCO2 + solarCO2 + nuclearCO2 + hydroCO2 + windCO2 + wasteCO2 + ccCO2;
+      const totalInvestment = effInv + solarInv + nuclearInv + hydroInv + windInv + wasteInv + ccInv;
+      const totalJobs = effJobs + solarJobs + nuclearJobs + hydroJobs + windJobs + wasteJobs + ccJobs;
+      
+      return {
+        year: p.year,
+        phase: p.phase,
+        efficiencyFactor: p.efficiencyFactor,
+        generationFactor: p.generationFactor,
+        totals: {
+          investment: totalInvestment,
+          carbonReduction: totalCarbon,
+          jobs: totalJobs,
+          netEnergyImpact: netEnergy,
+          landfillSpaceSaved: landfillSaved,
+          percentOfUSEmissions: (totalCarbon / 5222) * 100
+        }
+      };
+    });
   }
   
   // Legacy implementation for compatibility
@@ -689,6 +755,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const years = phased.map(p => p.year);
     const carbonReduction = phased.map(p => p.totals?.carbonReduction || 0);
     const jobs = phased.map(p => p.totals?.jobs / 1e6 || 0); // Convert to millions
+    const landfillSaved = phased.map(p => p.totals?.landfillSpaceSaved || 0);
     
     const ctx = document.getElementById("phasedImplementationChart").getContext("2d");
     
