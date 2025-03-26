@@ -354,8 +354,8 @@ document.addEventListener("DOMContentLoaded", function(){
     const investment = (capacityMT * costPerTon) / 1e9; // Billion $
     const jobs = Math.round(investment * 1000 * 7); // 7 jobs per $1M invested (investment is in $B)
 
-    // Added energyFromFuels calculation
-    const energyFromFuels = (capacityMT * (fuelPercent / 100) * 0.1) / 1e6; // TWh, assuming 0.1 MWh/ton CO2
+    // Calculate fuel yield in Liters (assuming 300 L/ton CO2 utilized)
+    const fuelYieldLiters = capacityMT * (fuelPercent / 100) * 300;
 
     return {
         totalReductionMT: totalCO2Reduction,
@@ -363,7 +363,7 @@ document.addEventListener("DOMContentLoaded", function(){
         fuelConversionMT: capacityMT * (fuelPercent / 100), // Actual amount converted
         investment: investment,
         jobs: jobs,
-        energyFromFuels: energyFromFuels, // Added this property
+        fuelYieldLiters: fuelYieldLiters, // Replaced energyFromFuels
         capacityMT: capacityMT // Pass capacity through for UI update
     };
   }
@@ -409,7 +409,7 @@ document.addEventListener("DOMContentLoaded", function(){
     );
 
     // Aggregate results for Dashboard
-    const totalGeneratedEnergy = solarResults.energyTWh + nuclearResults.energyTWh + hydroResults.energyTWh + windResults.totalEnergyTWh + wasteResults.energyGeneration.total + carbonResults.energyFromFuels; // Added CC energy
+    const totalGeneratedEnergy = solarResults.energyTWh + nuclearResults.energyTWh + hydroResults.energyTWh + windResults.totalEnergyTWh + wasteResults.energyGeneration.total; // Removed carbonResults.energyFromFuels
     const netEnergyImpact = totalGeneratedEnergy - efficiencyResults.nationalSavingsTWh; // Generation minus savings
     const totalInvestment = efficiencyResults.investment + solarResults.investment + nuclearResults.investment + hydroResults.investment + windResults.totalInvestment + wasteResults.economics.totalInvestment + carbonResults.investment;
     const totalJobs = efficiencyResults.jobs + solarResults.jobs + nuclearResults.jobs + hydroResults.jobs + windResults.totalJobs + wasteResults.economics.jobsCreated + carbonResults.jobs;
@@ -630,14 +630,14 @@ document.addEventListener("DOMContentLoaded", function(){
       const wasteJobs = wasteResults.economics.jobsCreated * p.generationFactor;
       const landfillSaved = wasteResults.landfillSpaceSaved * p.generationFactor;
 
-      // Generation partial - carbon capture
-      const ccEnergy = carbonCaptureResults.energyFromFuels * p.generationFactor;
+      // Generation partial - carbon capture (CO2 reduction, investment, jobs only)
+      // const ccEnergy = carbonCaptureResults.energyFromFuels * p.generationFactor; // Removed
       const ccCO2 = carbonCaptureResults.totalReductionMT * p.generationFactor; // Use total reduction from CC calc
       const ccInv = carbonCaptureResults.investment * p.generationFactor;
       const ccJobs = carbonCaptureResults.jobs * p.generationFactor;
 
       // Totals
-      const totalEnergyGen = solarEnergy + nuclearEnergy + hydroEnergy + windEnergy + wasteEnergy + ccEnergy;
+      const totalEnergyGen = solarEnergy + nuclearEnergy + hydroEnergy + windEnergy + wasteEnergy; // Removed ccEnergy
       const netEnergy = totalEnergyGen - effSaves;
       const totalCarbon = effCO2 + solarCO2 + nuclearCO2 + hydroCO2 + windCO2 + wasteCO2 + ccCO2;
       const totalInvestment = effInv + solarInv + nuclearInv + hydroInv + windInv + wasteInv + ccInv;
@@ -836,7 +836,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const recoveryData = [
         wasteResults.economics.electricityRevenue, // Energy value
         wasteResults.economics.materialRecoveryRevenue // Material value
-    ].map(v => Math.max(0, v)); // Ensure non-negative
+    ].map(v => isNaN(v) ? 0 : Math.max(0, v)); // Ensure non-negative and handle NaN
 
     // Destroy existing chart before creating new one
     if(resourceRecoveryChart) {
@@ -878,9 +878,9 @@ document.addEventListener("DOMContentLoaded", function(){
       ["Effective CO₂ Reduction", `${formatNumber(carbonCaptureResults.totalReductionMT, 2)} MT/year`],
       ["Storage Allocation", `${formatNumber(carbonCaptureResults.storedMT, 2)} MT (${formatNumber(carbonCaptureResults.storedMT / capacityMT * 100, 0)}%)`],
       ["Fuel Conversion Input", `${formatNumber(carbonCaptureResults.fuelConversionMT, 2)} MT (${formatNumber(carbonCaptureResults.fuelConversionMT / capacityMT * 100, 0)}%)`],
-      ["Energy from Carbon Fuels", `${formatNumber(carbonCaptureResults.energyFromFuels, 2)} TWh`],
+      ["Fuel Yield (Liters)", `${formatNumber(carbonCaptureResults.fuelYieldLiters, 0)} L`], // Updated row
       ["Estimated Investment", `$${formatNumber(carbonCaptureResults.investment, 2)} B`],
-      ["Estimated Jobs Created", `${formatNumber(carbonCaptureResults.jobs, 0)}`] // Corrected formatting
+      ["Estimated Jobs Created", `${formatNumber(carbonCaptureResults.jobs, 0)}`]
     ];
 
     rows.forEach(item => {
@@ -981,11 +981,11 @@ document.addEventListener("DOMContentLoaded", function(){
     const ctx = canvas.getContext('2d');
     if (!ctx) { console.error("Could not get context for: energyMixChart"); return; }
 
-    const labels = ["Solar", "Nuclear", "Hydro", "Wind", "Waste-to-Energy", "Carbon-to-Fuels"];
+    const labels = ["Solar", "Nuclear", "Hydro", "Wind", "Waste-to-Energy"]; // Removed "Carbon-to-Fuels"
     const data = [
       solarResults.energyTWh, nuclearResults.energyTWh, hydroResults.energyTWh,
-      windResults.totalEnergyTWh, wasteResults.energyGeneration.total, carbonCaptureResults.energyFromFuels
-    ].map(v => Math.max(0, v)); // Ensure non-negative values
+      windResults.totalEnergyTWh, wasteResults.energyGeneration.total
+    ].map(v => isNaN(v) ? 0 : Math.max(0, v)); // Ensure non-negative values and handle NaN
 
     // Destroy existing chart before creating new one
     if(energyMixChart){
