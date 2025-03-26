@@ -278,6 +278,9 @@ document.addEventListener("DOMContentLoaded", function(){
     const tonsToLbs = 2000;
     const landfillSpaceSavedCuYds = (totalWasteProcessedMT * 1e6 * tonsToLbs) / landfillDensityLbsPerCuYd;
 
+    // Added carbon impact for phased plan
+    const carbonImpactTotal = (totalEnergyTWh * 0.417) + (usableFoodWasteMT * 0.5 + usableMSW_MT * 0.3); // MT CO2e
+
     return {
       energyGeneration: { total: totalEnergyTWh },
       wasteProcessedMT: totalWasteProcessedMT,
@@ -286,6 +289,9 @@ document.addEventListener("DOMContentLoaded", function(){
         totalInvestment: totalInvestment,
         netAnnualRevenue: netAnnualValue,
         jobsCreated: jobsCreated
+      },
+      carbonImpact: {
+          total: carbonImpactTotal
       }
     };
   }
@@ -348,12 +354,17 @@ document.addEventListener("DOMContentLoaded", function(){
     const investment = (capacityMT * costPerTon) / 1e9; // Billion $
     const jobs = Math.round(investment * 1000 * 7); // 7 jobs per $1M invested (investment is in $B)
 
+    // Added energyFromFuels calculation
+    const energyFromFuels = (capacityMT * (fuelPercent / 100) * 0.1) / 1e6; // TWh, assuming 0.1 MWh/ton CO2
+
     return {
         totalReductionMT: totalCO2Reduction,
         storedMT: storedCO2,
         fuelConversionMT: capacityMT * (fuelPercent / 100), // Actual amount converted
         investment: investment,
-        jobs: jobs
+        jobs: jobs,
+        energyFromFuels: energyFromFuels, // Added this property
+        capacityMT: capacityMT // Pass capacity through for UI update
     };
   }
 
@@ -398,12 +409,13 @@ document.addEventListener("DOMContentLoaded", function(){
     );
 
     // Aggregate results for Dashboard
-    const totalGeneratedEnergy = solarResults.energyTWh + nuclearResults.energyTWh + hydroResults.energyTWh + windResults.totalEnergyTWh + wasteResults.energyGeneration.total;
+    const totalGeneratedEnergy = solarResults.energyTWh + nuclearResults.energyTWh + hydroResults.energyTWh + windResults.totalEnergyTWh + wasteResults.energyGeneration.total + carbonResults.energyFromFuels; // Added CC energy
     const netEnergyImpact = totalGeneratedEnergy - efficiencyResults.nationalSavingsTWh; // Generation minus savings
     const totalInvestment = efficiencyResults.investment + solarResults.investment + nuclearResults.investment + hydroResults.investment + windResults.totalInvestment + wasteResults.economics.totalInvestment + carbonResults.investment;
     const totalJobs = efficiencyResults.jobs + solarResults.jobs + nuclearResults.jobs + hydroResults.jobs + windResults.totalJobs + wasteResults.economics.jobsCreated + carbonResults.jobs;
     const totalCarbonReduction = efficiencyResults.nationalSavingsTWh * 0.417 + // Savings replace grid mix
                                  solarResults.carbonAvoided + nuclearResults.carbonAvoided + hydroResults.carbonAvoided + windResults.carbonAvoided +
+                                 wasteResults.carbonImpact.total + // Use total from waste calc
                                  carbonResults.totalReductionMT; // Direct capture/utilization reduction
     const totalLandfillSaved = wasteResults.landfillSpaceSaved;
 
@@ -416,27 +428,27 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
     // Update Dashboard Display
-    document.getElementById("energy-efficiency-impact").textContent = `${efficiencyResults.nationalSavingsTWh.toFixed(2)} TWh`;
-    document.getElementById("efficiency-percent").textContent = `${efficiencyResults.percentageReduction.toFixed(1)}% reduction`;
+    document.getElementById("energy-efficiency-impact").textContent = `${formatNumber(efficiencyResults.nationalSavingsTWh, 2)} TWh`;
+    document.getElementById("efficiency-percent").textContent = `${formatNumber(efficiencyResults.percentageReduction, 1)}% reduction`;
 
-    document.getElementById("net-energy-impact").textContent = `${netEnergyImpact.toFixed(2)} TWh`;
+    document.getElementById("net-energy-impact").textContent = `${formatNumber(netEnergyImpact, 2)} TWh`;
     // Assuming US consumption ~4000 TWh for percentage calculation
-    document.getElementById("net-energy-percent").textContent = `${((netEnergyImpact / 4000) * 100).toFixed(1)}% of US consumption`;
+    document.getElementById("net-energy-percent").textContent = `${formatNumber((netEnergyImpact / 4000) * 100, 1)}% of US consumption`;
 
-    document.getElementById("carbon-reduction").textContent = `${totalCarbonReduction.toFixed(2)} MT`;
+    document.getElementById("carbon-reduction").textContent = `${formatNumber(totalCarbonReduction, 2)} MT`;
      // Assuming US emissions ~5000 MT CO2e for percentage calculation
-    document.getElementById("carbon-percent").textContent = `${((totalCarbonReduction / 5000) * 100).toFixed(1)}% of US emissions`;
+    document.getElementById("carbon-percent").textContent = `${formatNumber((totalCarbonReduction / 5000) * 100, 1)}% of US emissions`;
 
-    document.getElementById("landfill-space-saved").textContent = `${totalLandfillSaved.toLocaleString(undefined, {maximumFractionDigits: 0})} cubic yards`;
+    document.getElementById("landfill-space-saved").textContent = `${formatNumber(totalLandfillSaved, 0)} cubic yards`;
     // Assuming total landfill ~146M tons/yr, ~243M cubic yards/yr
-    document.getElementById("landfill-percent").textContent = `${((totalLandfillSaved / 243e6) * 100).toFixed(1)}% reduction`;
+    document.getElementById("landfill-percent").textContent = `${formatNumber((totalLandfillSaved / 243e6) * 100, 1)}% reduction`;
 
-    document.getElementById("total-investment").textContent = `$${totalInvestment.toFixed(2)} B`;
-    document.getElementById("payback-period").textContent = `Payback: ${overallPayback === Infinity ? 'N/A' : overallPayback.toFixed(1)} years`;
+    document.getElementById("total-investment").textContent = `$${formatNumber(totalInvestment, 2)} B`;
+    document.getElementById("payback-period").textContent = `Payback: ${formatNumber(overallPayback, 1)} years`;
 
-    document.getElementById("jobs-created").textContent = `${totalJobs.toLocaleString()}`;
-    const jobsPerMillion = totalInvestment > 0 ? (totalJobs / (totalInvestment * 1000)).toFixed(1) : 0;
-    document.getElementById("jobs-per-million").textContent = `${jobsPerMillion} jobs per $1M`;
+    document.getElementById("jobs-created").textContent = `${formatNumber(totalJobs, 0)}`;
+    const jobsPerMillion = totalInvestment > 0 ? (totalJobs / (totalInvestment * 1000)) : 0;
+    document.getElementById("jobs-per-million").textContent = `${formatNumber(jobsPerMillion, 1)} jobs per $1M`;
 
 
     // Update Energy Efficiency Details Table
@@ -444,14 +456,14 @@ document.addEventListener("DOMContentLoaded", function(){
     if (efficiencyTbody) {
         efficiencyTbody.innerHTML = ""; // Clear previous rows
         [
-            ["Passive Solar Savings (per house)", `${efficiencyResults.passiveSolarSavingsPerHouse.toFixed(0)} kWh`],
-            ["GSHP Savings (per house)", `${efficiencyResults.gshpSavingsPerHouse.toFixed(0)} kWh`],
-            ["HPWH Savings (per house)", `${efficiencyResults.hpwhSavingsPerHouse.toFixed(0)} kWh`],
-            ["Total Savings (per house)", `${efficiencyResults.perHouseSavings.toFixed(0)} kWh (${efficiencyResults.percentageReduction.toFixed(1)}%)`],
-            ["National Savings (Total)", `${efficiencyResults.nationalSavingsTWh.toFixed(2)} TWh`],
-            ["Estimated Investment", `$${efficiencyResults.investment.toFixed(2)} B`],
-            ["Estimated Payback", `${efficiencyResults.payback === Infinity ? 'N/A' : efficiencyResults.payback.toFixed(1)} years`],
-            ["Estimated Jobs Created", `${efficiencyResults.jobs.toLocaleString()}`]
+            ["Passive Solar Savings (per house)", `${formatNumber(efficiencyResults.passiveSolarSavingsPerHouse,0)} kWh`],
+            ["GSHP Savings (per house)", `${formatNumber(efficiencyResults.gshpSavingsPerHouse,0)} kWh`],
+            ["HPWH Savings (per house)", `${formatNumber(efficiencyResults.hpwhSavingsPerHouse,0)} kWh`],
+            ["Total Savings (per house)", `${formatNumber(efficiencyResults.perHouseSavings,0)} kWh (${formatNumber(efficiencyResults.percentageReduction,1)}%)`],
+            ["National Savings (Total)", `${formatNumber(efficiencyResults.nationalSavingsTWh,2)} TWh`],
+            ["Estimated Investment", `$${formatNumber(efficiencyResults.investment,2)} B`],
+            ["Estimated Payback", `${formatNumber(efficiencyResults.payback,1)} years`],
+            ["Estimated Jobs Created", `${formatNumber(efficiencyResults.jobs,0)}`]
         ].forEach(([label, value]) => {
             const row = document.createElement("tr");
             row.innerHTML = `<td>${label}</td><td>${value}</td>`;
@@ -464,12 +476,12 @@ document.addEventListener("DOMContentLoaded", function(){
      if (circularTbody) {
         circularTbody.innerHTML = "";
         [
-          ["Total Waste Processed", `${wasteResults.wasteProcessedMT.toFixed(2)} M tons`],
-          ["Energy from Waste", `${wasteResults.energyGeneration.total.toFixed(2)} TWh`],
-          ["Landfill Space Saved", `${wasteResults.landfillSpaceSaved.toLocaleString(undefined, {maximumFractionDigits: 0})} cubic yards`],
-          ["Estimated Investment", `$${wasteResults.economics.totalInvestment.toFixed(2)} B`],
-          ["Net Annual Revenue/Value", `$${wasteResults.economics.netAnnualRevenue.toFixed(2)} B`],
-          ["Estimated Jobs Created", `${wasteResults.economics.jobsCreated.toLocaleString()}`]
+          ["Total Waste Processed", `${formatNumber(wasteResults.wasteProcessedMT, 2)} M tons`],
+          ["Energy from Waste", `${formatNumber(wasteResults.energyGeneration.total, 2)} TWh`],
+          ["Landfill Space Saved", `${formatNumber(wasteResults.landfillSpaceSaved, 0)} cubic yards`],
+          ["Estimated Investment", `$${formatNumber(wasteResults.economics.totalInvestment, 2)} B`],
+          ["Net Annual Revenue/Value", `$${formatNumber(wasteResults.economics.netAnnualRevenue, 2)} B`],
+          ["Estimated Jobs Created", `${formatNumber(wasteResults.economics.jobsCreated, 0)}`]
         ].forEach(([label, value]) => {
           const row = document.createElement("tr");
           row.innerHTML = `<td>${label}</td><td>${value}</td>`;
@@ -482,12 +494,12 @@ document.addEventListener("DOMContentLoaded", function(){
     if (carbonTbody) {
         carbonTbody.innerHTML = "";
         [
-          ["Total CO₂ Captured/Utilized", `${inputs.carbon_capture_capacity.toFixed(2)} MT/year`],
-          ["Effective CO₂ Reduction", `${carbonResults.totalReductionMT.toFixed(2)} MT/year`],
-          ["Storage Allocation", `${carbonResults.storedMT.toFixed(2)} MT (${inputs.carbon_storage_percentage}%)`],
-          ["Fuel Conversion Input", `${carbonResults.fuelConversionMT.toFixed(2)} MT (${inputs.carbon_fuel_percentage}%)`],
-          ["Estimated Investment", `$${carbonResults.investment.toFixed(2)} B`],
-          ["Estimated Jobs Created", `${carbonResults.jobs.toLocaleString()}`]
+          ["Total CO₂ Captured/Utilized", `${formatNumber(carbonResults.capacityMT, 2)} MT/year`], // Use capacityMT from results
+          ["Effective CO₂ Reduction", `${formatNumber(carbonResults.totalReductionMT, 2)} MT/year`],
+          ["Storage Allocation", `${formatNumber(carbonResults.storedMT, 2)} MT (${formatNumber(inputs.carbon_storage_percentage,0)}%)`], // Use formatNumber
+          ["Fuel Conversion Input", `${formatNumber(carbonResults.fuelConversionMT, 2)} MT (${formatNumber(inputs.carbon_fuel_percentage,0)}%)`], // Use formatNumber
+          ["Estimated Investment", `$${formatNumber(carbonResults.investment, 2)} B`],
+          ["Estimated Jobs Created", `${formatNumber(carbonResults.jobs, 0)}`] // Corrected formatting
         ].forEach(([label, value]) => {
           const row = document.createElement("tr");
           row.innerHTML = `<td>${label}</td><td>${value}</td>`;
@@ -545,6 +557,7 @@ document.addEventListener("DOMContentLoaded", function(){
     windResults, wasteResults, carbonCaptureResults,
     implementationYears, speedFactor, effFirst
   ){
+    console.log("Generating phased plan with speedFactor:", speedFactor); // Debug log
     // Calculate number of phases based on implementation years
     const numPhases = Math.min(10, Math.max(5, Math.ceil(implementationYears / 2)));
 
@@ -579,7 +592,7 @@ document.addEventListener("DOMContentLoaded", function(){
         });
 
     // Calculate totals for each phase
-    return phases.map(p => {
+    const calculatedPhases = phases.map(p => {
       // Efficiency partial
       const effSaves = effResults.nationalSavingsTWh * p.efficiencyFactor;
       const effCO2 = effResults.nationalSavingsTWh * 0.417 * p.efficiencyFactor; // Use savings * grid intensity
@@ -645,6 +658,8 @@ document.addEventListener("DOMContentLoaded", function(){
         }
       };
     });
+    console.log("Calculated Phased Plan:", calculatedPhases); // Debug log
+    return calculatedPhases;
   }
 
   // ========================
@@ -654,8 +669,21 @@ document.addEventListener("DOMContentLoaded", function(){
   // Update Phased Plan Table
   function updatePhasedPlanTable(plan) {
     const tbody = document.getElementById("phased-plan-table")?.querySelector("tbody");
-    if (!tbody) return;
+    // Add check for tbody existence
+    if (!tbody) {
+        console.error("Table body not found: phased-plan-table tbody");
+        return;
+    }
     tbody.innerHTML = "";
+    if (!plan || plan.length === 0) {
+        console.warn("Phased plan data is empty for table."); // Debug log
+        // Optionally display a message in the table
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="7" style="text-align: center;">No phased plan data to display.</td>`;
+        tbody.appendChild(row);
+        return;
+    }
+    console.log("Updating Phased Plan Table with data:", plan); // Debug log
     plan.forEach(ph => {
       const row = document.createElement("tr");
       row.innerHTML = `
@@ -710,32 +738,31 @@ document.addEventListener("DOMContentLoaded", function(){
     const ctx = canvas.getContext("2d");
     if (!ctx) { console.error("Could not get context for: efficiencySavingsChart"); return; }
 
-
+    // Destroy existing chart before creating new one
     if(efficiencyChart){
-      efficiencyChart.data.labels = barLabels;
-      efficiencyChart.data.datasets[0].data = barData;
-      efficiencyChart.update();
-    } else {
-      efficiencyChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: barLabels,
-          datasets: [{
-            label: "Household kWh Savings per Measure",
-            data: barData,
-            backgroundColor: ["#f59e0b", "#16a34a", "#3b82f6"]
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            title: { display: true, text: 'Savings per Household by Measure (kWh/year)'}
-          },
-          scales: { y: { beginAtZero: true } }
-        }
-      });
+      console.log("Destroying existing Efficiency Savings chart instance."); // Debug log
+      efficiencyChart.destroy();
     }
+    console.log("Creating new Efficiency Savings chart instance with data:", barData); // Debug log
+    efficiencyChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: barLabels,
+        datasets: [{
+          label: "Household kWh Savings per Measure",
+          data: barData,
+          backgroundColor: ["#f59e0b", "#16a34a", "#3b82f6"]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: 'Savings per Household by Measure (kWh/year)'}
+        },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
   }
 
   // Update Circular Economy UI (Table and Charts)
@@ -772,30 +799,31 @@ document.addEventListener("DOMContentLoaded", function(){
     const agInput = 800 * (parseFloat(document.getElementById('agriculture-utilization').value)/100);
     const forestInput = 93 * (parseFloat(document.getElementById('forest-utilization').value)/100);
     const mswInput = 292 * (parseFloat(document.getElementById('msw-utilization').value)/100);
-    const materialData = [foodInput, agInput, forestInput, mswInput];
+    const materialData = [foodInput, agInput, forestInput, mswInput].map(v => Math.max(0, v)); // Ensure non-negative
 
+    // Destroy existing chart before creating new one
     if(materialFlowChart) {
-      materialFlowChart.data.datasets[0].data = materialData;
-      materialFlowChart.update();
-    } else {
-      materialFlowChart = new Chart(materialCtx, {
-        type: 'pie',
-        data: {
-          labels: materialLabels,
-          datasets: [{
-            data: materialData,
-            backgroundColor: ["#f59e0b", "#84cc16", "#15803d", "#6b7280"]
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'bottom' },
-            title: { display: true, text: 'Waste Material Input (Million Tons/year)' }
-          }
-        }
-      });
+      console.log("Destroying existing Material Flow chart instance."); // Debug log
+      materialFlowChart.destroy();
     }
+    console.log("Creating new Material Flow chart instance with data:", materialData); // Debug log
+    materialFlowChart = new Chart(materialCtx, {
+      type: 'pie',
+      data: {
+        labels: materialLabels,
+        datasets: [{
+          data: materialData,
+          backgroundColor: ["#f59e0b", "#84cc16", "#15803d", "#6b7280"]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+          title: { display: true, text: 'Waste Material Input (Million Tons/year)' }
+        }
+      }
+    });
 
     // Resource Recovery Chart (Simplified: Energy vs. Material Value)
     const recoveryCanvas = document.getElementById("resourceRecoveryChart");
@@ -808,30 +836,31 @@ document.addEventListener("DOMContentLoaded", function(){
     const recoveryData = [
         wasteResults.economics.electricityRevenue, // Energy value
         wasteResults.economics.materialRecoveryRevenue // Material value
-    ];
+    ].map(v => Math.max(0, v)); // Ensure non-negative
 
+    // Destroy existing chart before creating new one
     if(resourceRecoveryChart) {
-      resourceRecoveryChart.data.datasets[0].data = recoveryData;
-      resourceRecoveryChart.update();
-    } else {
-      resourceRecoveryChart = new Chart(recoveryCtx, {
-        type: 'doughnut',
-        data: {
-          labels: recoveryLabels,
-          datasets: [{
-            data: recoveryData,
-            backgroundColor: ["#dc2626", "#2563eb"]
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'bottom' },
-            title: { display: true, text: 'Resource Recovery Value ($B/year)' }
-          }
-        }
-      });
+      console.log("Destroying existing Resource Recovery chart instance."); // Debug log
+      resourceRecoveryChart.destroy();
     }
+    console.log("Creating new Resource Recovery chart instance with data:", recoveryData); // Debug log
+    resourceRecoveryChart = new Chart(recoveryCtx, {
+      type: 'doughnut',
+      data: {
+        labels: recoveryLabels,
+        datasets: [{
+          data: recoveryData,
+          backgroundColor: ["#dc2626", "#2563eb"]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+          title: { display: true, text: 'Resource Recovery Value ($B/year)' }
+        }
+      }
+    });
   }
 
   // Update Carbon Capture UI (Table and Charts)
@@ -841,14 +870,17 @@ document.addEventListener("DOMContentLoaded", function(){
     if (!tBody) return;
     tBody.innerHTML = "";
 
+    // Ensure capacityMT is valid before dividing
+    const capacityMT = carbonCaptureResults.capacityMT > 0 ? carbonCaptureResults.capacityMT : 1;
+
     const rows = [
       ["Total CO₂ Captured/Utilized", `${formatNumber(carbonCaptureResults.capacityMT, 2)} MT/year`],
       ["Effective CO₂ Reduction", `${formatNumber(carbonCaptureResults.totalReductionMT, 2)} MT/year`],
-      ["Storage Allocation", `${formatNumber(carbonCaptureResults.storedMT, 2)} MT (${formatNumber(carbonCaptureResults.storedMT / carbonCaptureResults.capacityMT * 100, 0)}%)`],
-      ["Fuel Conversion Input", `${formatNumber(carbonCaptureResults.fuelConversionMT, 2)} MT (${formatNumber(carbonCaptureResults.fuelConversionMT / carbonCaptureResults.capacityMT * 100, 0)}%)`],
+      ["Storage Allocation", `${formatNumber(carbonCaptureResults.storedMT, 2)} MT (${formatNumber(carbonCaptureResults.storedMT / capacityMT * 100, 0)}%)`],
+      ["Fuel Conversion Input", `${formatNumber(carbonCaptureResults.fuelConversionMT, 2)} MT (${formatNumber(carbonCaptureResults.fuelConversionMT / capacityMT * 100, 0)}%)`],
       ["Energy from Carbon Fuels", `${formatNumber(carbonCaptureResults.energyFromFuels, 2)} TWh`],
       ["Estimated Investment", `$${formatNumber(carbonCaptureResults.investment, 2)} B`],
-      ["Estimated Jobs Created", `${formatNumber(carbonCaptureResults.jobs, 0)}`]
+      ["Estimated Jobs Created", `${formatNumber(carbonCaptureResults.jobs, 0)}`] // Corrected formatting
     ];
 
     rows.forEach(item => {
@@ -867,30 +899,31 @@ document.addEventListener("DOMContentLoaded", function(){
     const captureData = [
       carbonCaptureResults.storedMT,
       carbonCaptureResults.fuelConversionMT
-    ];
+    ].map(v => Math.max(0, v)); // Ensure non-negative
 
+    // Destroy existing chart before creating new one
     if(carbonCaptureChart) {
-      carbonCaptureChart.data.datasets[0].data = captureData;
-      carbonCaptureChart.update();
-    } else {
-      carbonCaptureChart = new Chart(captureCtx, {
-        type: 'pie',
-        data: {
-          labels: captureLabels,
-          datasets: [{
-            data: captureData,
-            backgroundColor: ["#1e40af", "#7c3aed"]
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'bottom' },
-            title: { display: true, text: 'Carbon Capture Allocation (MT/year)' }
-          }
-        }
-      });
+      console.log("Destroying existing Carbon Capture Allocation chart instance."); // Debug log
+      carbonCaptureChart.destroy();
     }
+    console.log("Creating new Carbon Capture Allocation chart instance with data:", captureData); // Debug log
+    carbonCaptureChart = new Chart(captureCtx, {
+      type: 'pie',
+      data: {
+        labels: captureLabels,
+        datasets: [{
+          data: captureData,
+          backgroundColor: ["#1e40af", "#7c3aed"]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+          title: { display: true, text: 'Carbon Capture Allocation (MT/year)' }
+        }
+      }
+    });
 
     // Carbon Timeline Chart - Cumulative reduction over implementation period
     const timelineCanvas = document.getElementById("carbonTimelineChart");
@@ -903,36 +936,36 @@ document.addEventListener("DOMContentLoaded", function(){
     // Simple linear ramp-up for timeline chart
     const cumulativeReduction = years.map((_, i) => carbonCaptureResults.totalReductionMT * ((i + 1) / implementationYears));
 
+    // Destroy existing chart before creating new one
     if(carbonTimelineChart) {
-      carbonTimelineChart.data.labels = years;
-      carbonTimelineChart.data.datasets[0].data = cumulativeReduction;
-      carbonTimelineChart.update();
-    } else {
-      carbonTimelineChart = new Chart(timelineCtx, {
-        type: 'line',
-        data: {
-          labels: years,
-          datasets: [{
-            label: 'Cumulative CO₂ Reduction (MT)',
-            data: cumulativeReduction,
-            borderColor: '#7c3aed',
-            backgroundColor: 'rgba(124, 58, 237, 0.1)',
-            fill: true,
-            tension: 0.1
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            title: { display: true, text: 'Projected Cumulative CO₂ Reduction' }
-          },
-          scales: {
-            y: { beginAtZero: true, title: { display: true, text: 'CO₂ Reduction (MT)'} },
-            x: { title: { display: true, text: 'Year'} }
-          }
-        }
-      });
+      console.log("Destroying existing Carbon Timeline chart instance."); // Debug log
+      carbonTimelineChart.destroy();
     }
+    console.log("Creating new Carbon Timeline chart instance with data:", cumulativeReduction); // Debug log
+    carbonTimelineChart = new Chart(timelineCtx, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: [{
+          label: 'Cumulative CO₂ Reduction (MT)',
+          data: cumulativeReduction,
+          borderColor: '#7c3aed',
+          backgroundColor: 'rgba(124, 58, 237, 0.1)',
+          fill: true,
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: { display: true, text: 'Projected Cumulative CO₂ Reduction' }
+        },
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: 'CO₂ Reduction (MT)'} },
+          x: { title: { display: true, text: 'Year'} }
+        }
+      }
+    });
   }
 
   // ========================
@@ -942,6 +975,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
   // Update Energy Mix Chart
   function updateEnergyMixChart(solarResults, nuclearResults, hydroResults, windResults, wasteResults, carbonCaptureResults){
+    console.log("Updating Energy Mix Chart..."); // Debug log
     const canvas = document.getElementById('energyMixChart');
     if (!canvas) { console.error("Canvas not found: energyMixChart"); return; }
     const ctx = canvas.getContext('2d');
@@ -953,33 +987,34 @@ document.addEventListener("DOMContentLoaded", function(){
       windResults.totalEnergyTWh, wasteResults.energyGeneration.total, carbonCaptureResults.energyFromFuels
     ].map(v => Math.max(0, v)); // Ensure non-negative values
 
+    // Destroy existing chart before creating new one
     if(energyMixChart){
-      energyMixChart.data.labels = labels;
-      energyMixChart.data.datasets[0].data = data;
-      energyMixChart.update();
-    } else {
-      energyMixChart = new Chart(ctx, {
-        type: "pie",
-        data: {
-          labels: labels,
-          datasets: [{
-            data: data,
-            backgroundColor: ["#facc15", "#a78bfa", "#3b82f6", "#84cc16", "#f87171", "#c084fc"]
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: {
-            legend: { position: "bottom" },
-            title: { display: true, text: 'Energy Generation by Source (TWh)' }
-          }
-        }
-      });
+      console.log("Destroying existing Energy Mix chart instance."); // Debug log
+      energyMixChart.destroy();
     }
+    console.log("Creating new Energy Mix chart instance with data:", data); // Debug log
+    energyMixChart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: ["#facc15", "#a78bfa", "#3b82f6", "#84cc16", "#f87171", "#c084fc"]
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom" },
+          title: { display: true, text: 'Energy Generation by Source (TWh)' }
+        }
+      }
+    });
   }
 
   // Update Jobs Distribution Chart
   function updateJobsDistributionChart(effResults, solarResults, nuclearResults, hydroResults, windResults, wasteResults, carbonCaptureResults){
+    console.log("Updating Jobs Distribution Chart..."); // Debug log
     const canvas = document.getElementById('jobsDistributionChart');
     if (!canvas) { console.error("Canvas not found: jobsDistributionChart"); return; }
     const ctx = canvas.getContext('2d');
@@ -991,77 +1026,88 @@ document.addEventListener("DOMContentLoaded", function(){
       windResults.totalJobs, wasteResults.economics.jobsCreated, carbonCaptureResults.jobs
     ].map(v => Math.max(0, v));
 
+    // Destroy existing chart before creating new one
     if(jobsDistributionChart){
-      jobsDistributionChart.data.labels = labels;
-      jobsDistributionChart.data.datasets[0].data = data;
-      jobsDistributionChart.update();
-    } else {
-      jobsDistributionChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: labels,
-          datasets: [{
-            label: "Jobs Created",
-            data: data,
-            backgroundColor: ["#2563eb", "#facc15", "#a78bfa", "#3b82f6", "#84cc16", "#f87171", "#c084fc"]
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            title: { display: true, text: 'Jobs Created by Sector' }
-          },
-          scales: { y: { beginAtZero: true, title: { display: true, text: 'Number of Jobs'} } }
-        }
-      });
+      console.log("Destroying existing Jobs Distribution chart instance."); // Debug log
+      jobsDistributionChart.destroy();
     }
+    console.log("Creating new Jobs Distribution chart instance with data:", data); // Debug log
+    jobsDistributionChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Jobs Created",
+          data: data,
+          backgroundColor: ["#2563eb", "#facc15", "#a78bfa", "#3b82f6", "#84cc16", "#f87171", "#c084fc"]
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: 'Jobs Created by Sector' }
+        },
+        scales: { y: { beginAtZero: true, title: { display: true, text: 'Number of Jobs'} } }
+      }
+    });
   }
 
   // Update Phased Implementation Chart
   function updatePhasedImplementationChart(phased){
+    console.log("Updating Phased Implementation Chart..."); // Debug log
     const canvas = document.getElementById('phasedImplementationChart');
     if (!canvas) { console.error("Canvas not found: phasedImplementationChart"); return; }
     const ctx = canvas.getContext('2d');
     if (!ctx) { console.error("Could not get context for: phasedImplementationChart"); return; }
 
+    if (!phased || phased.length === 0) {
+        console.warn("Phased plan data is empty for chart.");
+        // Optionally clear the chart or display a message
+        if (phasedImplementationChart) {
+             phasedImplementationChart.data.labels = [];
+             phasedImplementationChart.data.datasets.forEach(dataset => { dataset.data = []; });
+             phasedImplementationChart.update();
+        }
+        return;
+    }
+
     const years = phased.map(p => p.year);
     const carbonReduction = phased.map(p => p.totals?.carbonReduction || 0);
     const jobs = phased.map(p => (p.totals?.jobs || 0) / 1e6); // In millions
 
+    // Destroy existing chart before creating new one
     if(phasedImplementationChart){
-      phasedImplementationChart.data.labels = years;
-      phasedImplementationChart.data.datasets[0].data = carbonReduction;
-      phasedImplementationChart.data.datasets[1].data = jobs;
-      phasedImplementationChart.update();
-    } else {
-      phasedImplementationChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: years,
-          datasets: [
-            {
-              label: 'Carbon Reduction (MT)', data: carbonReduction,
-              borderColor: '#16a34a', backgroundColor: 'rgba(22, 163, 74, 0.1)',
-              yAxisID: 'y', fill: true, tension: 0.1
-            },
-            {
-              label: 'Jobs Created (Millions)', data: jobs,
-              borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)',
-              yAxisID: 'y1', fill: true, tension: 0.1
-            }
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { title: { display: true, text: 'Phased Implementation Timeline' } },
-          scales: {
-            y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Carbon Reduction (MT)'}, beginAtZero: true },
-            y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Jobs (Millions)'}, grid: { drawOnChartArea: false }, beginAtZero: true }
-          }
-        }
-      });
+      console.log("Destroying existing Phased Implementation chart instance."); // Debug log
+      phasedImplementationChart.destroy();
     }
+    console.log("Creating new Phased Implementation chart instance with years:", years, "carbon:", carbonReduction, "jobs:", jobs); // Debug log
+    phasedImplementationChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: [
+          {
+            label: 'Carbon Reduction (MT)', data: carbonReduction,
+            borderColor: '#16a34a', backgroundColor: 'rgba(22, 163, 74, 0.1)',
+            yAxisID: 'y', fill: true, tension: 0.1
+          },
+          {
+            label: 'Jobs Created (Millions)', data: jobs,
+            borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)',
+            yAxisID: 'y1', fill: true, tension: 0.1
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { title: { display: true, text: 'Phased Implementation Timeline' } },
+        scales: {
+          y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Carbon Reduction (MT)'}, beginAtZero: true },
+          y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Jobs (Millions)'}, grid: { drawOnChartArea: false }, beginAtZero: true }
+        }
+      }
+    });
   }
 
   // ========================
