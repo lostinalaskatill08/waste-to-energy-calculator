@@ -9,6 +9,9 @@
   --sidebar-text: #e2e8f0; /* Light text for sidebar */
   --sidebar-hover: #2d3748;
 }
+#jobsDistributionChart {
+  height: 300px;
+}
 
 /* Reset and base styles */
 body, html {
@@ -250,8 +253,10 @@ h3 {
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   /* Ensure canvas is visible and sized */
   min-height: 300px;
+  max-height: 450px; /* Limit vertical size */
   display: flex;
   flex-direction: column;
+  position: relative; /* Added to help chart responsiveness */
 }
 
 .chart-box h3 {
