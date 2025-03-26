@@ -1045,35 +1045,35 @@ document.addEventListener("DOMContentLoaded", function(){
     document.getElementById("energy-efficiency-impact").textContent =
       `${formatNumber(effResults.national.totalEnergySaved,2)} TWh`;
     document.getElementById("efficiency-percent").textContent =
-      `${formatNumber(effResults.national.totalEnergySaved/3800*100,2)}% reduction`;
-      
+      `${formatNumber((effResults.national.totalEnergySaved/3800)*100,2)}% reduction`;
+    
     // Net energy impact
     document.getElementById("net-energy-impact").textContent =
       `${formatNumber(netEnergyImpact,2)} TWh`;
     document.getElementById("net-energy-percent").textContent =
       `${formatNumber((netEnergyImpact/3800)*100,2)}% of US consumption`;
-      
+    
     // Carbon reduction
     document.getElementById("carbon-reduction").textContent =
       `${formatNumber(totalCarbonReduction,2)} MT`;
     document.getElementById("carbon-percent").textContent =
       `${formatNumber(percentEmissionsReduced,2)}% of US emissions`;
-      
+    
     // Landfill space
     document.getElementById("landfill-space-saved").textContent =
       `${formatNumber(landfillSpaceSaved,0)} cubic yards`;
     document.getElementById("landfill-percent").textContent =
       `${formatNumber(percentLandfillSaved,2)}% reduction`;
-      
+    
     // Investment
     document.getElementById("total-investment").textContent =
       `$${formatNumber(totalInvestment,2)} B`;
     document.getElementById("payback-period").textContent =
       `Payback: ${formatNumber(payback,1)} years`;
-      
+    
     // Jobs
     document.getElementById("jobs-created").textContent =
-      `${formatNumber(totalJobs/1e6,1)}M`;
+      `${formatNumber(totalJobs / 1e6,1)}M`;
     if(totalInvestment>0){
       document.getElementById("jobs-per-million").textContent =
         `${formatNumber(totalJobs/(totalInvestment*1000),1)} jobs per $1M`;
