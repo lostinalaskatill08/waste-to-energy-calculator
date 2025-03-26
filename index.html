@@ -104,14 +104,10 @@
           </div>
           <div class="slider-container">
             <label for="efficiency-adoption-rate">National Adoption Rate (%)</label>
-            <input type="range" id="efficiency-adoption-rate" min="5" max="50" value="25">
+            <input type="range" id="efficiency-adoption-rate" min="5" max="100" value="25"> <!-- Updated max to 100 -->
             <span id="efficiency-adoption-rate-value">25%</span>
           </div>
-          <div class="toggle-container">
-            <span>Implementation Type:</span>
-            <button id="retrofit-button" class="toggle-button active">Retrofit</button>
-            <button id="new-construction-button" class="toggle-button">New Construction</button>
-          </div>
+          <!-- Removed Implementation Type toggle -->
         </div>
 
         <!-- Group: Solar Energy -->
@@ -124,14 +120,10 @@
           </div>
           <div class="slider-container">
             <label for="solar-cost">Solar Average Cost ($/kW)</label>
-            <input type="range" id="solar-cost" min="300" max="2000" step="50" value="1000">
-            <span id="solar-cost-value">$1000/kW</span>
+            <input type="range" id="solar-cost" min="300" max="2000" step="50" value="2000"> <!-- Default to avg $2000 -->
+            <span id="solar-cost-value">$2000/kW</span>
           </div>
-          <div class="slider-container">
-            <label for="solar-jobs-factor">Jobs per MW</label>
-            <input type="range" id="solar-jobs-factor" min="1" max="10" step="0.5" value="3.5">
-            <span id="solar-jobs-factor-value">3.5</span>
-          </div>
+          <!-- Removed solar-jobs-factor slider -->
         </div>
 
         <!-- Group: Wind Energy -->
@@ -147,11 +139,7 @@
             <input type="range" id="traditional-wind-capacity" min="0" max="500" step="5" value="100">
             <span id="traditional-wind-capacity-value">100 GW</span>
           </div>
-          <div class="slider-container">
-            <label for="wind-jobs-factor">Jobs per MW</label>
-            <input type="range" id="wind-jobs-factor" min="1" max="10" step="0.5" value="2.5">
-            <span id="wind-jobs-factor-value">2.5</span>
-          </div>
+          <!-- Removed wind-jobs-factor slider -->
         </div>
 
         <!-- Group: Hydro Energy -->
@@ -165,13 +153,9 @@
           <div class="slider-container">
             <label for="hydro-cost">Hydro Average Cost ($/kW)</label>
             <input type="range" id="hydro-cost" min="1000" max="5000" step="100" value="2500">
-            <span id="hydro-cost-value">$2500/kW</span>
+            <span id="hydro-cost-value">$3000/kW</span> <!-- Default to avg $3000 -->
           </div>
-          <div class="slider-container">
-            <label for="hydro-jobs-factor">Jobs per MW</label>
-            <input type="range" id="hydro-jobs-factor" min="1" max="10" step="0.5" value="2.0">
-            <span id="hydro-jobs-factor-value">2.0</span>
-          </div>
+          <!-- Removed hydro-jobs-factor slider -->
         </div>
 
         <!-- Group: Nuclear Energy -->
@@ -185,13 +169,9 @@
           <div class="slider-container">
             <label for="nuclear-cost">Nuclear Average Cost ($/kW)</label>
             <input type="range" id="nuclear-cost" min="2000" max="8000" step="100" value="5000">
-            <span id="nuclear-cost-value">$5000/kW</span>
+            <span id="nuclear-cost-value">$7500/kW</span> <!-- Default to avg $7500 -->
           </div>
-          <div class="slider-container">
-            <label for="nuclear-jobs-factor">Jobs per MW</label>
-            <input type="range" id="nuclear-jobs-factor" min="1" max="15" step="0.5" value="5.0">
-            <span id="nuclear-jobs-factor-value">5.0</span>
-          </div>
+          <!-- Removed nuclear-jobs-factor slider -->
         </div>
 
         <!-- Electricity Price -->
@@ -237,11 +217,7 @@
             <input type="range" id="hemp-utilization" min="0" max="100" value="50">
             <span id="hemp-utilization-value">50%</span>
           </div>
-          <div class="slider-container">
-            <label for="biomass-jobs-factor">Jobs per Million Tons Processed</label>
-            <input type="range" id="biomass-jobs-factor" min="100" max="1000" step="50" value="500">
-            <span id="biomass-jobs-factor-value">500</span>
-          </div>
+          <!-- Removed biomass-jobs-factor slider -->
         </div>
 
         <!-- Group: Carbon Capture -->
@@ -265,13 +241,9 @@
           <div class="slider-container">
             <label for="carbon-capture-cost">Carbon Capture Cost ($/ton)</label>
             <input type="range" id="carbon-capture-cost" min="20" max="200" step="5" value="80">
-            <span id="carbon-capture-cost-value">$80/ton</span>
+            <span id="carbon-capture-cost-value">$750/ton</span> <!-- Default to avg $750 -->
           </div>
-          <div class="slider-container">
-            <label for="carbon-capture-jobs-factor">Jobs per MT Captured</label>
-            <input type="range" id="carbon-capture-jobs-factor" min="1" max="20" step="0.5" value="5">
-            <span id="carbon-capture-jobs-factor-value">5</span>
-          </div>
+          <!-- Removed carbon-capture-jobs-factor slider -->
         </div>
 
         <!-- Implementation Timeline -->

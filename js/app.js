@@ -7,17 +7,17 @@ document.addEventListener("DOMContentLoaded", function(){
     // Energy Efficiency
     'passive-solar-efficiency','gshp-cop','hpwh-efficiency','efficiency-adoption-rate',
     // Energy Generation
-    'solar-capacity','solar-cost','solar-jobs-factor',
-    'skysails-units','traditional-wind-capacity','wind-jobs-factor',
-    'hydro-capacity','hydro-cost','hydro-jobs-factor',
-    'nuclear-capacity','nuclear-cost','nuclear-jobs-factor',
+    'solar-capacity','solar-cost', /*'solar-jobs-factor',*/ // Removed
+    'skysails-units','traditional-wind-capacity', /*'wind-jobs-factor',*/ // Removed
+    'hydro-capacity','hydro-cost', /*'hydro-jobs-factor',*/ // Removed
+    'nuclear-capacity','nuclear-cost', /*'nuclear-jobs-factor',*/ // Removed
     'electricity-price',
     // Biomass & Waste
     'food-waste-utilization','agriculture-utilization','forest-utilization',
-    'msw-utilization','algae-percentage','hemp-utilization','biomass-jobs-factor',
+    'msw-utilization','algae-percentage','hemp-utilization', /*'biomass-jobs-factor',*/ // Removed
     // Carbon Capture
     'carbon-capture-capacity','carbon-storage-percentage','carbon-fuel-percentage',
-    'carbon-capture-cost','carbon-capture-jobs-factor',
+    'carbon-capture-cost', /*'carbon-capture-jobs-factor',*/ // Removed
     // Implementation
     'implementation-years','implementation-speed'
   ];
@@ -50,8 +50,10 @@ document.addEventListener("DOMContentLoaded", function(){
     } else if (id === 'implementation-years') {
       val = `${val} years`;
     } else if (id.includes('jobs-factor') && !id.includes('biomass') && !id.includes('carbon')) {
+      // These sliders are removed, but keep formatting just in case
       val = `${parseFloat(val).toFixed(1)}`;
     } else if (id === 'biomass-jobs-factor' || id === 'carbon-capture-jobs-factor') {
+       // These sliders are removed, but keep formatting just in case
         val = `${parseInt(val).toLocaleString()}`;
     }
     return val;
@@ -60,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function(){
   parameterSliders.forEach(id => {
     const slider = document.getElementById(id);
     const displaySpan = document.getElementById(`${id}-value`);
+    // Check if slider exists (since some job sliders were removed)
     if (slider && displaySpan) {
       // Set initial display value on load
       displaySpan.textContent = formatDisplayValue(id, slider.value);
@@ -102,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
   // ========================
-  // 3. TOGGLE BUTTONS
+  // 3. TOGGLE BUTTONS (Only Priority Toggle Remains)
   // ========================
   function setupTogglePair(button1Id, button2Id) {
       const btn1 = document.getElementById(button1Id);
@@ -120,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function(){
           });
       }
   }
-  setupTogglePair('retrofit-button', 'new-construction-button');
+  // setupTogglePair('retrofit-button', 'new-construction-button'); // Removed
   setupTogglePair('efficiency-first-button', 'generation-first-button');
 
 
@@ -288,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function(){
   }
 
   // Calculate Energy Efficiency Savings
-  function calculateEfficiencySavings(passiveSolarEff, gshpCOP, hpwhEff, effAdoptionRate, isNewConstruction, elecPrice) {
+  function calculateEfficiencySavings(passiveSolarEff, gshpCOP, hpwhEff, effAdoptionRate, elecPrice) { // Removed isNewConstruction
     const originalConsumption = 10715; // kWh/year for average household
     const households = 129900000; // US households
 
@@ -306,10 +309,10 @@ document.addEventListener("DOMContentLoaded", function(){
     const totalSavingsPerHouse = passiveSolarSavings + gshpSavings + hpwhSavings;
     const totalNationalSavingsTWh = (totalSavingsPerHouse * households * (effAdoptionRate / 100)) / 1e9; // TWh
 
-    // Cost/Investment (Placeholders - highly variable)
-    const costPassiveSolar = isNewConstruction ? 5000 : 15000; // $ per house
-    const costGSHP = 20000; // $ per house
-    const costHPWH = 1500; // $ per house
+    // Cost/Investment
+    const costPassiveSolar = 11500; // Average cost for passive solar ($5k new + $18k retrofit / 2)
+    const costGSHP = 20000; // $ per house (Using previous placeholder, refine if needed)
+    const costHPWH = 1500; // $ per house (Using previous placeholder, refine if needed)
     const totalCostPerHouse = costPassiveSolar + costGSHP + costHPWH;
     const totalNationalInvestment = (totalCostPerHouse * households * (effAdoptionRate / 100)) / 1e9; // Billion $
 
@@ -363,31 +366,35 @@ document.addEventListener("DOMContentLoaded", function(){
     parameterSliders.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
-            inputs[id.replace(/-/g, '_')] = parseFloat(element.value); // Store with underscore names
+            // Ensure job factor sliders that were removed don't cause errors
+            if (!id.includes('jobs-factor')) {
+                 inputs[id.replace(/-/g, '_')] = parseFloat(element.value); // Store with underscore names
+            }
         }
     });
-    // Add toggle button states
-    inputs.is_new_construction = document.getElementById("new-construction-button").classList.contains("active");
-    inputs.is_efficiency_first = document.getElementById("efficiency-first-button").classList.contains("active");
+    // Add toggle button states (only priority toggle remains)
+    // inputs.is_new_construction = document.getElementById("new-construction-button")?.classList.contains("active"); // Removed
+    inputs.is_efficiency_first = document.getElementById("efficiency-first-button")?.classList.contains("active");
 
     // Perform calculations
     const efficiencyResults = calculateEfficiencySavings(
       inputs.passive_solar_efficiency, inputs.gshp_cop, inputs.hpwh_efficiency,
-      inputs.efficiency_adoption_rate, inputs.is_new_construction, inputs.electricity_price
+      inputs.efficiency_adoption_rate, inputs.electricity_price // Removed is_new_construction
     );
 
-    const solarResults = calculateSolarEnergy(inputs.solar_capacity, inputs.solar_cost, inputs.solar_jobs_factor, inputs.electricity_price);
-    const nuclearResults = calculateNuclearEnergy(inputs.nuclear_capacity, inputs.nuclear_cost, inputs.nuclear_jobs_factor, inputs.electricity_price);
-    const hydroResults = calculateHydroEnergy(inputs.hydro_capacity, inputs.hydro_cost, inputs.hydro_jobs_factor, inputs.electricity_price);
-    const windResults = calculateWindEnergy(inputs.skysails_units, inputs.traditional_wind_capacity, inputs.wind_jobs_factor, inputs.electricity_price);
+    // Pass null or 0 for job factors as they are now hardcoded in the functions
+    const solarResults = calculateSolarEnergy(inputs.solar_capacity, inputs.solar_cost, 0, inputs.electricity_price);
+    const nuclearResults = calculateNuclearEnergy(inputs.nuclear_capacity, inputs.nuclear_cost, 0, inputs.electricity_price);
+    const hydroResults = calculateHydroEnergy(inputs.hydro_capacity, inputs.hydro_cost, 0, inputs.electricity_price);
+    const windResults = calculateWindEnergy(inputs.skysails_units, inputs.traditional_wind_capacity, 0, inputs.electricity_price);
     const wasteResults = calculateWasteProcessing(
         inputs.food_waste_utilization, inputs.agriculture_utilization, inputs.forest_utilization,
         inputs.msw_utilization, inputs.algae_percentage, inputs.hemp_utilization,
-        inputs.biomass_jobs_factor, inputs.electricity_price
+        0, inputs.electricity_price // Pass 0 for biomass_jobs_factor
     );
     const carbonResults = calculateCarbonCapture(
         inputs.carbon_capture_capacity, inputs.carbon_storage_percentage, inputs.carbon_fuel_percentage,
-        inputs.carbon_capture_cost, inputs.carbon_capture_jobs_factor
+        inputs.carbon_capture_cost, 0 // Pass 0 for carbon_jobs_factor
     );
 
     // Aggregate results for Dashboard
@@ -698,8 +705,11 @@ document.addEventListener("DOMContentLoaded", function(){
       ph.hpwhSavingsPerHouse
     ];
 
-    const ctx = document.getElementById("efficiencySavingsChart")?.getContext("2d");
-    if (!ctx) return;
+    const canvas = document.getElementById("efficiencySavingsChart");
+    if (!canvas) { console.error("Canvas not found: efficiencySavingsChart"); return; }
+    const ctx = canvas.getContext("2d");
+    if (!ctx) { console.error("Could not get context for: efficiencySavingsChart"); return; }
+
 
     if(efficiencyChart){
       efficiencyChart.data.labels = barLabels;
@@ -751,8 +761,11 @@ document.addEventListener("DOMContentLoaded", function(){
     });
 
     // Material Flow Chart
-    const materialCtx = document.getElementById("materialFlowChart")?.getContext("2d");
-    if (!materialCtx) return;
+    const materialCanvas = document.getElementById("materialFlowChart");
+    if (!materialCanvas) { console.error("Canvas not found: materialFlowChart"); return; }
+    const materialCtx = materialCanvas.getContext("2d");
+    if (!materialCtx) { console.error("Could not get context for: materialFlowChart"); return; }
+
     const materialLabels = ["Food Waste", "Agricultural Waste", "Forest Residues", "Municipal Solid Waste"];
     // Approximate breakdown based on input utilization % and available tons
     const foodInput = 63 * (parseFloat(document.getElementById('food-waste-utilization').value)/100);
@@ -785,8 +798,11 @@ document.addEventListener("DOMContentLoaded", function(){
     }
 
     // Resource Recovery Chart (Simplified: Energy vs. Material Value)
-    const recoveryCtx = document.getElementById("resourceRecoveryChart")?.getContext("2d");
-     if (!recoveryCtx) return;
+    const recoveryCanvas = document.getElementById("resourceRecoveryChart");
+    if (!recoveryCanvas) { console.error("Canvas not found: resourceRecoveryChart"); return; }
+    const recoveryCtx = recoveryCanvas.getContext("2d");
+    if (!recoveryCtx) { console.error("Could not get context for: resourceRecoveryChart"); return; }
+
     const recoveryLabels = ["Energy Value", "Material Value"];
     // Use calculated revenues as proxy for value distribution
     const recoveryData = [
@@ -842,8 +858,11 @@ document.addEventListener("DOMContentLoaded", function(){
     });
 
     // Carbon Capture Allocation Chart
-    const captureCtx = document.getElementById("carbonCaptureChart")?.getContext("2d");
-    if (!captureCtx) return;
+    const captureCanvas = document.getElementById("carbonCaptureChart");
+    if (!captureCanvas) { console.error("Canvas not found: carbonCaptureChart"); return; }
+    const captureCtx = captureCanvas.getContext("2d");
+    if (!captureCtx) { console.error("Could not get context for: carbonCaptureChart"); return; }
+
     const captureLabels = ["Underground Storage", "Carbon to Fuels"];
     const captureData = [
       carbonCaptureResults.storedMT,
@@ -874,8 +893,11 @@ document.addEventListener("DOMContentLoaded", function(){
     }
 
     // Carbon Timeline Chart - Cumulative reduction over implementation period
-    const timelineCtx = document.getElementById("carbonTimelineChart")?.getContext("2d");
-    if (!timelineCtx) return;
+    const timelineCanvas = document.getElementById("carbonTimelineChart");
+    if (!timelineCanvas) { console.error("Canvas not found: carbonTimelineChart"); return; }
+    const timelineCtx = timelineCanvas.getContext("2d");
+    if (!timelineCtx) { console.error("Could not get context for: carbonTimelineChart"); return; }
+
     const implementationYears = parseInt(document.getElementById('implementation-years').value);
     const years = Array.from({length: implementationYears}, (_, i) => 2025 + i);
     // Simple linear ramp-up for timeline chart
@@ -920,8 +942,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
   // Update Energy Mix Chart
   function updateEnergyMixChart(solarResults, nuclearResults, hydroResults, windResults, wasteResults, carbonCaptureResults){
-    const ctx = document.getElementById('energyMixChart')?.getContext('2d');
-    if (!ctx) return;
+    const canvas = document.getElementById('energyMixChart');
+    if (!canvas) { console.error("Canvas not found: energyMixChart"); return; }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) { console.error("Could not get context for: energyMixChart"); return; }
+
     const labels = ["Solar", "Nuclear", "Hydro", "Wind", "Waste-to-Energy", "Carbon-to-Fuels"];
     const data = [
       solarResults.energyTWh, nuclearResults.energyTWh, hydroResults.energyTWh,
@@ -955,8 +980,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
   // Update Jobs Distribution Chart
   function updateJobsDistributionChart(effResults, solarResults, nuclearResults, hydroResults, windResults, wasteResults, carbonCaptureResults){
-    const ctx = document.getElementById('jobsDistributionChart')?.getContext('2d');
-     if (!ctx) return;
+    const canvas = document.getElementById('jobsDistributionChart');
+    if (!canvas) { console.error("Canvas not found: jobsDistributionChart"); return; }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) { console.error("Could not get context for: jobsDistributionChart"); return; }
+
     const labels = ["Efficiency", "Solar", "Nuclear", "Hydro", "Wind", "Waste", "Carbon Capture"];
     const data = [
       effResults.jobs, solarResults.jobs, nuclearResults.jobs, hydroResults.jobs,
@@ -992,8 +1020,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
   // Update Phased Implementation Chart
   function updatePhasedImplementationChart(phased){
-    const ctx = document.getElementById('phasedImplementationChart')?.getContext('2d');
-    if (!ctx) return;
+    const canvas = document.getElementById('phasedImplementationChart');
+    if (!canvas) { console.error("Canvas not found: phasedImplementationChart"); return; }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) { console.error("Could not get context for: phasedImplementationChart"); return; }
+
     const years = phased.map(p => p.year);
     const carbonReduction = phased.map(p => p.totals?.carbonReduction || 0);
     const jobs = phased.map(p => (p.totals?.jobs || 0) / 1e6); // In millions
@@ -1056,8 +1087,8 @@ document.addEventListener("DOMContentLoaded", function(){
               }
           });
           // Reset toggle buttons to default (assuming first is default)
-          document.getElementById('retrofit-button')?.classList.add('active');
-          document.getElementById('new-construction-button')?.classList.remove('active');
+          // document.getElementById('retrofit-button')?.classList.add('active'); // Removed
+          // document.getElementById('new-construction-button')?.classList.remove('active'); // Removed
           document.getElementById('efficiency-first-button')?.classList.add('active');
           document.getElementById('generation-first-button')?.classList.remove('active');
 
