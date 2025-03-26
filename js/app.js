@@ -488,17 +488,549 @@ document.addEventListener("DOMContentLoaded", function(){
         });
     }
 
-    // Update Charts (Placeholder - requires chart initialization and update logic)
-    // updateEnergyMixChart([solarResults.energyTWh, nuclearResults.energyTWh, hydroResults.energyTWh, windResults.totalEnergyTWh, wasteResults.energyGeneration.total]);
-    // updateJobsDistributionChart([efficiencyResults.jobs, solarResults.jobs, nuclearResults.jobs, hydroResults.jobs, windResults.totalJobs, wasteResults.economics.jobsCreated, carbonResults.jobs]);
-    // updateEfficiencySavingsChart([efficiencyResults.passiveSolarSavingsPerHouse, efficiencyResults.gshpSavingsPerHouse, efficiencyResults.hpwhSavingsPerHouse]);
-    // updateMaterialFlowChart(...);
-    // updateResourceRecoveryChart(...);
-    // updateCarbonCaptureChart(...);
-    // updateCarbonTimelineChart(...);
-    // updatePhasedImplementationChart(...);
-    // updatePhasedPlanTable(...);
+    // Generate and update phased plan
+    const phased = generatePhasedPlan(
+      efficiencyResults, solarResults, nuclearResults, hydroResults,
+      windResults, wasteResults, carbonResults,
+      inputs.implementation_years, inputs.implementation_speed / 10, // Pass speed factor
+      inputs.is_efficiency_first
+    );
+    updatePhasedPlanTable(phased);
+    updatePhasedImplementationChart(phased);
 
+    // Update Energy Mix Chart
+    updateEnergyMixChart(solarResults, nuclearResults, hydroResults, windResults, wasteResults, carbonResults);
+
+    // Update Jobs Distribution Chart
+    updateJobsDistributionChart(efficiencyResults, solarResults, nuclearResults, hydroResults, windResults, wasteResults, carbonResults);
+
+    // Update Efficiency UI (Table and Chart)
+    updateEfficiencyUI(efficiencyResults);
+
+    // Update Circular Economy UI (Table and Charts)
+    updateCircularEconomyUI(wasteResults);
+
+    // Update Carbon Capture UI (Table and Charts)
+    updateCarbonCaptureUI(carbonResults);
+
+  }
+
+  // ========================
+  // Helper: format numbers
+  // ========================
+  function formatNumber(num, decimals=2){
+    if(num === undefined || num === null || isNaN(num)) return "N/A";
+    if(num === Infinity) return "N/A";
+    if(num === 0) return "0";
+    // Use toLocaleString for formatting large numbers and respecting decimals
+    return num.toLocaleString(undefined, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals
+    });
+  }
+
+
+  // ========================
+  // Phased Plan Calculation
+  // ========================
+  function generatePhasedPlan(
+    effResults, solarResults, nuclearResults, hydroResults,
+    windResults, wasteResults, carbonCaptureResults,
+    implementationYears, speedFactor, effFirst
+  ){
+    // Calculate number of phases based on implementation years
+    const numPhases = Math.min(10, Math.max(5, Math.ceil(implementationYears / 2)));
+
+    // Generate phase factors arrays using a non-linear curve (e.g., quadratic) for smoother ramp-up
+    const phasePoints = Array(numPhases).fill(0).map((_, i) => (i + 1) / numPhases);
+    const curveFactor = 1 / (speedFactor + 0.5); // Adjust curve based on speed
+
+    const effPhaseFactors = phasePoints.map(p => Math.pow(p, curveFactor));
+    const genPhaseFactors = phasePoints.map(p => Math.pow(p, curveFactor));
+
+    // Adjust based on efficiency-first or generation-first approach (delay one track)
+    const phases = effFirst
+      ? effPhaseFactors.map((effF, i) => {
+          const year = 2025 + Math.floor(i * (implementationYears / numPhases));
+          // Delay generation start slightly
+          const genF = i < 1 ? 0 : genPhaseFactors[i - 1];
+          return {
+            year, phase: i + 1,
+            efficiencyFactor: effF,
+            generationFactor: genF
+          };
+        })
+      : genPhaseFactors.map((genF, i) => {
+          const year = 2025 + Math.floor(i * (implementationYears / numPhases));
+          // Delay efficiency start slightly
+          const effF = i < 1 ? 0 : effPhaseFactors[i - 1];
+          return {
+            year, phase: i + 1,
+            efficiencyFactor: effF,
+            generationFactor: genF
+          };
+        });
+
+    // Calculate totals for each phase
+    return phases.map(p => {
+      // Efficiency partial
+      const effSaves = effResults.nationalSavingsTWh * p.efficiencyFactor;
+      const effCO2 = effResults.nationalSavingsTWh * 0.417 * p.efficiencyFactor; // Use savings * grid intensity
+      const effInv = effResults.investment * p.efficiencyFactor;
+      const effJobs = effResults.jobs * p.efficiencyFactor;
+
+      // Generation partial - solar
+      const solarEnergy = solarResults.energyTWh * p.generationFactor;
+      const solarCO2 = solarResults.carbonAvoided * p.generationFactor;
+      const solarInv = solarResults.investment * p.generationFactor;
+      const solarJobs = solarResults.jobs * p.generationFactor;
+
+      // Generation partial - nuclear
+      const nuclearEnergy = nuclearResults.energyTWh * p.generationFactor;
+      const nuclearCO2 = nuclearResults.carbonAvoided * p.generationFactor;
+      const nuclearInv = nuclearResults.investment * p.generationFactor;
+      const nuclearJobs = nuclearResults.jobs * p.generationFactor;
+
+      // Generation partial - hydro
+      const hydroEnergy = hydroResults.energyTWh * p.generationFactor;
+      const hydroCO2 = hydroResults.carbonAvoided * p.generationFactor;
+      const hydroInv = hydroResults.investment * p.generationFactor;
+      const hydroJobs = hydroResults.jobs * p.generationFactor;
+
+      // Generation partial - wind
+      const windEnergy = windResults.totalEnergyTWh * p.generationFactor;
+      const windCO2 = windResults.carbonAvoided * p.generationFactor;
+      const windInv = windResults.totalInvestment * p.generationFactor;
+      const windJobs = windResults.totalJobs * p.generationFactor;
+
+      // Generation partial - waste
+      const wasteEnergy = wasteResults.energyGeneration.total * p.generationFactor;
+      const wasteCO2 = wasteResults.carbonImpact.total * p.generationFactor; // Use total impact from waste calc
+      const wasteInv = wasteResults.economics.totalInvestment * p.generationFactor;
+      const wasteJobs = wasteResults.economics.jobsCreated * p.generationFactor;
+      const landfillSaved = wasteResults.landfillSpaceSaved * p.generationFactor;
+
+      // Generation partial - carbon capture
+      const ccEnergy = carbonCaptureResults.energyFromFuels * p.generationFactor;
+      const ccCO2 = carbonCaptureResults.totalReductionMT * p.generationFactor; // Use total reduction from CC calc
+      const ccInv = carbonCaptureResults.investment * p.generationFactor;
+      const ccJobs = carbonCaptureResults.jobs * p.generationFactor;
+
+      // Totals
+      const totalEnergyGen = solarEnergy + nuclearEnergy + hydroEnergy + windEnergy + wasteEnergy + ccEnergy;
+      const netEnergy = totalEnergyGen - effSaves;
+      const totalCarbon = effCO2 + solarCO2 + nuclearCO2 + hydroCO2 + windCO2 + wasteCO2 + ccCO2;
+      const totalInvestment = effInv + solarInv + nuclearInv + hydroInv + windInv + wasteInv + ccInv;
+      const totalJobs = effJobs + solarJobs + nuclearJobs + hydroJobs + windJobs + wasteJobs + ccJobs;
+
+      return {
+        year: p.year,
+        phase: p.phase,
+        efficiencyFactor: p.efficiencyFactor,
+        generationFactor: p.generationFactor,
+        totals: {
+          investment: totalInvestment,
+          carbonReduction: totalCarbon,
+          jobs: totalJobs,
+          netEnergyImpact: netEnergy,
+          landfillSpaceSaved: landfillSaved,
+          percentOfUSEmissions: (totalCarbon / 5222) * 100 // Assuming 5222 MT US baseline
+        }
+      };
+    });
+  }
+
+  // ========================
+  // UI Update Functions for Sections
+  // ========================
+
+  // Update Phased Plan Table
+  function updatePhasedPlanTable(plan) {
+    const tbody = document.getElementById("phased-plan-table")?.querySelector("tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    plan.forEach(ph => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${ph.phase}</td>
+        <td>${ph.year}</td>
+        <td>${formatNumber(ph.totals.carbonReduction, 2)}</td>
+        <td>${formatNumber(ph.totals.investment, 2)}</td>
+        <td>${formatNumber(ph.totals.netEnergyImpact, 2)}</td>
+        <td>${formatNumber(ph.totals.jobs / 1e6, 1)}M</td>
+        <td>${formatNumber(ph.totals.landfillSpaceSaved, 0)}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  // Update Efficiency UI (Table and Chart)
+  let efficiencyChart;
+  function updateEfficiencyUI(effResults){
+    // Fill the #efficiency-table with data
+    const tBody = document.querySelector("#efficiency-table tbody");
+    if (!tBody) return;
+    tBody.innerHTML = "";
+
+    const ph = effResults; // Already contains per-house and national
+    const rows = [
+      ["Passive Solar Savings (per house)", `${formatNumber(ph.passiveSolarSavingsPerHouse,0)} kWh`],
+      ["GSHP Savings (per house)", `${formatNumber(ph.gshpSavingsPerHouse,0)} kWh`],
+      ["HPWH Savings (per house)", `${formatNumber(ph.hpwhSavingsPerHouse,0)} kWh`],
+      ["Total Savings (per house)", `${formatNumber(ph.perHouseSavings,0)} kWh (${formatNumber(ph.percentageReduction,1)}%)`],
+      ["National Savings (Total)", `${formatNumber(ph.nationalSavingsTWh,2)} TWh`],
+      ["Estimated Investment", `$${formatNumber(ph.investment,2)} B`],
+      ["Estimated Payback", `${formatNumber(ph.payback,1)} years`],
+      ["Estimated Jobs Created", `${formatNumber(ph.jobs,0)}`]
+    ];
+
+    rows.forEach(item => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${item[0]}</td><td>${item[1]}</td>`;
+      tBody.appendChild(tr);
+    });
+
+    // Efficiency bar chart
+    const barLabels = ["Passive Solar","GSHP","HPWH"];
+    const barData = [
+      ph.passiveSolarSavingsPerHouse,
+      ph.gshpSavingsPerHouse, // Combined heating/cooling for simplicity
+      ph.hpwhSavingsPerHouse
+    ];
+
+    const ctx = document.getElementById("efficiencySavingsChart")?.getContext("2d");
+    if (!ctx) return;
+
+    if(efficiencyChart){
+      efficiencyChart.data.labels = barLabels;
+      efficiencyChart.data.datasets[0].data = barData;
+      efficiencyChart.update();
+    } else {
+      efficiencyChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: barLabels,
+          datasets: [{
+            label: "Household kWh Savings per Measure",
+            data: barData,
+            backgroundColor: ["#f59e0b", "#16a34a", "#3b82f6"]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Savings per Household by Measure (kWh/year)'}
+          },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+  }
+
+  // Update Circular Economy UI (Table and Charts)
+  let materialFlowChart, resourceRecoveryChart;
+  function updateCircularEconomyUI(wasteResults) {
+    const tBody = document.querySelector("#circular-economy-table tbody");
+    if (!tBody) return;
+    tBody.innerHTML = "";
+
+    const rows = [
+      ["Total Waste Processed", `${formatNumber(wasteResults.wasteProcessedMT, 2)} M tons`],
+      ["Energy from Waste", `${formatNumber(wasteResults.energyGeneration.total, 2)} TWh`],
+      ["Landfill Space Saved", `${formatNumber(wasteResults.landfillSpaceSaved, 0)} cubic yards`],
+      ["Estimated Investment", `$${formatNumber(wasteResults.economics.totalInvestment, 2)} B`],
+      ["Net Annual Revenue/Value", `$${formatNumber(wasteResults.economics.netAnnualRevenue, 2)} B`],
+      ["Estimated Jobs Created", `${formatNumber(wasteResults.economics.jobsCreated, 0)}`]
+    ];
+
+    rows.forEach(item => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${item[0]}</td><td>${item[1]}</td>`;
+      tBody.appendChild(tr);
+    });
+
+    // Material Flow Chart
+    const materialCtx = document.getElementById("materialFlowChart")?.getContext("2d");
+    if (!materialCtx) return;
+    const materialLabels = ["Food Waste", "Agricultural Waste", "Forest Residues", "Municipal Solid Waste"];
+    // Approximate breakdown based on input utilization % and available tons
+    const foodInput = 63 * (parseFloat(document.getElementById('food-waste-utilization').value)/100);
+    const agInput = 800 * (parseFloat(document.getElementById('agriculture-utilization').value)/100);
+    const forestInput = 93 * (parseFloat(document.getElementById('forest-utilization').value)/100);
+    const mswInput = 292 * (parseFloat(document.getElementById('msw-utilization').value)/100);
+    const materialData = [foodInput, agInput, forestInput, mswInput];
+
+    if(materialFlowChart) {
+      materialFlowChart.data.datasets[0].data = materialData;
+      materialFlowChart.update();
+    } else {
+      materialFlowChart = new Chart(materialCtx, {
+        type: 'pie',
+        data: {
+          labels: materialLabels,
+          datasets: [{
+            data: materialData,
+            backgroundColor: ["#f59e0b", "#84cc16", "#15803d", "#6b7280"]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' },
+            title: { display: true, text: 'Waste Material Input (Million Tons/year)' }
+          }
+        }
+      });
+    }
+
+    // Resource Recovery Chart (Simplified: Energy vs. Material Value)
+    const recoveryCtx = document.getElementById("resourceRecoveryChart")?.getContext("2d");
+     if (!recoveryCtx) return;
+    const recoveryLabels = ["Energy Value", "Material Value"];
+    // Use calculated revenues as proxy for value distribution
+    const recoveryData = [
+        wasteResults.economics.electricityRevenue, // Energy value
+        wasteResults.economics.materialRecoveryRevenue // Material value
+    ];
+
+    if(resourceRecoveryChart) {
+      resourceRecoveryChart.data.datasets[0].data = recoveryData;
+      resourceRecoveryChart.update();
+    } else {
+      resourceRecoveryChart = new Chart(recoveryCtx, {
+        type: 'doughnut',
+        data: {
+          labels: recoveryLabels,
+          datasets: [{
+            data: recoveryData,
+            backgroundColor: ["#dc2626", "#2563eb"]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' },
+            title: { display: true, text: 'Resource Recovery Value ($B/year)' }
+          }
+        }
+      });
+    }
+  }
+
+  // Update Carbon Capture UI (Table and Charts)
+  let carbonCaptureChart, carbonTimelineChart;
+  function updateCarbonCaptureUI(carbonCaptureResults) {
+    const tBody = document.querySelector("#carbon-capture-table tbody");
+    if (!tBody) return;
+    tBody.innerHTML = "";
+
+    const rows = [
+      ["Total CO₂ Captured/Utilized", `${formatNumber(carbonCaptureResults.capacityMT, 2)} MT/year`],
+      ["Effective CO₂ Reduction", `${formatNumber(carbonCaptureResults.totalReductionMT, 2)} MT/year`],
+      ["Storage Allocation", `${formatNumber(carbonCaptureResults.storedMT, 2)} MT (${formatNumber(carbonCaptureResults.storedMT / carbonCaptureResults.capacityMT * 100, 0)}%)`],
+      ["Fuel Conversion Input", `${formatNumber(carbonCaptureResults.fuelConversionMT, 2)} MT (${formatNumber(carbonCaptureResults.fuelConversionMT / carbonCaptureResults.capacityMT * 100, 0)}%)`],
+      ["Energy from Carbon Fuels", `${formatNumber(carbonCaptureResults.energyFromFuels, 2)} TWh`],
+      ["Estimated Investment", `$${formatNumber(carbonCaptureResults.investment, 2)} B`],
+      ["Estimated Jobs Created", `${formatNumber(carbonCaptureResults.jobs, 0)}`]
+    ];
+
+    rows.forEach(item => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${item[0]}</td><td>${item[1]}</td>`;
+      tBody.appendChild(tr);
+    });
+
+    // Carbon Capture Allocation Chart
+    const captureCtx = document.getElementById("carbonCaptureChart")?.getContext("2d");
+    if (!captureCtx) return;
+    const captureLabels = ["Underground Storage", "Carbon to Fuels"];
+    const captureData = [
+      carbonCaptureResults.storedMT,
+      carbonCaptureResults.fuelConversionMT
+    ];
+
+    if(carbonCaptureChart) {
+      carbonCaptureChart.data.datasets[0].data = captureData;
+      carbonCaptureChart.update();
+    } else {
+      carbonCaptureChart = new Chart(captureCtx, {
+        type: 'pie',
+        data: {
+          labels: captureLabels,
+          datasets: [{
+            data: captureData,
+            backgroundColor: ["#1e40af", "#7c3aed"]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' },
+            title: { display: true, text: 'Carbon Capture Allocation (MT/year)' }
+          }
+        }
+      });
+    }
+
+    // Carbon Timeline Chart - Cumulative reduction over implementation period
+    const timelineCtx = document.getElementById("carbonTimelineChart")?.getContext("2d");
+    if (!timelineCtx) return;
+    const implementationYears = parseInt(document.getElementById('implementation-years').value);
+    const years = Array.from({length: implementationYears}, (_, i) => 2025 + i);
+    // Simple linear ramp-up for timeline chart
+    const cumulativeReduction = years.map((_, i) => carbonCaptureResults.totalReductionMT * ((i + 1) / implementationYears));
+
+    if(carbonTimelineChart) {
+      carbonTimelineChart.data.labels = years;
+      carbonTimelineChart.data.datasets[0].data = cumulativeReduction;
+      carbonTimelineChart.update();
+    } else {
+      carbonTimelineChart = new Chart(timelineCtx, {
+        type: 'line',
+        data: {
+          labels: years,
+          datasets: [{
+            label: 'Cumulative CO₂ Reduction (MT)',
+            data: cumulativeReduction,
+            borderColor: '#7c3aed',
+            backgroundColor: 'rgba(124, 58, 237, 0.1)',
+            fill: true,
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: 'Projected Cumulative CO₂ Reduction' }
+          },
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'CO₂ Reduction (MT)'} },
+            x: { title: { display: true, text: 'Year'} }
+          }
+        }
+      });
+    }
+  }
+
+  // ========================
+  // Chart Initialization and Update Functions
+  // ========================
+  let energyMixChart, jobsDistributionChart, phasedImplementationChart; // Keep chart instances
+
+  // Update Energy Mix Chart
+  function updateEnergyMixChart(solarResults, nuclearResults, hydroResults, windResults, wasteResults, carbonCaptureResults){
+    const ctx = document.getElementById('energyMixChart')?.getContext('2d');
+    if (!ctx) return;
+    const labels = ["Solar", "Nuclear", "Hydro", "Wind", "Waste-to-Energy", "Carbon-to-Fuels"];
+    const data = [
+      solarResults.energyTWh, nuclearResults.energyTWh, hydroResults.energyTWh,
+      windResults.totalEnergyTWh, wasteResults.energyGeneration.total, carbonCaptureResults.energyFromFuels
+    ].map(v => Math.max(0, v)); // Ensure non-negative values
+
+    if(energyMixChart){
+      energyMixChart.data.labels = labels;
+      energyMixChart.data.datasets[0].data = data;
+      energyMixChart.update();
+    } else {
+      energyMixChart = new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: ["#facc15", "#a78bfa", "#3b82f6", "#84cc16", "#f87171", "#c084fc"]
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "bottom" },
+            title: { display: true, text: 'Energy Generation by Source (TWh)' }
+          }
+        }
+      });
+    }
+  }
+
+  // Update Jobs Distribution Chart
+  function updateJobsDistributionChart(effResults, solarResults, nuclearResults, hydroResults, windResults, wasteResults, carbonCaptureResults){
+    const ctx = document.getElementById('jobsDistributionChart')?.getContext('2d');
+     if (!ctx) return;
+    const labels = ["Efficiency", "Solar", "Nuclear", "Hydro", "Wind", "Waste", "Carbon Capture"];
+    const data = [
+      effResults.jobs, solarResults.jobs, nuclearResults.jobs, hydroResults.jobs,
+      windResults.totalJobs, wasteResults.economics.jobsCreated, carbonCaptureResults.jobs
+    ].map(v => Math.max(0, v));
+
+    if(jobsDistributionChart){
+      jobsDistributionChart.data.labels = labels;
+      jobsDistributionChart.data.datasets[0].data = data;
+      jobsDistributionChart.update();
+    } else {
+      jobsDistributionChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Jobs Created",
+            data: data,
+            backgroundColor: ["#2563eb", "#facc15", "#a78bfa", "#3b82f6", "#84cc16", "#f87171", "#c084fc"]
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Jobs Created by Sector' }
+          },
+          scales: { y: { beginAtZero: true, title: { display: true, text: 'Number of Jobs'} } }
+        }
+      });
+    }
+  }
+
+  // Update Phased Implementation Chart
+  function updatePhasedImplementationChart(phased){
+    const ctx = document.getElementById('phasedImplementationChart')?.getContext('2d');
+    if (!ctx) return;
+    const years = phased.map(p => p.year);
+    const carbonReduction = phased.map(p => p.totals?.carbonReduction || 0);
+    const jobs = phased.map(p => (p.totals?.jobs || 0) / 1e6); // In millions
+
+    if(phasedImplementationChart){
+      phasedImplementationChart.data.labels = years;
+      phasedImplementationChart.data.datasets[0].data = carbonReduction;
+      phasedImplementationChart.data.datasets[1].data = jobs;
+      phasedImplementationChart.update();
+    } else {
+      phasedImplementationChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: years,
+          datasets: [
+            {
+              label: 'Carbon Reduction (MT)', data: carbonReduction,
+              borderColor: '#16a34a', backgroundColor: 'rgba(22, 163, 74, 0.1)',
+              yAxisID: 'y', fill: true, tension: 0.1
+            },
+            {
+              label: 'Jobs Created (Millions)', data: jobs,
+              borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              yAxisID: 'y1', fill: true, tension: 0.1
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { title: { display: true, text: 'Phased Implementation Timeline' } },
+          scales: {
+            y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Carbon Reduction (MT)'}, beginAtZero: true },
+            y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Jobs (Millions)'}, grid: { drawOnChartArea: false }, beginAtZero: true }
+          }
+        }
+      });
+    }
   }
 
   // ========================
@@ -543,23 +1075,89 @@ document.addEventListener("DOMContentLoaded", function(){
   // ========================
   updateCalculations();
 
+  // 9. SHARE FUNCTIONALITY
   // ========================
-  // 8. CHART INITIALIZATION (Example Structure)
+  function setupShareButton() {
+    const shareButton = document.getElementById("share-button");
+    if (shareButton) {
+      shareButton.addEventListener("click", function() {
+        // Create a summary of results from dashboard elements
+        const summary = {
+          energyEfficiency: document.getElementById("energy-efficiency-impact")?.textContent || 'N/A',
+          netEnergyImpact: document.getElementById("net-energy-impact")?.textContent || 'N/A',
+          carbonReduction: document.getElementById("carbon-reduction")?.textContent || 'N/A',
+          landfillSaved: document.getElementById("landfill-space-saved")?.textContent || 'N/A',
+          jobsCreated: document.getElementById("jobs-created")?.textContent || 'N/A',
+          investment: document.getElementById("total-investment")?.textContent || 'N/A'
+        };
+
+        const shareText = `Circular Economy Calculator Results:\n` +
+                          `- Energy Efficiency: ${summary.energyEfficiency}\n` +
+                          `- Net Energy Impact: ${summary.netEnergyImpact}\n` +
+                          `- Carbon Reduction: ${summary.carbonReduction}\n` +
+                          `- Landfill Saved: ${summary.landfillSaved}\n` +
+                          `- Jobs Created: ${summary.jobsCreated}\n` +
+                          `- Total Investment: ${summary.investment}`;
+
+        if (navigator.share) {
+          navigator.share({
+            title: 'Circular Economy Calculator Results',
+            text: shareText,
+          }).catch(error => {
+            console.error('Error sharing:', error);
+            fallbackShare(shareText); // Use fallback if share fails
+          });
+        } else {
+          fallbackShare(shareText); // Use fallback if share API not supported
+        }
+      });
+    }
+  }
+
+  function fallbackShare(textToCopy) {
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      alert('Results copied to clipboard!');
+    }).catch(err => {
+      console.error('Failed to copy results:', err);
+      alert('Could not copy results. Please copy manually.');
+    });
+  }
+  setupShareButton(); // Initialize share button listener
+
   // ========================
-  // let charts = {};
-  // function initCharts() {
-  //    const energyMixCtx = document.getElementById('energyMixChart')?.getContext('2d');
-  //    if (energyMixCtx) {
-  //        charts.energyMix = new Chart(energyMixCtx, { type: 'doughnut', data: {...}, options: {...} });
-  //    }
-  //    // ... initialize other charts ...
-  // }
-  // function updateEnergyMixChart(dataValues) {
-  //    if (charts.energyMix) {
-  //        charts.energyMix.data.datasets[0].data = dataValues;
-  //        charts.energyMix.update();
-  //    }
-  // }
-  // initCharts(); // Call initialization
+  // 10. EXPORT FUNCTIONALITY
+  // ========================
+  function setupExportButton() {
+      const exportButton = document.getElementById("export-button");
+      if (exportButton) {
+          exportButton.addEventListener("click", function() {
+              // Gather key results (can be expanded)
+              const dataToExport = {
+                  dashboardSummary: {
+                      energyEfficiencyImpact: document.getElementById("energy-efficiency-impact")?.textContent,
+                      netEnergyImpact: document.getElementById("net-energy-impact")?.textContent,
+                      carbonReduction: document.getElementById("carbon-reduction")?.textContent,
+                      landfillSpaceSaved: document.getElementById("landfill-space-saved")?.textContent,
+                      totalInvestment: document.getElementById("total-investment")?.textContent,
+                      paybackPeriod: document.getElementById("payback-period")?.textContent,
+                      jobsCreated: document.getElementById("jobs-created")?.textContent,
+                  },
+                  // Could add detailed results from calculation functions if needed
+              };
+              const json = JSON.stringify(dataToExport, null, 2);
+              const blob = new Blob([json], { type: "application/json" });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = "waste-to-energy-results.json";
+              document.body.appendChild(link); // Required for Firefox
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+          });
+      }
+  }
+  setupExportButton(); // Initialize export button listener
+
 
 }); // End DOMContentLoaded
