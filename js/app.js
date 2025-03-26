@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
     const solarEnergyTWh = (solarGW * hoursPerYear * solarCF) / 1000;
     const solarInvestment = (solarGW * 1e6 * solarCost) / 1e9; // Billion $
-    const jobs = Math.round(solarGW * 1000 * solarJobsFactor);
+    const jobs = Math.round(solarGW * 1000 * 5.76); // Use fixed 5.76 jobs/MW
     const carbonAvoided = solarEnergyTWh * 0.417; // MT CO2 avoided (using avg grid intensity)
 
     const annualRevenue = (solarEnergyTWh * 1e9 * (electricityPrice / 100)) / 1e9; // Billion $
@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
     const nuclearEnergyTWh = (nuclearGW * hoursPerYear * nuclearCF) / 1000;
     const nuclearInvestment = (nuclearGW * 1e6 * nuclearCost) / 1e9; // Billion $
-    const jobs = Math.round(nuclearGW * 1000 * nuclearJobsFactor);
+    const jobs = Math.round(nuclearGW * 1000 * 0.5); // Use fixed 0.5 jobs/MW
     const carbonAvoided = nuclearEnergyTWh * 0.417; // MT CO2 avoided
 
     const annualRevenue = (nuclearEnergyTWh * 1e9 * (electricityPrice / 100)) / 1e9; // Billion $
@@ -171,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
     const hydroEnergyTWh = (hydroGW * hoursPerYear * hydroCF) / 1000;
     const hydroInvestment = (hydroGW * 1e6 * hydroCost) / 1e9; // Billion $
-    const jobs = Math.round(hydroGW * 1000 * hydroJobsFactor);
+    const jobs = Math.round(hydroGW * 1000 * 5.3); // Use fixed 5.3 jobs/MW
     const carbonAvoided = hydroEnergyTWh * 0.417; // MT CO2 avoided
 
     const annualRevenue = (hydroEnergyTWh * 1e9 * (electricityPrice / 100)) / 1e9; // Billion $
@@ -188,12 +188,12 @@ document.addEventListener("DOMContentLoaded", function(){
     // SkySails assumptions
     const skySailsCapacityMW = 0.2; // MW per unit
     const skySailsCF = 0.75; // Capacity Factor (optimistic)
-    const skySailsCostPerUnit = 1000; // $ per unit (placeholder)
-    const skySailsJobsPerUnit = 3; // Jobs per unit (placeholder)
+    const skySailsCostPerUnit = 1500000; // $1.5M per unit
+    const skySailsJobsPerUnit = 10; // 10 Jobs per unit
 
     // Traditional Wind assumptions
     const traditionalWindCF = 0.35; // Capacity Factor
-    const traditionalWindCostPerKW = 1500; // $/kW
+    const traditionalWindCostPerKW = 1750; // Average $1750/kW
 
     const skySailsEnergyTWh = skySailsUnits * (skySailsCapacityMW * hoursPerYear * skySailsCF) / 1e6;
     const traditionalWindEnergyTWh = (traditionalWindGW * hoursPerYear * traditionalWindCF) / 1000;
@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const totalInvestment = skySailsInvestment + traditionalWindInvestment;
 
     const skySailsJobs = skySailsUnits * skySailsJobsPerUnit;
-    const traditionalWindJobs = Math.round(traditionalWindGW * 1000 * windJobsFactor);
+    const traditionalWindJobs = Math.round(traditionalWindGW * 1000 * 4.6); // Use fixed 4.6 jobs/MW
     const totalJobs = skySailsJobs + traditionalWindJobs;
     const carbonAvoided = totalWindEnergyTWh * 0.417; // MT CO2 avoided
 
@@ -257,8 +257,8 @@ document.addEventListener("DOMContentLoaded", function(){
 
     const totalEnergyTWh = foodWasteEnergyTWh + agWasteEnergyTWh + forestWasteEnergyTWh + mswEnergyTWh + algaeEnergyTWh + hempEnergyTWh;
 
-    // Economic calculations (Placeholders)
-    const investmentPerMT = 50; // Million $/MT processed capacity (very rough estimate)
+    // Economic calculations
+    const investmentPerMT = 225; // Average $225 Million per Million Ton processed capacity
     const totalInvestment = (totalWasteProcessedMT * investmentPerMT) / 1000; // Billion $
     const electricityRevenue = (totalEnergyTWh * 1e9 * (electricityPrice / 100)) / 1e9; // Billion $
     const materialRecoveryRevenue = totalWasteProcessedMT * 50 / 1000; // Assume $50/ton recovery value -> Billion $
@@ -268,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const carbonCreditValue = (totalEnergyTWh * 0.417 + (usableFoodWasteMT * 0.5 + usableMSW_MT * 0.3)) * 30 / 1000; // Billion $ (Avoided grid + landfill methane)
 
     const netAnnualValue = electricityRevenue + materialRecoveryRevenue + carbonCreditValue - operatingCost;
-    const jobsCreated = Math.round(totalWasteProcessedMT * biomassJobsFactor); // Jobs per Million Ton processed
+    const jobsCreated = Math.round(totalWasteProcessedMT * 115000); // Use fixed 115k jobs/MT processed
 
     // Landfill savings
     const landfillDensityLbsPerCuYd = 1200;
@@ -317,8 +317,8 @@ document.addEventListener("DOMContentLoaded", function(){
     const annualSavingsPerHouseUSD = (totalSavingsPerHouse * (elecPrice / 100));
     let payback = annualSavingsPerHouseUSD > 0 ? totalCostPerHouse / annualSavingsPerHouseUSD : Infinity;
 
-    // Jobs (Placeholder)
-    const jobsPerMillionUSD = 10; // Jobs per $1M invested
+    // Jobs
+    const jobsPerMillionUSD = 17; // 17 jobs per $1M invested for efficiency
     const jobsCreated = Math.round(totalNationalInvestment * 1000 * jobsPerMillionUSD);
 
     return {
@@ -343,7 +343,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const totalCO2Reduction = storedCO2 + effectiveFuelCO2Reduction;
 
     const investment = (capacityMT * costPerTon) / 1e9; // Billion $
-    const jobs = Math.round(capacityMT * jobsFactor);
+    const jobs = Math.round(investment * 1000 * 7); // 7 jobs per $1M invested (investment is in $B)
 
     return {
         totalReductionMT: totalCO2Reduction,
