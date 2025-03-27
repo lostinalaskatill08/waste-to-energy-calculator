@@ -1,0 +1,19 @@
+{
+  "name": "waste-to-energy-calculator",
+  "version": "1.0.0",
+  "description": "Circular Economy Waste-to-Energy Calculator",
+  "scripts": {
+    "start": "serve .",
+    "lint": "eslint js/*.js",
+    "test": "jest",
+    "build": "echo 'No build step required - static files'"
+  },
+  "dependencies": {
+    "chart.js": "^4.0.0",
+    "serve": "^14.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0"
+  }
+}
