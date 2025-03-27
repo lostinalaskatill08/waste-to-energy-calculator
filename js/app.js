@@ -1766,3 +1766,15 @@ document.addEventListener("DOMContentLoaded", function(){
 ensureCanvasInitialization();
 
 }); // End DOMContentLoaded
+
+// Add functionality to toggle the sidebar visibility
+document.addEventListener("DOMContentLoaded", function() {
+    const sidebar = document.getElementById("sidebar");
+    const toggleButton = document.getElementById("sidebar-toggle");
+
+    if (sidebar && toggleButton) {
+        toggleButton.addEventListener("click", function() {
+            sidebar.classList.toggle("collapsed");
+        });
+    }
+});
