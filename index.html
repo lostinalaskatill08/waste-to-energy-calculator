@@ -189,35 +189,34 @@
           <h2>Biomass & Waste Processing Parameters</h2>
           <div class="slider-container">
             <label for="food-waste-utilization">Food Waste Utilization (%)</label>
-            <input type="range" id="food-waste-utilization" min="0" max="90" value="60">
-            <span id="food-waste-utilization-value">60%</span>
+            <input type="range" id="food-waste-utilization" min="0" max="85" value="85">
+            <span id="food-waste-utilization-value">85%</span>
           </div>
           <div class="slider-container">
             <label for="agriculture-utilization">Agricultural Waste Utilization (%)</label>
-            <input type="range" id="agriculture-utilization" min="0" max="80" value="40">
-            <span id="agriculture-utilization-value">40%</span>
+            <input type="range" id="agriculture-utilization" min="0" max="100" value="100">
+            <span id="agriculture-utilization-value">100%</span>
           </div>
           <div class="slider-container">
             <label for="forest-utilization">Forest Residues Utilization (%)</label>
-            <input type="range" id="forest-utilization" min="0" max="100" value="30">
-            <span id="forest-utilization-value">30%</span>
+            <input type="range" id="forest-utilization" min="0" max="100" value="100">
+            <span id="forest-utilization-value">100%</span>
           </div>
           <div class="slider-container">
             <label for="msw-utilization">Municipal Solid Waste Utilization (%)</label>
-            <input type="range" id="msw-utilization" min="0" max="100" value="50">
-            <span id="msw-utilization-value">50%</span>
+            <input type="range" id="msw-utilization" min="0" max="100" value="100">
+            <span id="msw-utilization-value">100%</span>
           </div>
           <div class="slider-container">
             <label for="algae-percentage">Algae Feedstock Adoption (%)</label>
-            <input type="range" id="algae-percentage" min="0" max="100" value="25">
-            <span id="algae-percentage-value">25%</span>
+            <input type="range" id="algae-percentage" min="0" max="100" value="45">
+            <span id="algae-percentage-value">45%</span>
           </div>
           <div class="slider-container">
             <label for="hemp-utilization">Hemp Utilization (%)</label>
-            <input type="range" id="hemp-utilization" min="0" max="100" value="50">
-            <span id="hemp-utilization-value">50%</span>
+            <input type="range" id="hemp-utilization" min="0" max="100" value="100">
+            <span id="hemp-utilization-value">100%</span>
           </div>
-          <!-- Removed biomass-jobs-factor slider -->
         </div>
 
         <!-- Group: Carbon Capture -->
@@ -385,6 +384,16 @@
           It prioritizes energy efficiency and job creation, followed by clean energy production, and calculates
           environmental benefits including CO2 reduction and landfill space savings.
         </p>
+        
+        <h2>Waste Processing Utilization Rates</h2>
+        <ul>
+          <li>Food Waste Utilization: The model assumes 85% utilization of food waste, reflecting the achievable diversion rates through current technologies such as anaerobic digestion and composting.</li>
+          <li>Agricultural Waste Utilization: The model assumes 100% utilization of agricultural waste, leveraging its full potential in anaerobic digestion and gasification to produce biochar and digestate. This approach supports sustainable soil management and renewable energy production.</li>
+          <li>Forest Residues Utilization: The model assumes 100% utilization of forest residues, defined exclusively as biomass sourced from dead or dying trees, or trees removed for the purposes of powerline clearance, roadway maintenance, and firebreak creation to prevent wildfires. This approach ensures that live, healthy trees contributing to ecosystem stability and carbon sequestration remain unaffected.</li>
+          <li>Municipal Solid Waste (MSW) Utilization: A 100% utilization rate is assumed for MSW, based on the calculator's adjustments for ROI and the necessary investment in infrastructure to achieve complete waste recovery and energy conversion.</li>
+          <li>Algae Feedstock Adoption: The model assumes full adoption potential of algae feedstock for biofuel production, with up to 100% of the residual biomass being effectively reused in anaerobic digestion and gasification processes to maximize energy recovery.</li>
+          <li>Hemp Utilization: Assuming 100% utilization of hemp stalks from cannabis cultivation in legal states, the model accounts for the conversion of this biomass into valuable energy products, reflecting current legal frameworks and agricultural practices.</li>
+        </ul>
         
         <h2>Key Assumptions</h2>
         <ul>
