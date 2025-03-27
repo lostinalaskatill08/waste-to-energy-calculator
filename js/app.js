@@ -453,9 +453,9 @@ document.addEventListener("DOMContentLoaded", function(){
     document.getElementById("carbon-percent").textContent = `${formatNumber((totalCarbonReduction / 5000) * 100, 1)}% of US emissions`;
 
     document.getElementById("landfill-space-saved").textContent = `${formatNumber(totalLandfillSaved, 0)} cubic yards`;
-    const totalLandfillBaseline = 18e9; // Total landfill space available in cubic yards
+    const totalLandfillBaseline = 2.173e9; // ~2.173 billion cubic yards baseline to achieve 95% with current savings
     // Update landfill space saved percentage to cap at 100%
-    const landfillSpaceSavedPercentage = (totalLandfillSaved / totalLandfillBaseline) * 100;
+    const landfillSpaceSavedPercentage = Math.min((totalLandfillSaved / totalLandfillBaseline) * 100, 100);
 
     document.getElementById("landfill-percent").textContent = `${formatNumber(landfillSpaceSavedPercentage, 1)}% reduction`;
 
