@@ -39,7 +39,8 @@ body {
   width: 250px;
   height: 100vh;
   overflow-y: auto;
-  z-index: 1;
+  z-index: 10;
+  display: block; /* Ensure sidebar is visible by default on desktop */
 }
 
 #sidebar h2 {
@@ -80,6 +81,7 @@ body {
   z-index: 2;
   background: var(--background);
   min-height: 100vh;
+  box-sizing: border-box; /* Ensure padding is included in width calculation */
 }
 
 /* Section Styles */
@@ -137,7 +139,7 @@ body {
 /* Charts Container */
 .charts-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   margin: 1.5rem 0;
   width: 100%;
@@ -318,14 +320,13 @@ button:active {
   }
 
   #sidebar {
-    display: none;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    display: none; /* Hide by default on mobile */
   }
 
-  #main-content {
-    margin-left: 0;
-    width: 100%;
-    padding: 1rem;
-  }
+  #sidebar.active {
+    transform: translateX(0);
 
   .charts-container {
     grid-template-columns: 1fr;

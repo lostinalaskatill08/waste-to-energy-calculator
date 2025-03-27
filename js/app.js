@@ -1746,4 +1746,23 @@ document.addEventListener("DOMContentLoaded", function(){
       // ...rest of the existing DOMContentLoaded code...
   });
 
+  // Ensure all chart canvas elements are properly initialized and visible
+  function ensureCanvasInitialization() {
+    const canvasIds = ["efficiencySavingsChart", "energyMixChart", "jobsDistributionChart", "phasedImplementationChart"];
+    canvasIds.forEach(id => {
+        const canvas = document.getElementById(id);
+        if (!canvas) {
+            console.error(`Canvas element not found: ${id}`);
+        } else {
+            const parent = canvas.parentElement;
+            if (parent && parent.style.display === "none") {
+                parent.style.display = "block"; // Ensure the parent container is visible
+            }
+        }
+    });
+}
+
+// Call this function during DOMContentLoaded to ensure charts are initialized
+ensureCanvasInitialization();
+
 }); // End DOMContentLoaded
