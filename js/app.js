@@ -349,24 +349,25 @@ document.addEventListener("DOMContentLoaded", function(){
   // Calculate Carbon Capture
   function calculateCarbonCapture(capacityMT, storagePercent, fuelPercent, costPerTon, jobsFactor) {
     const storedCO2 = capacityMT * (storagePercent / 100);
-    // Assume fuel conversion avoids 70% of emissions compared to fossil fuel
     const effectiveFuelCO2Reduction = capacityMT * (fuelPercent / 100) * 0.7;
     const totalCO2Reduction = storedCO2 + effectiveFuelCO2Reduction;
 
-    const investment = (capacityMT * costPerTon) / 1e9; // Billion $
-    const jobs = Math.round(investment * 1000 * 4); // 4 jobs per $1M invested (investment is in $B)
+    // Ensure costPerTon is valid
+    const investment = costPerTon > 0 ? (capacityMT * costPerTon) / 1e9 : 0; // Billion $
 
-    // Calculate fuel yield in Liters (assuming 300 L/ton CO2 utilized)
+    // Ensure jobsFactor is valid
+    const jobs = investment > 0 ? Math.round(investment * 1000 * 4) : 0; // 4 jobs per $1M invested
+
     const fuelYieldLiters = capacityMT * (fuelPercent / 100) * 300;
 
     return {
         totalReductionMT: totalCO2Reduction,
         storedMT: storedCO2,
-        fuelConversionMT: capacityMT * (fuelPercent / 100), // Actual amount converted
+        fuelConversionMT: capacityMT * (fuelPercent / 100),
         investment: investment,
         jobs: jobs,
-        fuelYieldLiters: fuelYieldLiters, // Replaced energyFromFuels
-        capacityMT: capacityMT // Pass capacity through for UI update
+        fuelYieldLiters: fuelYieldLiters,
+        capacityMT: capacityMT
     };
   }
 
@@ -881,7 +882,6 @@ document.addEventListener("DOMContentLoaded", function(){
     if (!tBody) return;
     tBody.innerHTML = "";
 
-    // Ensure capacityMT is valid before dividing
     const capacityMT = carbonCaptureResults.capacityMT > 0 ? carbonCaptureResults.capacityMT : 1;
 
     const rows = [
