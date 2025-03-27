@@ -1442,21 +1442,32 @@ document.addEventListener("DOMContentLoaded", function(){
   // Enhanced share text formatting
   function createShareText(summary) {
       const now = new Date().toLocaleDateString();
+      
+      // Get percentage values from the dashboard
+      const efficiencyPercent = document.getElementById("efficiency-percent")?.textContent || 'N/A';
+      const netEnergyPercent = document.getElementById("net-energy-percent")?.textContent || 'N/A';
+      const carbonPercent = document.getElementById("carbon-percent")?.textContent || 'N/A';
+      const landfillPercent = document.getElementById("landfill-percent")?.textContent || 'N/A';
+      const paybackPeriod = document.getElementById("payback-period")?.textContent || 'N/A';
+      const jobsPerMillion = document.getElementById("jobs-per-million")?.textContent || 'N/A';
+
       return `🌍 Circular Economy Calculator Results (${now})
 
   📊 Energy Impact:
-  • Energy Efficiency: ${summary.energyEfficiency}
-  • Net Energy Impact: ${summary.netEnergyImpact}
+  • Energy Efficiency: ${summary.energyEfficiency} (${efficiencyPercent})
+  • Net Energy Impact: ${summary.netEnergyImpact} (${netEnergyPercent})
 
   🌱 Environmental Benefits:
-  • Carbon Reduction: ${summary.carbonReduction}
-  • Landfill Space Saved: ${summary.landfillSaved}
+  • Carbon Reduction: ${summary.carbonReduction} (${carbonPercent})
+  • Landfill Space Saved: ${summary.landfillSaved} (${landfillPercent})
 
   💼 Economic Impact:
-  • Jobs Created: ${summary.jobsCreated}
+  • Jobs Created: ${summary.jobsCreated} (${jobsPerMillion})
   • Total Investment: ${summary.investment}
+  • ${paybackPeriod}
 
-  Calculate your own impact at: [Your calculator URL]`;
+  Try the Circular Economy Waste-to-Energy Calculator:
+  https://lostinalaskatill08.github.io/waste-to-energy-calculator/`;
   }
 
   // Update share button functionality
