@@ -11,10 +11,10 @@
 <body>
   <div id="container">
     <button class="mobile-nav-toggle" aria-label="Toggle Navigation Menu">☰</button>
-    <!-- Add a button to toggle the sidebar -->
-    <button id="sidebar-toggle" aria-label="Toggle Sidebar">☰</button>
-    <!-- Sidebar Navigation -->
-    <div id="sidebar">
+    <!-- Updated sidebar toggle button -->
+    <button id="sidebar-toggle" aria-label="Toggle Sidebar" aria-expanded="false" aria-controls="sidebar">☰</button>
+    <!-- Updated sidebar with ARIA attributes -->
+    <div id="sidebar" role="navigation" aria-label="Main navigation">
       <h2>Navigation</h2>
       <ul>
         <li><a href="#" class="nav-link" data-target="dashboard">Dashboard</a></li>

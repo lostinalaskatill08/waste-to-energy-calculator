@@ -1770,11 +1770,24 @@ ensureCanvasInitialization();
 // Add functionality to toggle the sidebar visibility
 document.addEventListener("DOMContentLoaded", function() {
     const sidebar = document.getElementById("sidebar");
+    const mainContent = document.getElementById("main-content");
     const toggleButton = document.getElementById("sidebar-toggle");
 
-    if (sidebar && toggleButton) {
+    if (sidebar && toggleButton && mainContent) {
         toggleButton.addEventListener("click", function() {
-            sidebar.classList.toggle("collapsed");
+            sidebar.classList.toggle("expanded");
+            mainContent.classList.toggle("sidebar-expanded");
+        });
+
+        // Close sidebar when clicking a link (on mobile)
+        const navLinks = sidebar.querySelectorAll(".nav-link");
+        navLinks.forEach(link => {
+            link.addEventListener("click", () => {
+                if (window.innerWidth <= 1024) {
+                    sidebar.classList.remove("expanded");
+                    mainContent.classList.remove("sidebar-expanded");
+                }
+            });
         });
     }
 });
