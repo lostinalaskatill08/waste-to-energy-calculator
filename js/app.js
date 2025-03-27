@@ -1356,6 +1356,217 @@ document.addEventListener("DOMContentLoaded", function(){
   setupExportButton(); // Initialize export button listener
   setupUploadButton(); // Initialize upload button listener
 
+  // Add loader styles dynamically
+  const style = document.createElement('style');
+  style.textContent = `
+    .loader {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+      text-align: center;
+    }
+    .loader::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 40px;
+      margin: 10px auto;
+      border-radius: 50%;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Create loading indicator element
+  const loader = document.createElement('div');
+  loader.className = 'loader';
+  loader.style.display = 'none';
+  document.body.appendChild(loader);
+
+  // Function to show/hide loader with message
+  function toggleLoader(show, message = 'Loading...') {
+      loader.textContent = message;
+      loader.style.display = show ? 'block' : 'none';
+  }
+
+  // Validate uploaded JSON data
+  function validateUploadedData(data) {
+      // Check if data has required structure
+      if (!data || typeof data !== 'object') {
+          throw new Error('Invalid file format: data must be a JSON object');
+      }
+
+      // Check for required sections
+      if (!data.inputs || typeof data.inputs !== 'object') {
+          throw new Error('Invalid file format: missing or invalid inputs section');
+      }
+
+      // Validate each input value
+      for (const [key, value] of Object.entries(data.inputs)) {
+          if (key === 'is_efficiency_first') {
+              if (typeof value !== 'boolean') {
+                  throw new Error(`Invalid value for ${key}: must be a boolean`);
+              }
+              continue;
+          }
+
+          // All other inputs should be numbers within their slider ranges
+          const slider = document.getElementById(key.replace(/_/g, '-'));
+          if (!slider) continue; // Skip if slider doesn't exist (might be removed parameter)
+
+          const val = Number(value);
+          if (isNaN(val)) {
+              throw new Error(`Invalid value for ${key}: must be a number`);
+          }
+          
+          if (val < Number(slider.min) || val > Number(slider.max)) {
+              throw new Error(`Invalid value for ${key}: must be between ${slider.min} and ${slider.max}`);
+          }
+      }
+
+      return true;
+  }
+
+  // Enhanced share text formatting
+  function createShareText(summary) {
+      const now = new Date().toLocaleDateString();
+      return `🌍 Circular Economy Calculator Results (${now})
+
+  📊 Energy Impact:
+  • Energy Efficiency: ${summary.energyEfficiency}
+  • Net Energy Impact: ${summary.netEnergyImpact}
+
+  🌱 Environmental Benefits:
+  • Carbon Reduction: ${summary.carbonReduction}
+  • Landfill Space Saved: ${summary.landfillSaved}
+
+  💼 Economic Impact:
+  • Jobs Created: ${summary.jobsCreated}
+  • Total Investment: ${summary.investment}
+
+  Calculate your own impact at: [Your calculator URL]`;
+  }
+
+  // Update share button functionality
+  function setupShareButton() {
+      const shareButton = document.getElementById("share-button");
+      if (shareButton) {
+          shareButton.addEventListener("click", function() {
+              const summary = {
+                  energyEfficiency: document.getElementById("energy-efficiency-impact")?.textContent || 'N/A',
+                  netEnergyImpact: document.getElementById("net-energy-impact")?.textContent || 'N/A',
+                  carbonReduction: document.getElementById("carbon-reduction")?.textContent || 'N/A',
+                  landfillSaved: document.getElementById("landfill-space-saved")?.textContent || 'N/A',
+                  jobsCreated: document.getElementById("jobs-created")?.textContent || 'N/A',
+                  investment: document.getElementById("total-investment")?.textContent || 'N/A'
+              };
+
+              const shareText = createShareText(summary);
+
+              if (navigator.share) {
+                  navigator.share({
+                      title: 'Circular Economy Calculator Results',
+                      text: shareText,
+                  }).catch(error => {
+                      console.error('Error sharing:', error);
+                      fallbackShare(shareText);
+                  });
+              } else {
+                  fallbackShare(shareText);
+              }
+          });
+      }
+  }
+
+  // Update upload button functionality with loading indicator and validation
+  function setupUploadButton() {
+      const uploadButton = document.getElementById("upload-button");
+      if (uploadButton) {
+          uploadButton.addEventListener("click", function() {
+              const fileInput = document.createElement('input');
+              fileInput.type = 'file';
+              fileInput.accept = '.json';
+              fileInput.style.display = 'none';
+              
+              fileInput.addEventListener('change', async function(e) {
+                  const file = e.target.files[0];
+                  if (file) {
+                      toggleLoader(true, 'Reading file...');
+                      try {
+                          const text = await file.text();
+                          const data = JSON.parse(text);
+                          
+                          toggleLoader(true, 'Validating data...');
+                          validateUploadedData(data);
+                          
+                          toggleLoader(true, 'Updating calculator...');
+                          // Restore input values
+                          if (data.inputs) {
+                              // Set slider values
+                              Object.entries(data.inputs).forEach(([id, value]) => {
+                                  if (id === 'is_efficiency_first') {
+                                      const effFirstBtn = document.getElementById('efficiency-first-button');
+                                      const genFirstBtn = document.getElementById('generation-first-button');
+                                      if (effFirstBtn && genFirstBtn) {
+                                          if (value) {
+                                              effFirstBtn.classList.add('active');
+                                              genFirstBtn.classList.remove('active');
+                                          } else {
+                                              effFirstBtn.classList.remove('active');
+                                              genFirstBtn.classList.add('active');
+                                          }
+                                      }
+                                  } else {
+                                      const slider = document.getElementById(id.replace(/_/g, '-'));
+                                      const displaySpan = document.getElementById(`${id.replace(/_/g, '-')}-value`);
+                                      if (slider) {
+                                          slider.value = value;
+                                          if (displaySpan) {
+                                              displaySpan.textContent = formatDisplayValue(id.replace(/_/g, '-'), value);
+                                          }
+                                      }
+                                  }
+                              });
+                              
+                              // Update calculations with new values
+                              updateCalculations();
+                              toggleLoader(false);
+                              alert('Results imported successfully!');
+                          }
+                      } catch (error) {
+                          console.error('Error importing results:', error);
+                          toggleLoader(false);
+                          alert(`Error importing results: ${error.message}`);
+                      }
+                  }
+              });
+              
+              document.body.appendChild(fileInput);
+              fileInput.click();
+              document.body.removeChild(fileInput);
+          });
+      }
+  }
+
+  // ...existing code...
+
+  // Initialize buttons
+  setupExportButton();
+  setupUploadButton();
+  setupShareButton();
+
 }); // End DOMContentLoaded
 
 // Add Export, Share, and Upload button listeners
