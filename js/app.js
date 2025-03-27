@@ -288,7 +288,9 @@ document.addEventListener("DOMContentLoaded", function(){
       economics: {
         totalInvestment: totalInvestment,
         netAnnualRevenue: netAnnualValue,
-        jobsCreated: jobsCreated
+        jobsCreated: jobsCreated,
+        electricityRevenue: electricityRevenue,
+        materialRecoveryRevenue: materialRecoveryRevenue
       },
       carbonImpact: {
           total: carbonImpactTotal
@@ -352,7 +354,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const totalCO2Reduction = storedCO2 + effectiveFuelCO2Reduction;
 
     const investment = (capacityMT * costPerTon) / 1e9; // Billion $
-    const jobs = Math.round(investment * 1000 * 7); // 7 jobs per $1M invested (investment is in $B)
+    const jobs = Math.round(investment * 1000 * 4); // 4 jobs per $1M invested (investment is in $B)
 
     // Calculate fuel yield in Liters (assuming 300 L/ton CO2 utilized)
     const fuelYieldLiters = capacityMT * (fuelPercent / 100) * 300;
@@ -834,9 +836,17 @@ document.addEventListener("DOMContentLoaded", function(){
     const recoveryLabels = ["Energy Value", "Material Value"];
     // Use calculated revenues as proxy for value distribution
     const recoveryData = [
-        wasteResults.economics.electricityRevenue, // Energy value
-        wasteResults.economics.materialRecoveryRevenue // Material value
+        Number(wasteResults.economics.electricityRevenue), // Energy value
+        Number(wasteResults.economics.materialRecoveryRevenue) // Material value
     ].map(v => isNaN(v) ? 0 : Math.max(0, v)); // Ensure non-negative and handle NaN
+    console.log("Resource Recovery revenue data:", recoveryData);
+
+    // If both revenue values are zero, assign minimal dummy values to display the chart
+    const totalRecoveryValue = recoveryData.reduce((acc, val) => acc + val, 0);
+    if(totalRecoveryValue === 0) {
+        recoveryData[0] = 0.1;
+        recoveryData[1] = 0.1;
+    }
 
     // Destroy existing chart before creating new one
     if(resourceRecoveryChart) {
@@ -855,6 +865,7 @@ document.addEventListener("DOMContentLoaded", function(){
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: { position: 'bottom' },
           title: { display: true, text: 'Resource Recovery Value ($B/year)' }

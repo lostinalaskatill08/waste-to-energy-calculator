@@ -13,6 +13,10 @@
   height: 300px;
 }
 
+#resourceRecoveryChart {
+  height: 300px;
+}
+
 /* Reset and base styles */
 body, html {
   margin: 0;
