@@ -74,6 +74,7 @@ body {
   padding: 2rem;
   width: calc(100% - 250px);
   max-width: 1400px;
+  box-sizing: border-box;
 }
 
 /* Section Styles */
@@ -131,7 +132,7 @@ body {
 /* Charts Container */
 .charts-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
   gap: 2rem;
   margin: 2rem 0;
   width: 100%;
@@ -146,14 +147,20 @@ body {
   min-height: 400px;
   width: 100%;
   position: relative;
-  aspect-ratio: 16/9;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-box canvas {
-  width: 100% !important;
-  height: auto !important;
-  max-height: 350px;
-  aspect-ratio: 16/9;
+  flex: 1;
+  min-height: 300px;
+  max-height: 400px;
+}
+
+.chart-box h3 {
+  margin-bottom: 1rem;
+  color: var(--text);
+  font-size: 1.1rem;
 }
 
 /* Parameter Controls */
@@ -319,7 +326,11 @@ button:active {
   }
 
   .chart-box {
-    min-height: 300px;
+    min-height: 350px;
+  }
+
+  .chart-box canvas {
+    min-height: 250px;
   }
 
   .key-results {
@@ -346,4 +357,14 @@ button:active {
   background: rgba(255, 255, 255, 0.9);
   border-radius: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Chart Tooltips */
+.chartjs-tooltip {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border-radius: 0.5rem !important;
+  padding: 0.75rem !important;
+  color: white !important;
+  font-size: 0.9rem !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
 }

@@ -1,3 +1,36 @@
+// Helper functions and setup
+function setupShareButton() {
+    const shareButton = document.getElementById("share-button");
+    if (shareButton) {
+        shareButton.addEventListener("click", handleShare);
+    }
+}
+
+function handleShare() {
+    const summary = {
+        energyEfficiency: document.getElementById("energy-efficiency-impact")?.textContent || 'N/A',
+        netEnergyImpact: document.getElementById("net-energy-impact")?.textContent || 'N/A',
+        carbonReduction: document.getElementById("carbon-reduction")?.textContent || 'N/A',
+        landfillSaved: document.getElementById("landfill-space-saved")?.textContent || 'N/A',
+        jobsCreated: document.getElementById("jobs-created")?.textContent || 'N/A',
+        investment: document.getElementById("total-investment")?.textContent || 'N/A'
+    };
+
+    const shareText = createShareText(summary);
+
+    if (navigator.share) {
+        navigator.share({
+            title: 'Circular Economy Calculator Results',
+            text: shareText,
+        }).catch(error => {
+            console.error('Error sharing:', error);
+            fallbackShare(shareText);
+        });
+    } else {
+        fallbackShare(shareText);
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function(){
 
   // ========================
@@ -997,8 +1030,50 @@ document.addEventListener("DOMContentLoaded", function(){
   // ========================
   let energyMixChart, jobsDistributionChart, phasedImplementationChart; // Keep chart instances
 
+  // Add common chart configuration
+  const commonChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: {
+      duration: 750,
+      easing: 'easeInOutQuart'
+    },
+    transitions: {
+      active: {
+        animation: {
+          duration: 400
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          padding: 20,
+          usePointStyle: true,
+          font: {
+            size: 12
+          }
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        titleFont: {
+          size: 14
+        },
+        bodyFont: {
+          size: 13
+        },
+        displayColors: true,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1
+      }
+    }
+  };
+
   // Update Energy Mix Chart
-  function updateEnergyMixChart(solarResults, nuclearResults, hydroResults, windResults, wasteResults, carbonCaptureResults){
+  function updateEnergyMixChart(solarResults, nuclearResults, hydroResults, windResults, wasteResults){
     console.log("Updating Energy Mix Chart..."); // Debug log
     const canvas = document.getElementById('energyMixChart');
     if (!canvas) { console.error("Canvas not found: energyMixChart"); return; }
@@ -1027,10 +1102,21 @@ document.addEventListener("DOMContentLoaded", function(){
         }]
       },
       options: {
-        responsive: true, maintainAspectRatio: false,
+        ...commonChartOptions,
         plugins: {
-          legend: { position: "bottom" },
-          title: { display: true, text: 'Energy Generation by Source (TWh)' }
+          ...commonChartOptions.plugins,
+          title: {
+            display: true,
+            text: 'Energy Generation by Source (TWh)',
+            padding: {
+              top: 10,
+              bottom: 20
+            },
+            font: {
+              size: 16,
+              weight: 500
+            }
+          }
         }
       }
     });
@@ -1067,10 +1153,21 @@ document.addEventListener("DOMContentLoaded", function(){
         }]
       },
       options: {
-        responsive: true, maintainAspectRatio: false,
+        ...commonChartOptions,
         plugins: {
-          legend: { display: false },
-          title: { display: true, text: 'Jobs Created by Sector' }
+          ...commonChartOptions.plugins,
+          title: {
+            display: true,
+            text: 'Jobs Created by Sector',
+            padding: {
+              top: 10,
+              bottom: 20
+            },
+            font: {
+              size: 16,
+              weight: 500
+            }
+          }
         },
         scales: { y: { beginAtZero: true, title: { display: true, text: 'Number of Jobs'} } }
       }
@@ -1124,8 +1221,22 @@ document.addEventListener("DOMContentLoaded", function(){
         ]
       },
       options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { title: { display: true, text: 'Phased Implementation Timeline' } },
+        ...commonChartOptions,
+        plugins: {
+          ...commonChartOptions.plugins,
+          title: {
+            display: true,
+            text: 'Phased Implementation Timeline',
+            padding: {
+              top: 10,
+              bottom: 20
+            },
+            font: {
+              size: 16,
+              weight: 500
+            }
+          }
+        },
         scales: {
           y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Carbon Reduction (MT)'}, beginAtZero: true },
           y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Jobs (Millions)'}, grid: { drawOnChartArea: false }, beginAtZero: true }
