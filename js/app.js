@@ -443,8 +443,10 @@ document.addEventListener("DOMContentLoaded", function(){
     document.getElementById("carbon-percent").textContent = `${formatNumber((totalCarbonReduction / 5000) * 100, 1)}% of US emissions`;
 
     document.getElementById("landfill-space-saved").textContent = `${formatNumber(totalLandfillSaved, 0)} cubic yards`;
-    // Assuming total landfill ~146M tons/yr, ~243M cubic yards/yr
-    document.getElementById("landfill-percent").textContent = `${formatNumber((totalLandfillSaved / 243e6) * 100, 1)}% reduction`;
+    const totalLandfillBaseline = 243e6; // Correct baseline for total landfill space in cubic yards
+    const landfillSpaceSavedPercentage = (totalLandfillSaved / totalLandfillBaseline) * 100;
+
+    document.getElementById("landfill-percent").textContent = `${formatNumber(landfillSpaceSavedPercentage, 1)}% reduction`;
 
     document.getElementById("total-investment").textContent = `$${formatNumber(totalInvestment, 2)} B`;
     document.getElementById("payback-period").textContent = `Payback: ${formatNumber(overallPayback, 1)} years`;
