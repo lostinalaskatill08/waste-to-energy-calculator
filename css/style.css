@@ -72,6 +72,7 @@ body {
 #main-content {
   margin-left: 250px;
   padding: 2rem;
+  width: calc(100% - 250px);
   max-width: 1400px;
 }
 
@@ -79,6 +80,8 @@ body {
 .content-section {
   display: none;
   animation: fadeIn 0.3s ease;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .content-section.active {
@@ -128,9 +131,10 @@ body {
 /* Charts Container */
 .charts-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
   gap: 2rem;
   margin: 2rem 0;
+  width: 100%;
 }
 
 .chart-box {
@@ -139,19 +143,17 @@ body {
   border-radius: 1rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   border: 1px solid var(--border);
-  min-height: 350px;
+  min-height: 400px;
+  width: 100%;
   position: relative;
-}
-
-.chart-box h3 {
-  color: var(--text);
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
+  aspect-ratio: 16/9;
 }
 
 .chart-box canvas {
   width: 100% !important;
-  height: 300px !important;
+  height: auto !important;
+  max-height: 350px;
+  aspect-ratio: 16/9;
 }
 
 /* Parameter Controls */
@@ -308,11 +310,16 @@ button:active {
 
   #main-content {
     margin-left: 0;
+    width: 100%;
     padding: 1rem;
   }
 
   .charts-container {
     grid-template-columns: 1fr;
+  }
+
+  .chart-box {
+    min-height: 300px;
   }
 
   .key-results {
