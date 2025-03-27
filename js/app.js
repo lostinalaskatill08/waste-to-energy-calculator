@@ -444,7 +444,8 @@ document.addEventListener("DOMContentLoaded", function(){
 
     document.getElementById("landfill-space-saved").textContent = `${formatNumber(totalLandfillSaved, 0)} cubic yards`;
     const totalLandfillBaseline = 243e6; // Correct baseline for total landfill space in cubic yards
-    const landfillSpaceSavedPercentage = (totalLandfillSaved / totalLandfillBaseline) * 100;
+    // Update landfill space saved percentage to cap at 100%
+    const landfillSpaceSavedPercentage = Math.min((totalLandfillSaved / totalLandfillBaseline) * 100, 100);
 
     document.getElementById("landfill-percent").textContent = `${formatNumber(landfillSpaceSavedPercentage, 1)}% reduction`;
 
