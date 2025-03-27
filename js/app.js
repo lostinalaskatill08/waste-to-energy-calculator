@@ -432,6 +432,8 @@ document.addEventListener("DOMContentLoaded", function(){
 
     // Update Dashboard Display
     document.getElementById("energy-efficiency-impact").textContent = `${formatNumber(efficiencyResults.nationalSavingsTWh, 2)} TWh`;
+    // Ensure efficiency percentage reduction is capped at 100%
+    efficiencyResults.percentageReduction = Math.min(efficiencyResults.percentageReduction, 100);
     document.getElementById("efficiency-percent").textContent = `${formatNumber(efficiencyResults.percentageReduction, 1)}% reduction`;
 
     document.getElementById("net-energy-impact").textContent = `${formatNumber(netEnergyImpact, 2)} TWh`;
