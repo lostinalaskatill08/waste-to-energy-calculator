@@ -352,11 +352,17 @@ document.addEventListener("DOMContentLoaded", function(){
     const effectiveFuelCO2Reduction = capacityMT * (fuelPercent / 100) * 0.7;
     const totalCO2Reduction = storedCO2 + effectiveFuelCO2Reduction;
 
-    // Ensure costPerTon is valid
-    const investment = costPerTon > 0 ? (capacityMT * costPerTon) / 1e9 : 0; // Billion $
+    // Updated investment calculation to include fixed and variable costs
+    const baseCapitalCost = 800; // $800M base cost for carbon capture facility
+    const scalingFactor = 0.6; // Economies of scale factor
+    const capitalCost = baseCapitalCost * Math.pow(capacityMT / 1, scalingFactor); // Scale based on capacity
+    const annualOperatingCost = capacityMT * costPerTon; // Variable costs based on capacity and cost/ton
+    const totalInvestment = (capitalCost + annualOperatingCost) / 1000; // Convert to billion $
 
-    // Ensure jobsFactor is valid
-    const jobs = jobsFactor > 0 ? Math.round(investment * 1000 * jobsFactor) : 0; // Use jobsFactor dynamically
+    // Jobs calculation based on both facility size and operations
+    const constructionJobs = Math.round(capitalCost * 2); // 2 jobs per million $ capital cost
+    const operationsJobs = Math.round(capacityMT * 0.2); // 0.2 permanent jobs per kiloton capacity
+    const totalJobs = constructionJobs + operationsJobs;
 
     const fuelYieldLiters = capacityMT * (fuelPercent / 100) * 300;
 
@@ -364,10 +370,12 @@ document.addEventListener("DOMContentLoaded", function(){
         totalReductionMT: totalCO2Reduction,
         storedMT: storedCO2,
         fuelConversionMT: capacityMT * (fuelPercent / 100),
-        investment: investment,
-        jobs: jobs,
+        investment: totalInvestment,
+        jobs: totalJobs,
         fuelYieldLiters: fuelYieldLiters,
-        capacityMT: capacityMT
+        capacityMT: capacityMT,
+        // Add annual operating cost for financial calculations
+        annualOperatingCost: annualOperatingCost / 1000 // In billion $
     };
   }
 
@@ -445,7 +453,7 @@ document.addEventListener("DOMContentLoaded", function(){
     document.getElementById("carbon-percent").textContent = `${formatNumber((totalCarbonReduction / 5000) * 100, 1)}% of US emissions`;
 
     document.getElementById("landfill-space-saved").textContent = `${formatNumber(totalLandfillSaved, 0)} cubic yards`;
-    const totalLandfillBaseline = 243e6; // Correct baseline for total landfill space in cubic yards
+    const totalLandfillBaseline = 18e9; // Total landfill space available in cubic yards
     // Update landfill space saved percentage to cap at 100%
     const landfillSpaceSavedPercentage = (totalLandfillSaved / totalLandfillBaseline) * 100;
 
