@@ -1705,4 +1705,45 @@ document.addEventListener("DOMContentLoaded", function(){
   setupUploadButton();
   setupShareButton();
 
+  // Mobile Navigation Toggle
+  function setupMobileNavigation() {
+      const toggleButton = document.querySelector('.mobile-nav-toggle');
+      const sidebar = document.getElementById('sidebar');
+      
+      if (toggleButton && sidebar) {
+          toggleButton.addEventListener('click', () => {
+              sidebar.classList.toggle('active');
+              sidebar.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+          });
+
+          // Close sidebar when clicking outside
+          document.addEventListener('click', (e) => {
+              if (sidebar.classList.contains('active') && 
+                  !sidebar.contains(e.target) && 
+                  !toggleButton.contains(e.target)) {
+                  sidebar.classList.remove('active');
+                  sidebar.style.display = 'none';
+              }
+          });
+
+          // Close sidebar when clicking a link
+          const navLinks = sidebar.querySelectorAll('.nav-link');
+          navLinks.forEach(link => {
+              link.addEventListener('click', () => {
+                  if (window.innerWidth <= 1024) {
+                      sidebar.classList.remove('active');
+                      sidebar.style.display = 'none';
+                  }
+              });
+          });
+      }
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+      // Initialize mobile navigation
+      setupMobileNavigation();
+      
+      // ...rest of the existing DOMContentLoaded code...
+  });
+
 }); // End DOMContentLoaded

@@ -137,9 +137,9 @@ body {
 /* Charts Container */
 .charts-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
-  gap: 2rem;
-  margin: 2rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
+  gap: 1.5rem;
+  margin: 1.5rem 0;
   width: 100%;
 }
 
@@ -147,9 +147,9 @@ body {
   background: white;
   padding: 1.5rem;
   border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   border: 1px solid var(--border);
-  min-height: 400px;
+  min-height: 350px;
   width: 100%;
   position: relative;
   display: flex;
@@ -160,6 +160,7 @@ body {
   flex: 1;
   min-height: 300px;
   max-height: 400px;
+  width: 100% !important;
 }
 
 .chart-box h3 {
@@ -331,7 +332,8 @@ button:active {
   }
 
   .chart-box {
-    min-height: 350px;
+    min-height: 300px;
+    margin-bottom: 1rem;
   }
 
   .chart-box canvas {
@@ -340,6 +342,15 @@ button:active {
 
   .key-results {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .result-box {
+    padding: 1.25rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
   }
 }
 
@@ -372,4 +383,58 @@ button:active {
   color: white !important;
   font-size: 0.9rem !important;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Mobile Navigation */
+.mobile-nav-toggle {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+  background: var(--primary);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .mobile-nav-toggle {
+    display: block;
+  }
+
+  #sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  #sidebar.active {
+    transform: translateX(0);
+  }
+
+  #main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-box {
+    min-height: 300px;
+    margin-bottom: 1rem;
+  }
+
+  .result-box {
+    padding: 1.25rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
 }
