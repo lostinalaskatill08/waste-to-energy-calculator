@@ -356,7 +356,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const investment = costPerTon > 0 ? (capacityMT * costPerTon) / 1e9 : 0; // Billion $
 
     // Ensure jobsFactor is valid
-    const jobs = investment > 0 ? Math.round(investment * 1000 * 4) : 0; // 4 jobs per $1M invested
+    const jobs = jobsFactor > 0 ? Math.round(investment * 1000 * jobsFactor) : 0; // Use jobsFactor dynamically
 
     const fuelYieldLiters = capacityMT * (fuelPercent / 100) * 300;
 
@@ -447,7 +447,7 @@ document.addEventListener("DOMContentLoaded", function(){
     document.getElementById("landfill-space-saved").textContent = `${formatNumber(totalLandfillSaved, 0)} cubic yards`;
     const totalLandfillBaseline = 243e6; // Correct baseline for total landfill space in cubic yards
     // Update landfill space saved percentage to cap at 100%
-    const landfillSpaceSavedPercentage = Math.min((totalLandfillSaved / totalLandfillBaseline) * 100, 100);
+    const landfillSpaceSavedPercentage = (totalLandfillSaved / totalLandfillBaseline) * 100;
 
     document.getElementById("landfill-percent").textContent = `${formatNumber(landfillSpaceSavedPercentage, 1)}% reduction`;
 
