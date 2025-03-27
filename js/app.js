@@ -1540,7 +1540,6 @@ document.addEventListener("DOMContentLoaded", function(){
                                   }
                               });
                               
-                              // Update calculations with new values
                               updateCalculations();
                               toggleLoader(false);
                               alert('Results imported successfully!');
