@@ -1217,23 +1217,47 @@ document.addEventListener("DOMContentLoaded", function(){
 
   function fallbackShare(textToCopy) {
     navigator.clipboard.writeText(textToCopy).then(() => {
-      alert('Results copied to clipboard!');
+      alert('Results copied to clipboard! You can now paste and share them.');
     }).catch(err => {
       console.error('Failed to copy results:', err);
-      alert('Could not copy results. Please copy manually.');
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = textToCopy;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        alert('Results copied to clipboard! You can now paste and share them.');
+      } catch (e) {
+        console.error('Failed to copy results:', e);
+        alert('Could not copy results. Please copy manually.');
+      }
+      document.body.removeChild(textarea);
     });
   }
   setupShareButton(); // Initialize share button listener
 
   // ========================
-  // 10. EXPORT FUNCTIONALITY
+  // 10. EXPORT/IMPORT FUNCTIONALITY
   // ========================
   function setupExportButton() {
       const exportButton = document.getElementById("export-button");
       if (exportButton) {
           exportButton.addEventListener("click", function() {
-              // Gather key results (can be expanded)
+              // Gather all input values for complete export
+              const inputValues = {};
+              parameterSliders.forEach(id => {
+                  const element = document.getElementById(id);
+                  if (element) {
+                      inputValues[id] = element.value;
+                  }
+              });
+
+              // Add toggle button states
+              inputValues.is_efficiency_first = document.getElementById("efficiency-first-button")?.classList.contains("active");
+
               const dataToExport = {
+                  inputs: inputValues,
                   dashboardSummary: {
                       energyEfficiencyImpact: document.getElementById("energy-efficiency-impact")?.textContent,
                       netEnergyImpact: document.getElementById("net-energy-impact")?.textContent,
@@ -1242,23 +1266,94 @@ document.addEventListener("DOMContentLoaded", function(){
                       totalInvestment: document.getElementById("total-investment")?.textContent,
                       paybackPeriod: document.getElementById("payback-period")?.textContent,
                       jobsCreated: document.getElementById("jobs-created")?.textContent,
-                  },
-                  // Could add detailed results from calculation functions if needed
+                  }
               };
+              
               const json = JSON.stringify(dataToExport, null, 2);
               const blob = new Blob([json], { type: "application/json" });
               const url = URL.createObjectURL(blob);
               const link = document.createElement("a");
               link.href = url;
               link.download = "waste-to-energy-results.json";
-              document.body.appendChild(link); // Required for Firefox
+              document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
               URL.revokeObjectURL(url);
           });
       }
   }
-  setupExportButton(); // Initialize export button listener
 
+  function setupUploadButton() {
+      const uploadButton = document.getElementById("upload-button");
+      if (uploadButton) {
+          uploadButton.addEventListener("click", function() {
+              // Create a hidden file input
+              const fileInput = document.createElement('input');
+              fileInput.type = 'file';
+              fileInput.accept = '.json';
+              fileInput.style.display = 'none';
+              
+              fileInput.addEventListener('change', function(e) {
+                  const file = e.target.files[0];
+                  if (file) {
+                      const reader = new FileReader();
+                      reader.onload = function(e) {
+                          try {
+                              const data = JSON.parse(e.target.result);
+                              
+                              // Restore input values
+                              if (data.inputs) {
+                                  // Set slider values
+                                  Object.entries(data.inputs).forEach(([id, value]) => {
+                                      if (id === 'is_efficiency_first') {
+                                          // Handle toggle button state
+                                          const effFirstBtn = document.getElementById('efficiency-first-button');
+                                          const genFirstBtn = document.getElementById('generation-first-button');
+                                          if (effFirstBtn && genFirstBtn) {
+                                              if (value) {
+                                                  effFirstBtn.classList.add('active');
+                                                  genFirstBtn.classList.remove('active');
+                                              } else {
+                                                  effFirstBtn.classList.remove('active');
+                                                  genFirstBtn.classList.add('active');
+                                              }
+                                          }
+                                      } else {
+                                          // Handle slider values
+                                          const slider = document.getElementById(id);
+                                          const displaySpan = document.getElementById(`${id}-value`);
+                                          if (slider) {
+                                              slider.value = value;
+                                              if (displaySpan) {
+                                                  displaySpan.textContent = formatDisplayValue(id, value);
+                                              }
+                                          }
+                                      }
+                                  });
+                                  
+                                  // Update calculations with new values
+                                  updateCalculations();
+                                  alert('Results imported successfully!');
+                              } else {
+                                  throw new Error('Invalid file format: missing inputs data');
+                              }
+                          } catch (error) {
+                              console.error('Error importing results:', error);
+                              alert('Error importing results. Please ensure you selected a valid export file.');
+                          }
+                      };
+                      reader.readAsText(file);
+                  }
+              });
+              
+              document.body.appendChild(fileInput);
+              fileInput.click();
+              document.body.removeChild(fileInput);
+          });
+      }
+  }
+
+  setupExportButton(); // Initialize export button listener
+  setupUploadButton(); // Initialize upload button listener
 
 }); // End DOMContentLoaded
