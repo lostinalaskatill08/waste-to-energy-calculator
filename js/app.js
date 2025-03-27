@@ -111,31 +111,48 @@ document.addEventListener("DOMContentLoaded", function(){
   // ========================
   // 2. SIDEBAR NAVIGATION
   // ========================
-  const navLinks = document.querySelectorAll(".nav-link");
-  navLinks.forEach(link => {
-    link.addEventListener("click", function(e){
-      e.preventDefault();
-      const target = this.getAttribute("data-target");
-      // Update active link style
-      navLinks.forEach(l => l.classList.remove('active'));
-      this.classList.add('active');
-      // Show target section, hide others
-      document.querySelectorAll(".content-section").forEach(section => {
-        if (section.id === target) {
-          section.classList.add("active");
-        } else {
-          section.classList.remove("active");
-        }
+  function initializeNavigation() {
+    const navLinks = document.querySelectorAll(".nav-link");
+    const sections = document.querySelectorAll(".content-section");
+
+    // First hide all sections
+    sections.forEach(section => section.classList.remove("active"));
+
+    // Then show the first section and activate its nav link
+    if (navLinks.length > 0 && sections.length > 0) {
+      const firstLink = navLinks[0];
+      const firstTarget = firstLink.getAttribute("data-target");
+      const firstSection = document.getElementById(firstTarget);
+
+      if (firstSection) {
+        firstSection.classList.add("active");
+        firstLink.classList.add("active");
+      }
+    }
+
+    navLinks.forEach(link => {
+      link.addEventListener("click", function(e){
+        e.preventDefault();
+        const target = this.getAttribute("data-target");
+        
+        // Update active link style
+        navLinks.forEach(l => l.classList.remove("active"));
+        this.classList.add("active");
+        
+        // Show target section, hide others
+        sections.forEach(section => {
+          if (section.id === target) {
+            section.classList.add("active");
+          } else {
+            section.classList.remove("active");
+          }
+        });
       });
     });
-  });
-  // Activate the first link/section by default
-  if (navLinks.length > 0) {
-    navLinks[0].classList.add('active');
-    const firstTarget = navLinks[0].getAttribute('data-target');
-    document.getElementById(firstTarget)?.classList.add('active');
   }
 
+  // Initialize navigation immediately
+  initializeNavigation();
 
   // ========================
   // 3. TOGGLE BUTTONS (Only Priority Toggle Remains)
