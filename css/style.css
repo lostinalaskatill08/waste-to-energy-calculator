@@ -23,14 +23,13 @@ body {
   background: var(--background);
 }
 
+/* Adjusting the layout to ensure the main content fills the page and is not pushed to the right */
 #container {
-  display: grid;
-  grid-template-columns: 250px 1fr;
+  display: flex;
+  flex-direction: row;
   min-height: 100vh;
-  position: relative;
 }
 
-/* Sidebar Styles */
 #sidebar {
   background: var(--sidebar-bg);
   padding: 2rem 1rem;
@@ -41,6 +40,7 @@ body {
   overflow-y: auto;
   z-index: 10;
   display: block; /* Ensure sidebar is visible by default on desktop */
+  flex-shrink: 0;
 }
 
 #sidebar h2 {
@@ -73,15 +73,15 @@ body {
 
 /* Main Content Area */
 #main-content {
-  margin-left: 250px;
+  margin-left: 0;
   padding: 2rem;
-  width: calc(100% - 250px);
-  max-width: 1400px;
+  max-width: 100%;
   position: relative;
   z-index: 2;
   background: var(--background);
   min-height: 100vh;
   box-sizing: border-box; /* Ensure padding is included in width calculation */
+  flex-grow: 1;
 }
 
 /* Section Styles */
